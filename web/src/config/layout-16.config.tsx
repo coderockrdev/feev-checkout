@@ -1,0 +1,118 @@
+import {
+  BarChart2,
+  Bolt,
+  Briefcase,
+  ChartLine,
+  Cog,
+  Download,
+  FileChartLine,
+  Handshake,
+  Megaphone,
+  Newspaper,
+  Palette,
+  SquareActivity,
+  UserRoundCog,
+  Users,
+} from 'lucide-react';
+import { MenuConfig } from '@/config/types';
+
+export const MENU_SIDEBAR_MAIN: MenuConfig = [
+  {
+    children: [
+      {
+        title: 'Home',
+        path: '#',
+        icon: Bolt,
+      },
+      {
+        title: 'Updates',
+        path: '/layout-16',
+        icon: Users,
+      },
+      {
+        title: 'Inbox',
+        path: '#',
+        icon: UserRoundCog,
+      },
+      {
+        title: 'Clients',
+        path: '#',
+        icon: Cog,
+        badge: 'Beta',
+      },
+      {
+        title: 'My Tasks',
+        path: '#',
+        icon: ChartLine,
+      },
+    ],
+  },
+];
+
+export const MENU_SIDEBAR_RESOURCES: MenuConfig = [
+  {
+    title: 'Resources',
+    children: [
+      {
+        title: 'About Metronic',
+        path: '#',
+        icon: Download,
+      },
+      {
+        title: 'Advertise',
+        path: '#',
+        icon: FileChartLine,
+        badge: 'Pro',
+      },
+      {
+        title: 'Help',
+        path: '#',
+        icon: SquareActivity,
+      },
+      {
+        title: 'Blog',
+        path: '#',
+        icon: Newspaper,
+      },
+      {
+        title: 'Careers',
+        path: '#',
+        icon: Briefcase,
+      },
+      {
+        title: 'Press',
+        path: '#',
+        icon: Megaphone,
+      },
+    ],
+  },
+];
+
+export const MENU_SIDEBAR_WORKSPACES: MenuConfig = [
+  {
+    title: 'Workspaces',
+    children: [
+      {
+        title: 'Business Concepts',
+        path: '#',
+        icon: Briefcase,
+      },
+      {
+        title: 'KeenThemes Studio',
+        path: '#',
+        icon: Palette,
+      },
+      {
+        title: 'Teams',
+        path: '#',
+        icon: Handshake,
+        badge: 'Pro',
+      },
+      {
+        title: 'Reports',
+        path: '#',
+        icon: BarChart2,
+      },
+    ],
+  },
+];
