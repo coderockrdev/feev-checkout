@@ -10,18 +10,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Transaction> Transactions => Set<Transaction>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(builder);
 
-        modelBuilder.Entity<Transaction>()
+        builder.Entity<Transaction>()
             .OwnsOne(transaction => transaction.Customer, customer =>
             {
                 customer.Property(customer => customer.Name).HasColumnName("CustomerName");
                 customer.Property(customer => customer.Document).HasColumnName("CustomerDocument");
             });
 
-        modelBuilder.Entity<Transaction>()
+        builder.Entity<Transaction>()
             .Property(transaction => transaction.PaymentRules)
             .HasConversion(
                 paymentRule => JsonSerializer.Serialize(paymentRule, (JsonSerializerOptions?)null),

@@ -7,6 +7,8 @@ namespace FeevCheckout.Services;
 public interface ITransactionService
 {
     Task<Transaction> CreateTransactionAsync(CreateTransactionRequest request);
+
+    Task<bool> CancelTransaction(Guid id);
 }
 
 public class TransactionService(AppDbContext context) : ITransactionService
@@ -74,5 +76,19 @@ public class TransactionService(AppDbContext context) : ITransactionService
         await Task.CompletedTask;
 
         return transaction;
+    }
+
+    public async Task<bool> CancelTransaction(Guid id)
+    {
+        var transaction = await _context.Transactions.FindAsync(id);
+
+        if (transaction == null || transaction.CanceledAt != null)
+            return false;
+
+        transaction.CanceledAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 }

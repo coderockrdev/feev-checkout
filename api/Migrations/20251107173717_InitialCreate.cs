@@ -21,6 +21,7 @@ namespace FeevCheckout.Migrations
                     CustomerDocument = table.Column<string>(type: "text", nullable: false),
                     TotalAmount = table.Column<int>(type: "integer", nullable: false),
                     PaymentRules = table.Column<string>(type: "jsonb", nullable: false),
+                    CanceledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>

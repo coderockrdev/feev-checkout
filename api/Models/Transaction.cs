@@ -45,5 +45,7 @@ public class Transaction
 
     public required List<PaymentRule> PaymentRules { get; set; }
 
+    public DateTime? CanceledAt { get; set; }
+
     public required DateTime CreatedAt { get; set; }
 }

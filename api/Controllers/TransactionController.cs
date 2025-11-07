@@ -19,4 +19,15 @@ public class TransactionController(ITransactionService transactionService) : Con
 
         return Ok(transaction);
     }
+
+    [HttpPost("{id:guid}/cancel")]
+    public async Task<IActionResult> CancelTransaction(Guid id)
+    {
+        var success = await transactionService.CancelTransaction(id);
+
+        if (!success)
+            return NotFound(new { message = "Transaction not found or already canceled." });
+
+        return Ok(new { message = "Transaction canceled successfully." });
+    }
 }
