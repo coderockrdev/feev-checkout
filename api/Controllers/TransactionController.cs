@@ -9,13 +9,26 @@ namespace FeevCheckout.Controllers;
 [Route("/transaction")]
 public class TransactionController(ITransactionService transactionService) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> ListTransactions(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
+    {
+        if (page <= 0 || pageSize <= 0)
+            return BadRequest(new { message = "Page and pageSize must be greater than 0." });
+
+        var result = await transactionService.ListTransactions(page, pageSize);
+
+        return Ok(result);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateTransaction([FromBody, Required] CreateTransactionRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var transaction = await transactionService.CreateTransactionAsync(request);
+        var transaction = await transactionService.CreateTransaction(request);
 
         return Ok(transaction);
     }

@@ -1,12 +1,15 @@
 using FeevCheckout.Data;
 using FeevCheckout.Dtos;
 using FeevCheckout.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FeevCheckout.Services;
 
 public interface ITransactionService
 {
-    Task<Transaction> CreateTransactionAsync(CreateTransactionRequest request);
+    Task<object> ListTransactions(int page, int pageSize);
+
+    Task<Transaction> CreateTransaction(CreateTransactionRequest request);
 
     Task<bool> CancelTransaction(Guid id);
 }
@@ -15,7 +18,48 @@ public class TransactionService(AppDbContext context) : ITransactionService
 {
     private readonly AppDbContext _context = context;
 
-    public async Task<Transaction> CreateTransactionAsync(CreateTransactionRequest request)
+    public async Task<object> ListTransactions(int page, int pageSize)
+    {
+        var query = _context.Transactions
+            .Include(transaction => transaction.Products)
+            .AsQueryable();
+
+        var totalCount = await query.CountAsync();
+
+        var transactions = await query
+            .OrderByDescending(transaction => transaction.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new
+        {
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+            Data = transactions.Select(transaction => new
+            {
+                transaction.Id,
+                transaction.EstablishmentId,
+                Customer = new
+                {
+                    transaction.Customer.Name,
+                    transaction.Customer.Document
+                },
+                Products = transaction.Products.Select(p => new
+                {
+                    p.Name,
+                    p.Price
+                }),
+                transaction.TotalAmount,
+                transaction.CreatedAt,
+                transaction.CanceledAt
+            })
+        };
+    }
+
+    public async Task<Transaction> CreateTransaction(CreateTransactionRequest request)
     {
         var totalAmount = request.Products.Sum(product => product.Price);
 
