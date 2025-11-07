@@ -22,6 +22,17 @@ public class TransactionController(ITransactionService transactionService) : Con
         return Ok(result);
     }
 
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetTransaction(Guid id)
+    {
+        var transaction = await transactionService.GetTransaction(id);
+
+        if (transaction == null)
+            return NotFound(new { message = "Transaction not found." });
+
+        return Ok(transaction);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateTransaction([FromBody, Required] CreateTransactionRequest request)
     {

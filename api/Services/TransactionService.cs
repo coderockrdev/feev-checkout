@@ -9,6 +9,8 @@ public interface ITransactionService
 {
     Task<object> ListTransactions(int page, int pageSize);
 
+    Task<Transaction?> GetTransaction(Guid id);
+
     Task<Transaction> CreateTransaction(CreateTransactionRequest request);
 
     Task<bool> CancelTransaction(Guid id);
@@ -38,25 +40,20 @@ public class TransactionService(AppDbContext context) : ITransactionService
             PageSize = pageSize,
             TotalCount = totalCount,
             TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
-            Data = transactions.Select(transaction => new
-            {
-                transaction.Id,
-                transaction.EstablishmentId,
-                Customer = new
-                {
-                    transaction.Customer.Name,
-                    transaction.Customer.Document
-                },
-                Products = transaction.Products.Select(p => new
-                {
-                    p.Name,
-                    p.Price
-                }),
-                transaction.TotalAmount,
-                transaction.CreatedAt,
-                transaction.CanceledAt
-            })
+            Data = transactions,
         };
+    }
+
+    public async Task<Transaction?> GetTransaction(Guid id)
+    {
+        var transaction = await _context.Transactions
+            .Include(transaction => transaction.Products)
+            .FirstOrDefaultAsync(transaction => transaction.Id == id);
+
+        if (transaction == null)
+            return null;
+
+        return transaction;
     }
 
     public async Task<Transaction> CreateTransaction(CreateTransactionRequest request)
