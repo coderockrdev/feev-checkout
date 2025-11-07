@@ -1,10 +1,49 @@
 namespace FeevCheckout.Models;
 
+public class Customer
+{
+    public required string Name { get; set; }
+
+    public required string Document { get; set; }
+}
+
+public class Installment
+{
+    public required int Number { get; set; }
+
+    public int? Fee { get; set; }
+
+    public string? FeeType { get; set; }
+
+    public int FinalAmount { get; set; }
+}
+
+public class PaymentRule
+{
+    public required string Type { get; set; }
+
+    public required List<Installment> Installments { get; set; }
+
+    public DateOnly? FirstInstallment { get; set; }
+
+    public int? Interest { get; set; }
+
+    public int? LateFee { get; set; }
+}
+
 public class Transaction
 {
-    public required int Id { get; set; }
+    public required Guid Id { get; set; }
 
-    public required string Establihsment { get; set; }
+    public required Guid EstablishmentId { get; set; }
 
-    public required decimal Amout { get; set; }
+    public required Customer Customer { get; set; }
+
+    public required int TotalAmount { get; set; }
+
+    public List<Product> Products { get; set; } = [];
+
+    public required List<PaymentRule> PaymentRules { get; set; }
+
+    public required DateTime CreatedAt { get; set; }
 }
