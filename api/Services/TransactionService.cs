@@ -20,6 +20,19 @@ public class TransactionService(AppDbContext context) : ITransactionService
 {
     private readonly AppDbContext _context = context;
 
+    private static int CalculateInstallmentFinalAmount(InstallmentDto installment, int totalAmount)
+    {
+        var finalAmount = totalAmount;
+
+        if (installment.Fee.HasValue && installment.FeeType == "amount")
+            finalAmount += installment.Fee.Value;
+
+        if (installment.Fee.HasValue && installment.FeeType == "percentage")
+            finalAmount += (int)Math.Round(totalAmount * (installment.Fee.Value / 100m));
+
+        return finalAmount;
+    }
+
     public async Task<object> ListTransactions(int page, int pageSize)
     {
         var query = _context.Transactions
@@ -65,20 +78,12 @@ public class TransactionService(AppDbContext context) : ITransactionService
             Type = paymentRule.Type,
             Installments = [.. paymentRule.Installments.Select(installment =>
                 {
-                    var finalAmount = totalAmount;
-
-                    if (installment.Fee.HasValue && installment.FeeType == "amount")
-                        finalAmount += installment.Fee.Value;
-
-                    if (installment.Fee.HasValue && installment.FeeType == "percentage")
-                        finalAmount += (int)Math.Round(totalAmount * (installment.Fee.Value / 100m));
-
                     return new Installment
                     {
                         Number = installment.Number,
                         Fee = installment.Fee,
                         FeeType = installment.FeeType,
-                        FinalAmount = finalAmount
+                        FinalAmount = CalculateInstallmentFinalAmount(installment, totalAmount),
                     };
                 })],
             FirstInstallment = paymentRule.FirstInstallment,

@@ -18,7 +18,7 @@ public record CustomerDto(
     string Document
 );
 
-public record InstallmentRuleDto(
+public record InstallmentDto(
     int Number,
     int? Fee,
     string? FeeType
@@ -45,7 +45,7 @@ public record InstallmentRuleDto(
 
 public record PaymentRuleDto(
     string Type,
-    List<InstallmentRuleDto> Installments,
+    List<InstallmentDto> Installments,
     DateOnly? FirstInstallment,
     int? Interest,
     int? LateFee
