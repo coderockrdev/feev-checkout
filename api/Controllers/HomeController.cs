@@ -7,5 +7,8 @@ namespace FeevCheckout.Controllers;
 public class HomeController : ControllerBase
 {
     [HttpGet]
-    public IActionResult Index() => Ok(new { status = "API is running 🚀" });
+    public IActionResult Index()
+    {
+        return Ok(new { status = "API is running." });
+    }
 }

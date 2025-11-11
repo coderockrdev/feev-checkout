@@ -5,7 +5,6 @@ namespace FeevCheckout.Dtos;
 public record ProductDto(
     [Required(ErrorMessage = "Product name is required.")]
     string Name,
-
     [Range(1, int.MaxValue, ErrorMessage = "Price must be greater than 0.")]
     int Price
 );
@@ -13,7 +12,6 @@ public record ProductDto(
 public record CustomerDto(
     [Required(ErrorMessage = "Customer name is required.")]
     string Name,
-
     [Required(ErrorMessage = "Customer document is required.")]
     string Document
 );
@@ -54,15 +52,18 @@ public record PaymentRuleDto(
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (Type is not ("braspag_cartao" or "feev_pix" or "feev_boleto"))
-            yield return new ValidationResult("Type must be 'braspag_cartao', 'feev_pix' or 'feev_boleto'.", [nameof(Type)]);
+            yield return new ValidationResult("Type must be 'braspag_cartao', 'feev_pix' or 'feev_boleto'.",
+                [nameof(Type)]);
 
         if (Type == "feev_boleto")
         {
             if (FirstInstallment == null)
-                yield return new ValidationResult("FirstInstallment is required for 'feev_boleto'.", [nameof(FirstInstallment)]);
+                yield return new ValidationResult("FirstInstallment is required for 'feev_boleto'.",
+                    [nameof(FirstInstallment)]);
 
             if (FirstInstallment.HasValue && FirstInstallment.Value <= DateOnly.FromDateTime(DateTime.Now))
-                yield return new ValidationResult("FirstInstallment must be a future date.", [nameof(FirstInstallment)]);
+                yield return new ValidationResult("FirstInstallment must be a future date.",
+                    [nameof(FirstInstallment)]);
 
             // Ensure interest > 0 if sent
             if (Interest.HasValue && Interest <= 0)
@@ -77,7 +78,7 @@ public record PaymentRuleDto(
 
 public record CreateTransactionRequest(
     [Required] Guid EstablishmentId,
-    [Required, MinLength(1)] List<ProductDto> Products,
+    [Required] [MinLength(1)] List<ProductDto> Products,
     [Required] CustomerDto Customer,
-    [Required, MinLength(1)] List<PaymentRuleDto> PaymentRules
+    [Required] [MinLength(1)] List<PaymentRuleDto> PaymentRules
 );

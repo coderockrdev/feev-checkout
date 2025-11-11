@@ -1,11 +1,15 @@
 using System.Text.Json;
+
 using FeevCheckout.Models;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace FeevCheckout.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    public DbSet<Establishment> Establishments => Set<Establishment>();
+
     public DbSet<Product> Products => Set<Product>();
 
     public DbSet<Transaction> Transactions => Set<Transaction>();

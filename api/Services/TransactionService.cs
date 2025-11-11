@@ -1,6 +1,7 @@
 using FeevCheckout.Data;
 using FeevCheckout.Dtos;
 using FeevCheckout.Models;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace FeevCheckout.Services;
@@ -19,19 +20,6 @@ public interface ITransactionService
 public class TransactionService(AppDbContext context) : ITransactionService
 {
     private readonly AppDbContext _context = context;
-
-    private static int CalculateInstallmentFinalAmount(InstallmentDto installment, int totalAmount)
-    {
-        var finalAmount = totalAmount;
-
-        if (installment.Fee.HasValue && installment.FeeType == "amount")
-            finalAmount += installment.Fee.Value;
-
-        if (installment.Fee.HasValue && installment.FeeType == "percentage")
-            finalAmount += (int)Math.Round(totalAmount * (installment.Fee.Value / 100m));
-
-        return finalAmount;
-    }
 
     public async Task<object> ListTransactions(int page, int pageSize)
     {
@@ -53,20 +41,15 @@ public class TransactionService(AppDbContext context) : ITransactionService
             PageSize = pageSize,
             TotalCount = totalCount,
             TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
-            Data = transactions,
+            Data = transactions
         };
     }
 
     public async Task<Transaction?> GetTransaction(Guid id)
     {
-        var transaction = await _context.Transactions
+        return await _context.Transactions
             .Include(transaction => transaction.Products)
             .FirstOrDefaultAsync(transaction => transaction.Id == id);
-
-        if (transaction == null)
-            return null;
-
-        return transaction;
     }
 
     public async Task<Transaction> CreateTransaction(CreateTransactionRequest request)
@@ -76,16 +59,19 @@ public class TransactionService(AppDbContext context) : ITransactionService
         var paymentRules = request.PaymentRules.Select(paymentRule => new PaymentRule
         {
             Type = paymentRule.Type,
-            Installments = [.. paymentRule.Installments.Select(installment =>
+            Installments =
+            [
+                .. paymentRule.Installments.Select(installment =>
                 {
                     return new Installment
                     {
                         Number = installment.Number,
                         Fee = installment.Fee,
                         FeeType = installment.FeeType,
-                        FinalAmount = CalculateInstallmentFinalAmount(installment, totalAmount),
+                        FinalAmount = CalculateInstallmentFinalAmount(installment, totalAmount)
                     };
-                })],
+                })
+            ],
             FirstInstallment = paymentRule.FirstInstallment,
             Interest = paymentRule.Interest,
             LateFee = paymentRule.LateFee
@@ -98,7 +84,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
             Customer = new Customer
             {
                 Name = request.Customer.Name,
-                Document = request.Customer.Document,
+                Document = request.Customer.Document
             },
             TotalAmount = totalAmount,
             PaymentRules = [.. paymentRules],
@@ -136,5 +122,18 @@ public class TransactionService(AppDbContext context) : ITransactionService
         await _context.SaveChangesAsync();
 
         return true;
+    }
+
+    private static int CalculateInstallmentFinalAmount(InstallmentDto installment, int totalAmount)
+    {
+        var finalAmount = totalAmount;
+
+        if (installment.Fee.HasValue && installment.FeeType == "amount")
+            finalAmount += installment.Fee.Value;
+
+        if (installment.Fee.HasValue && installment.FeeType == "percentage")
+            finalAmount += (int)Math.Round(totalAmount * (installment.Fee.Value / 100m));
+
+        return finalAmount;
     }
 }

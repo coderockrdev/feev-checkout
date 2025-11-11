@@ -1,23 +1,26 @@
 using System.ComponentModel.DataAnnotations;
+
 using FeevCheckout.Dtos;
 using FeevCheckout.Services;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FeevCheckout.Controllers;
 
 [ApiController]
 [Route("/transaction")]
+[Authorize]
 public class TransactionController(ITransactionService transactionService) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> ListTransactions(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10)
+        [FromQuery] ListTransactionsRequest request)
     {
-        if (page <= 0 || pageSize <= 0)
+        if (request.Page <= 0 || request.PageSize <= 0)
             return BadRequest(new { message = "Page and pageSize must be greater than 0." });
 
-        var result = await transactionService.ListTransactions(page, pageSize);
+        var result = await transactionService.ListTransactions(request.Page, request.PageSize);
 
         return Ok(result);
     }
@@ -34,7 +37,7 @@ public class TransactionController(ITransactionService transactionService) : Con
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateTransaction([FromBody, Required] CreateTransactionRequest request)
+    public async Task<IActionResult> CreateTransaction([FromBody] [Required] CreateTransactionRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
