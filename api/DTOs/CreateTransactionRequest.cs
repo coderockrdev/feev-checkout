@@ -9,11 +9,26 @@ public record ProductDto(
     int Price
 );
 
+public record AddressDto(
+    [Required(ErrorMessage = "Customer street is required.")]
+    string Street,
+    [Required(ErrorMessage = "Customer city is required.")]
+    string City,
+    [Required(ErrorMessage = "Customer UF is required.")]
+    string UF,
+    [Required(ErrorMessage = "Customer postal code is required.")]
+    string PostalCode
+);
+
 public record CustomerDto(
     [Required(ErrorMessage = "Customer name is required.")]
     string Name,
     [Required(ErrorMessage = "Customer document is required.")]
-    string Document
+    string Document,
+    [Required(ErrorMessage = "Customer e-mail is required.")]
+    string Email,
+    [Required(ErrorMessage = "Customer address is required.")]
+    AddressDto Address
 );
 
 public record InstallmentDto(
@@ -77,7 +92,8 @@ public record PaymentRuleDto(
 }
 
 public record CreateTransactionRequest(
-    [Required] [MinLength(1)] List<ProductDto> Products,
+    [Required] string Description,
+    [Required][MinLength(1)] List<ProductDto> Products,
     [Required] CustomerDto Customer,
-    [Required] [MinLength(1)] List<PaymentRuleDto> PaymentRules
+    [Required][MinLength(1)] List<PaymentRuleDto> PaymentRules
 );

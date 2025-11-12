@@ -80,6 +80,10 @@ namespace FeevCheckout.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("EstablishmentId")
                         .HasColumnType("uuid");
 
@@ -137,6 +141,42 @@ namespace FeevCheckout.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("TransactionId");
+
+                            b1.OwnsOne("FeevCheckout.Models.Address", "Address", b2 =>
+                                {
+                                    b2.Property<Guid>("CustomerTransactionId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<string>("City")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("CustomerAddressCity");
+
+                                    b2.Property<string>("PostalCode")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("CustomerAddressPostalCode");
+
+                                    b2.Property<string>("Street")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("CustomerAddressStreet");
+
+                                    b2.Property<string>("UF")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("CustomerAddressUF");
+
+                                    b2.HasKey("CustomerTransactionId");
+
+                                    b2.ToTable("Transactions");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("CustomerTransactionId");
+                                });
+
+                            b1.Navigation("Address")
+                                .IsRequired();
                         });
 
                     b.Navigation("Customer")
