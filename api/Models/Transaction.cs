@@ -37,6 +37,8 @@ public class Transaction
 
     public required Guid EstablishmentId { get; set; }
 
+    public Establishment? Establishment { get; set; }
+
     public required Customer Customer { get; set; }
 
     public required int TotalAmount { get; set; }

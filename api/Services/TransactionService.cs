@@ -8,23 +8,24 @@ namespace FeevCheckout.Services;
 
 public interface ITransactionService
 {
-    Task<object> ListTransactions(int page, int pageSize);
+    Task<object> ListTransactions(Guid establishmentId, int page, int pageSize);
 
-    Task<Transaction?> GetTransaction(Guid id);
+    Task<Transaction?> GetTransaction(Guid establishmentId, Guid id);
 
-    Task<Transaction> CreateTransaction(CreateTransactionRequest request);
+    Task<Transaction> CreateTransaction(Guid establishmentId, CreateTransactionRequest request);
 
-    Task<bool> CancelTransaction(Guid id);
+    Task<bool> CancelTransaction(Guid establishmentId, Guid id);
 }
 
 public class TransactionService(AppDbContext context) : ITransactionService
 {
     private readonly AppDbContext _context = context;
 
-    public async Task<object> ListTransactions(int page, int pageSize)
+    public async Task<object> ListTransactions(Guid establishmentId, int page, int pageSize)
     {
         var query = _context.Transactions
             .Include(transaction => transaction.Products)
+            .Where(transaction => transaction.EstablishmentId == establishmentId)
             .AsQueryable();
 
         var totalCount = await query.CountAsync();
@@ -45,14 +46,17 @@ public class TransactionService(AppDbContext context) : ITransactionService
         };
     }
 
-    public async Task<Transaction?> GetTransaction(Guid id)
+    public async Task<Transaction?> GetTransaction(Guid establishmentId, Guid id)
     {
         return await _context.Transactions
             .Include(transaction => transaction.Products)
-            .FirstOrDefaultAsync(transaction => transaction.Id == id);
+            .FirstOrDefaultAsync(transaction =>
+                transaction.Id == id &&
+                transaction.EstablishmentId == establishmentId
+            );
     }
 
-    public async Task<Transaction> CreateTransaction(CreateTransactionRequest request)
+    public async Task<Transaction> CreateTransaction(Guid establishmentId, CreateTransactionRequest request)
     {
         var totalAmount = request.Products.Sum(product => product.Price);
 
@@ -80,7 +84,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
         var transaction = new Transaction
         {
             Id = Guid.NewGuid(),
-            EstablishmentId = request.EstablishmentId,
+            EstablishmentId = establishmentId,
             Customer = new Customer
             {
                 Name = request.Customer.Name,
@@ -110,9 +114,10 @@ public class TransactionService(AppDbContext context) : ITransactionService
         return transaction;
     }
 
-    public async Task<bool> CancelTransaction(Guid id)
+    public async Task<bool> CancelTransaction(Guid establishmentId, Guid id)
     {
-        var transaction = await _context.Transactions.FindAsync(id);
+        var transaction = await _context.Transactions
+            .FirstOrDefaultAsync(transaction => transaction.Id == id && transaction.EstablishmentId == establishmentId);
 
         if (transaction == null || transaction.CanceledAt != null)
             return false;

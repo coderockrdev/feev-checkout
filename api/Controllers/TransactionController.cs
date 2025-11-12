@@ -11,16 +11,18 @@ namespace FeevCheckout.Controllers;
 [ApiController]
 [Route("/transaction")]
 [Authorize]
-public class TransactionController(ITransactionService transactionService) : ControllerBase
+public class TransactionController(ITransactionService transactionService) : ExtendedController
 {
     [HttpGet]
     public async Task<IActionResult> ListTransactions(
         [FromQuery] ListTransactionsRequest request)
     {
-        if (request.Page <= 0 || request.PageSize <= 0)
-            return BadRequest(new { message = "Page and pageSize must be greater than 0." });
+        var establishmentId = ResolveEstablishmentGuid();
 
-        var result = await transactionService.ListTransactions(request.Page, request.PageSize);
+        if (request.Page <= 0 || request.PageSize <= 0)
+            return BadRequest(new { message = "page and pageSize must be greater than 0." });
+
+        var result = await transactionService.ListTransactions(establishmentId, request.Page, request.PageSize);
 
         return Ok(result);
     }
@@ -28,7 +30,8 @@ public class TransactionController(ITransactionService transactionService) : Con
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetTransaction(Guid id)
     {
-        var transaction = await transactionService.GetTransaction(id);
+        var establishmentId = ResolveEstablishmentGuid();
+        var transaction = await transactionService.GetTransaction(establishmentId, id);
 
         if (transaction == null)
             return NotFound(new { message = "Transaction not found." });
@@ -42,7 +45,8 @@ public class TransactionController(ITransactionService transactionService) : Con
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var transaction = await transactionService.CreateTransaction(request);
+        var establishmentId = ResolveEstablishmentGuid();
+        var transaction = await transactionService.CreateTransaction(establishmentId, request);
 
         return Ok(transaction);
     }
@@ -50,7 +54,8 @@ public class TransactionController(ITransactionService transactionService) : Con
     [HttpPost("{id:guid}/cancel")]
     public async Task<IActionResult> CancelTransaction(Guid id)
     {
-        var success = await transactionService.CancelTransaction(id);
+        var establishmentId = ResolveEstablishmentGuid();
+        var success = await transactionService.CancelTransaction(establishmentId, id);
 
         if (!success)
             return NotFound(new { message = "Transaction not found or already canceled." });

@@ -1,5 +1,4 @@
-using System;
-
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -42,6 +41,12 @@ namespace FeevCheckout.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Transactions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Transactions_Establishments_EstablishmentId",
+                        column: x => x.EstablishmentId,
+                        principalTable: "Establishments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -68,19 +73,24 @@ namespace FeevCheckout.Migrations
                 name: "IX_Products_TransactionId",
                 table: "Products",
                 column: "TransactionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Transactions_EstablishmentId",
+                table: "Transactions",
+                column: "EstablishmentId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Establishments");
-
-            migrationBuilder.DropTable(
                 name: "Products");
 
             migrationBuilder.DropTable(
                 name: "Transactions");
+
+            migrationBuilder.DropTable(
+                name: "Establishments");
         }
     }
 }

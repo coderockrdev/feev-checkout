@@ -44,6 +44,7 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
 
         var claims = new[]
         {
+            new Claim("id", establishment.Id.ToString()),
             new Claim("username", establishment.Username),
             new Claim("name", establishment.Name)
         };

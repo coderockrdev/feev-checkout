@@ -77,7 +77,6 @@ public record PaymentRuleDto(
 }
 
 public record CreateTransactionRequest(
-    [Required] Guid EstablishmentId,
     [Required] [MinLength(1)] List<ProductDto> Products,
     [Required] CustomerDto Customer,
     [Required] [MinLength(1)] List<PaymentRuleDto> PaymentRules
