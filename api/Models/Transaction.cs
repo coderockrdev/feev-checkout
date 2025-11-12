@@ -1,10 +1,23 @@
 namespace FeevCheckout.Models;
 
+public class Address
+{
+    public required string Street { get; set; }
+
+    public required string City { get; set; }
+
+    public required string UF { get; set; }
+
+    public required string PostalCode { get; set; }
+}
+
 public class Customer
 {
     public required string Name { get; set; }
 
     public required string Document { get; set; }
+
+    public required Address Address { get; set; }
 }
 
 public class Installment
@@ -38,6 +51,8 @@ public class Transaction
     public required Guid EstablishmentId { get; set; }
 
     public Establishment? Establishment { get; set; }
+
+    public required string Description { get; set; }
 
     public required Customer Customer { get; set; }
 

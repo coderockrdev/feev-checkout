@@ -85,10 +85,18 @@ public class TransactionService(AppDbContext context) : ITransactionService
         {
             Id = Guid.NewGuid(),
             EstablishmentId = establishmentId,
+            Description = request.Description,
             Customer = new Customer
             {
                 Name = request.Customer.Name,
-                Document = request.Customer.Document
+                Document = request.Customer.Document,
+                Address = new Address
+                {
+                    Street = request.Customer.Address.Street,
+                    City = request.Customer.Address.City,
+                    UF = request.Customer.Address.UF,
+                    PostalCode = request.Customer.Address.PostalCode,
+                }
             },
             TotalAmount = totalAmount,
             PaymentRules = [.. paymentRules],

@@ -31,8 +31,13 @@ namespace FeevCheckout.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     EstablishmentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
                     CustomerName = table.Column<string>(type: "text", nullable: false),
                     CustomerDocument = table.Column<string>(type: "text", nullable: false),
+                    CustomerAddressStreet = table.Column<string>(type: "text", nullable: false),
+                    CustomerAddressCity = table.Column<string>(type: "text", nullable: false),
+                    CustomerAddressUF = table.Column<string>(type: "text", nullable: false),
+                    CustomerAddressPostalCode = table.Column<string>(type: "text", nullable: false),
                     TotalAmount = table.Column<int>(type: "integer", nullable: false),
                     PaymentRules = table.Column<string>(type: "jsonb", nullable: false),
                     CanceledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),

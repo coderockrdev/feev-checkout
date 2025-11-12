@@ -23,6 +23,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             {
                 customer.Property(customer => customer.Name).HasColumnName("CustomerName");
                 customer.Property(customer => customer.Document).HasColumnName("CustomerDocument");
+
+                customer.OwnsOne(customer => customer.Address, address =>
+                {
+                    address.Property(address => address.Street).HasColumnName("CustomerAddressStreet");
+                    address.Property(address => address.City).HasColumnName("CustomerAddressCity");
+                    address.Property(address => address.UF).HasColumnName("CustomerAddressUF");
+                    address.Property(address => address.PostalCode).HasColumnName("CustomerAddressPostalCode");
+                });
             });
 
         builder.Entity<Transaction>()
