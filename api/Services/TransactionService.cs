@@ -90,6 +90,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
             {
                 Name = request.Customer.Name,
                 Document = request.Customer.Document,
+                Email = request.Customer.Email,
                 Address = new Address
                 {
                     Street = request.Customer.Address.Street,

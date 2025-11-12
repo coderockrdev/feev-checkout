@@ -23,6 +23,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             {
                 customer.Property(customer => customer.Name).HasColumnName("CustomerName");
                 customer.Property(customer => customer.Document).HasColumnName("CustomerDocument");
+                customer.Property(customer => customer.Email).HasColumnName("CustomerEmail");
 
                 customer.OwnsOne(customer => customer.Address, address =>
                 {
