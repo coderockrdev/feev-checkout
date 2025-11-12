@@ -40,7 +40,7 @@ public class TransactionController(ITransactionService transactionService) : Ext
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateTransaction([FromBody] [Required] CreateTransactionRequest request)
+    public async Task<IActionResult> CreateTransaction([FromBody][Required] CreateTransactionRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
