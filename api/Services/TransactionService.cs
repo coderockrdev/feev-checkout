@@ -96,7 +96,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
                     Street = request.Customer.Address.Street,
                     City = request.Customer.Address.City,
                     UF = request.Customer.Address.UF,
-                    PostalCode = request.Customer.Address.PostalCode,
+                    PostalCode = request.Customer.Address.PostalCode
                 }
             },
             TotalAmount = totalAmount,
@@ -116,6 +116,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
         }).ToList();
 
         _context.Products.AddRange(products);
+
         await _context.SaveChangesAsync();
 
         await Task.CompletedTask;

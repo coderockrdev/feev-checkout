@@ -25,10 +25,11 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
     private readonly AppDbContext context = context;
 
     private readonly string jwtKey = configuration["AppSettings:JwtKey"]
-                                     ?? throw new InvalidOperationException("JWT Key not found or not specified");
+                                     ?? throw new InvalidOperationException("JWT Key not found or not specified.");
 
     private readonly string secretKey = configuration["AppSettings:SecretKey"]
-                                        ?? throw new InvalidOperationException("Secret Key not found or not specified");
+                                        ?? throw new InvalidOperationException(
+                                            "Secret Key not found or not specified.");
 
     public bool ValidateSecret(Establishment establishment, string input)
     {

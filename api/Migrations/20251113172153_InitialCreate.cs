@@ -26,6 +26,26 @@ namespace FeevCheckout.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Credentials",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    EstablishmentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Method = table.Column<string>(type: "text", nullable: false),
+                    Data = table.Column<string>(type: "jsonb", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Credentials", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Credentials_Establishments_EstablishmentId",
+                        column: x => x.EstablishmentId,
+                        principalTable: "Establishments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Transactions",
                 columns: table => new
                 {
@@ -34,6 +54,7 @@ namespace FeevCheckout.Migrations
                     Description = table.Column<string>(type: "text", nullable: false),
                     CustomerName = table.Column<string>(type: "text", nullable: false),
                     CustomerDocument = table.Column<string>(type: "text", nullable: false),
+                    CustomerEmail = table.Column<string>(type: "text", nullable: false),
                     CustomerAddressStreet = table.Column<string>(type: "text", nullable: false),
                     CustomerAddressCity = table.Column<string>(type: "text", nullable: false),
                     CustomerAddressUF = table.Column<string>(type: "text", nullable: false),
@@ -50,6 +71,28 @@ namespace FeevCheckout.Migrations
                         name: "FK_Transactions_Establishments_EstablishmentId",
                         column: x => x.EstablishmentId,
                         principalTable: "Establishments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentAttempts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TransactionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Method = table.Column<string>(type: "text", nullable: false),
+                    ReferenceId = table.Column<string>(type: "text", nullable: true),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentAttempts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PaymentAttempts_Transactions_TransactionId",
+                        column: x => x.TransactionId,
+                        principalTable: "Transactions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -75,6 +118,16 @@ namespace FeevCheckout.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Credentials_EstablishmentId",
+                table: "Credentials",
+                column: "EstablishmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentAttempts_TransactionId",
+                table: "PaymentAttempts",
+                column: "TransactionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_TransactionId",
                 table: "Products",
                 column: "TransactionId");
@@ -88,6 +141,12 @@ namespace FeevCheckout.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Credentials");
+
+            migrationBuilder.DropTable(
+                name: "PaymentAttempts");
+
             migrationBuilder.DropTable(
                 name: "Products");
 

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeevCheckout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251112134002_InitialCreate")]
+    [Migration("20251113172153_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,6 +24,30 @@ namespace FeevCheckout.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("FeevCheckout.Models.Credential", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("EstablishmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstablishmentId");
+
+                    b.ToTable("Credentials");
+                });
 
             modelBuilder.Entity("FeevCheckout.Models.Establishment", b =>
                 {
@@ -46,6 +70,36 @@ namespace FeevCheckout.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Establishments");
+                });
+
+            modelBuilder.Entity("FeevCheckout.Models.PaymentAttempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReferenceId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransactionId");
+
+                    b.ToTable("PaymentAttempts");
                 });
 
             modelBuilder.Entity("FeevCheckout.Models.Product", b =>
@@ -104,6 +158,28 @@ namespace FeevCheckout.Migrations
                     b.ToTable("Transactions");
                 });
 
+            modelBuilder.Entity("FeevCheckout.Models.Credential", b =>
+                {
+                    b.HasOne("FeevCheckout.Models.Establishment", "Establishment")
+                        .WithMany()
+                        .HasForeignKey("EstablishmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Establishment");
+                });
+
+            modelBuilder.Entity("FeevCheckout.Models.PaymentAttempt", b =>
+                {
+                    b.HasOne("FeevCheckout.Models.Transaction", "Transaction")
+                        .WithMany()
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Transaction");
+                });
+
             modelBuilder.Entity("FeevCheckout.Models.Product", b =>
                 {
                     b.HasOne("FeevCheckout.Models.Transaction", "Transaction")
@@ -132,6 +208,11 @@ namespace FeevCheckout.Migrations
                                 .IsRequired()
                                 .HasColumnType("text")
                                 .HasColumnName("CustomerDocument");
+
+                            b1.Property<string>("Email")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("CustomerEmail");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
