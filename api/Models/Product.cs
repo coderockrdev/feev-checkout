@@ -10,5 +10,5 @@ public class Product
 
     public required Guid TransactionId { get; set; }
 
-    public Transaction Transaction { get; set; } = default!;
+    public Transaction? Transaction { get; set; }
 }

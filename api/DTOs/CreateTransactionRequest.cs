@@ -93,7 +93,7 @@ public record PaymentRuleDto(
 
 public record CreateTransactionRequest(
     [Required] string Description,
-    [Required][MinLength(1)] List<ProductDto> Products,
+    [Required] [MinLength(1)] List<ProductDto> Products,
     [Required] CustomerDto Customer,
-    [Required][MinLength(1)] List<PaymentRuleDto> PaymentRules
+    [Required] [MinLength(1)] List<PaymentRuleDto> PaymentRules
 );

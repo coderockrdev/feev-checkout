@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using FeevCheckout.Data;
 using FeevCheckout.Services;
+using FeevCheckout.Services.Payments;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtKey = builder.Configuration["AppSettings:JwtKey"]
-             ?? throw new InvalidOperationException("JWT Key not found or not specified");
+             ?? throw new InvalidOperationException("JWT Key not found or not specified.");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -39,8 +40,13 @@ builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 builder.Services.AddGrpcSwagger();
 
+builder.Services.AddScoped<ICredentialService, CredentialService>();
 builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<PaymentProcessorFactory>();
+
+builder.Services.AddScoped<IPaymentProcessor, FeevPixPaymentProcessor>();
 
 var app = builder.Build();
 

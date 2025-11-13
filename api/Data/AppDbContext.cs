@@ -8,7 +8,11 @@ namespace FeevCheckout.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    public DbSet<Credential> Credentials => Set<Credential>();
+
     public DbSet<Establishment> Establishments => Set<Establishment>();
+
+    public DbSet<PaymentAttempt> PaymentAttempts => Set<PaymentAttempt>();
 
     public DbSet<Product> Products => Set<Product>();
 
@@ -17,6 +21,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<Credential>()
+            .Property(transaction => transaction.Data)
+            .HasConversion(
+                data => JsonSerializer.Serialize(data, (JsonSerializerOptions?)null),
+                data => JsonSerializer.Deserialize<Dictionary<string, string>>(data, (JsonSerializerOptions?)null)!
+            )
+            .HasColumnType("jsonb");
 
         builder.Entity<Transaction>()
             .OwnsOne(transaction => transaction.Customer, customer =>
