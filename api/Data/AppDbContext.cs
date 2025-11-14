@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(builder);
 
+        builder.HasPostgresEnum<PaymentMethod>();
+        builder.HasPostgresEnum<PaymentAttemptStatus>();
+
+        builder.Entity<Credential>()
+            .Property(transaction => transaction.Method)
+            .HasColumnType("payment_method");
+
         builder.Entity<Credential>()
             .Property(transaction => transaction.Data)
             .HasConversion(
@@ -29,6 +37,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 data => JsonSerializer.Deserialize<Dictionary<string, string>>(data, (JsonSerializerOptions?)null)!
             )
             .HasColumnType("jsonb");
+
+        builder.Entity<PaymentAttempt>()
+            .Property(paymentAttemp => paymentAttemp.Method)
+            .HasColumnType("payment_method");
+
+        builder.Entity<PaymentAttempt>()
+            .Property(paymentAttemp => paymentAttemp.Status)
+            .HasColumnType("payment_attempt_status");
 
         builder.Entity<Transaction>()
             .OwnsOne(transaction => transaction.Customer, customer =>

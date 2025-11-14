@@ -1,3 +1,5 @@
+using FeevCheckout.Enums;
+
 namespace FeevCheckout.Models;
 
 public class Credential
@@ -8,7 +10,7 @@ public class Credential
 
     public Establishment? Establishment { get; set; }
 
-    public required string Method { get; set; }
+    public required PaymentMethod Method { get; set; }
 
     public required Dictionary<string, string> Data { get; set; }
 }

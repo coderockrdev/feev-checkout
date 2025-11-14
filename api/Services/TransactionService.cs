@@ -62,7 +62,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
 
         var paymentRules = request.PaymentRules.Select(paymentRule => new PaymentRule
         {
-            Type = paymentRule.Type,
+            Method = paymentRule.Method,
             Installments =
             [
                 .. paymentRule.Installments.Select(installment =>

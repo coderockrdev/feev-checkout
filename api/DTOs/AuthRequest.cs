@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 namespace FeevCheckout.Dtos;
 
 public record AuthRequest(
-    [Required] string Username,
-    [Required] string Secret
+    [Required(ErrorMessage = "Username is required.")]
+    string Username,
+    [Required(ErrorMessage = "Secret is required.")]
+    string Secret
 );

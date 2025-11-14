@@ -1,3 +1,5 @@
+using FeevCheckout.Enums;
+
 namespace FeevCheckout.Models;
 
 public class PaymentAttempt
@@ -8,11 +10,11 @@ public class PaymentAttempt
 
     public Transaction? Transaction { get; set; }
 
-    public required string Method { get; set; }
+    public required PaymentMethod Method { get; set; }
 
     public required string? ReferenceId { get; set; }
 
-    public required string Status { get; set; }
+    public required PaymentAttemptStatus Status { get; set; }
 
     public required DateTime CreatedAt { get; set; }
 }

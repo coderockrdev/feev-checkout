@@ -1,3 +1,4 @@
+using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
 using Flurl;
@@ -53,7 +54,7 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
                                          ?? throw new InvalidOperationException(
                                              "Feev Pix base URL not found or not specified.");
 
-    public string Method => "feev_pix";
+    public PaymentMethod Method => PaymentMethod.FeevPix;
 
     public async Task<PaymentResult> ProcessAsync(Credential credentials, Transaction transaction)
     {
