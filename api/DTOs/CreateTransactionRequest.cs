@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 
+using FeevCheckout.Enums;
+
 namespace FeevCheckout.Dtos;
 
 public record ProductDto(
     [Required(ErrorMessage = "Product name is required.")]
     string Name,
-    [Range(1, int.MaxValue, ErrorMessage = "Price must be greater than 0.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Product price must be greater than 0.")]
     int Price
 );
 
@@ -32,6 +34,7 @@ public record CustomerDto(
 );
 
 public record InstallmentDto(
+    [Required(ErrorMessage = "Installment number is required.")]
     int Number,
     int? Fee,
     string? FeeType
@@ -40,24 +43,28 @@ public record InstallmentDto(
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (Number <= 0)
-            yield return new ValidationResult("Number must be greater than 0.", [nameof(Number)]);
+            yield return new ValidationResult("Installment number must be greater than 0.", [nameof(Number)]);
 
         if (Fee.HasValue)
         {
             // Ensure fee > 0 if is sent
             if (Fee <= 0)
-                yield return new ValidationResult("Fee must be greater than 0.", [nameof(Fee)]);
+                yield return new ValidationResult("Installment Fee must be greater than 0.", [nameof(Fee)]);
 
             // Ensure feeType is sent if fee is sent
             // Ensure feeType is "percentage" or "amount" if sent
             if (string.IsNullOrEmpty(FeeType) || FeeType is not ("percentage" or "amount"))
-                yield return new ValidationResult("FeeType must be 'percentage' or 'amount'.", [nameof(FeeType)]);
+                yield return new ValidationResult("Installment fee type must be 'percentage' or 'amount'.",
+                    [nameof(FeeType)]);
         }
     }
 }
 
 public record PaymentRuleDto(
-    string Type,
+    [Required(ErrorMessage = "Payment rule method is required.")]
+    [EnumDataType(typeof(PaymentMethod), ErrorMessage = "Payment rule method not supported.")]
+    PaymentMethod Method,
+    [Required(ErrorMessage = "Payment rule installments is required.")]
     List<InstallmentDto> Installments,
     DateOnly? FirstInstallment,
     int? Interest,
@@ -66,34 +73,36 @@ public record PaymentRuleDto(
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (Type is not ("braspag_cartao" or "feev_pix" or "feev_boleto"))
-            yield return new ValidationResult("Type must be 'braspag_cartao', 'feev_pix' or 'feev_boleto'.",
-                [nameof(Type)]);
-
-        if (Type == "feev_boleto")
+        if (Method == PaymentMethod.FeevBoleto)
         {
             if (FirstInstallment == null)
-                yield return new ValidationResult("FirstInstallment is required for 'feev_boleto'.",
+                yield return new ValidationResult("Payment rule first installemnt is required.",
                     [nameof(FirstInstallment)]);
 
             if (FirstInstallment.HasValue && FirstInstallment.Value <= DateOnly.FromDateTime(DateTime.Now))
-                yield return new ValidationResult("FirstInstallment must be a future date.",
+                yield return new ValidationResult("Payment rule first installemnt must be a future date.",
                     [nameof(FirstInstallment)]);
 
             // Ensure interest > 0 if sent
             if (Interest.HasValue && Interest <= 0)
-                yield return new ValidationResult("Interest must be greater than 0.", [nameof(Interest)]);
+                yield return new ValidationResult("Payment rule interest must be greater than 0.", [nameof(Interest)]);
 
             // Ensure lateFee > 0 if sent
             if (LateFee.HasValue && LateFee <= 0)
-                yield return new ValidationResult("LateFee must be greater than 0.", [nameof(Interest)]);
+                yield return new ValidationResult("Payment rule late fee must be greater than 0.", [nameof(Interest)]);
         }
     }
 }
 
 public record CreateTransactionRequest(
-    [Required] string Description,
-    [Required] [MinLength(1)] List<ProductDto> Products,
-    [Required] CustomerDto Customer,
-    [Required] [MinLength(1)] List<PaymentRuleDto> PaymentRules
+    [Required(ErrorMessage = "Description is required.")]
+    string Description,
+    [Required(ErrorMessage = "Products is required.")]
+    [MinLength(1)]
+    List<ProductDto> Products,
+    [Required(ErrorMessage = "Customer is required.")]
+    CustomerDto Customer,
+    [Required(ErrorMessage = "Payment rules is required.")]
+    [MinLength(1)]
+    List<PaymentRuleDto> PaymentRules
 );

@@ -1,7 +1,9 @@
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using FeevCheckout.Data;
+using FeevCheckout.Enums;
 using FeevCheckout.Services;
 using FeevCheckout.Services.Payments;
 
@@ -15,11 +17,19 @@ var jwtKey = builder.Configuration["AppSettings:JwtKey"]
              ?? throw new InvalidOperationException("JWT Key not found or not specified.");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), options =>
+    {
+        options.MapEnum<PaymentMethod>();
+        options.MapEnum<PaymentAttemptStatus>();
+    })
 );
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; });
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
+    });
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

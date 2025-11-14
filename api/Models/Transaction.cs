@@ -1,3 +1,5 @@
+using FeevCheckout.Enums;
+
 namespace FeevCheckout.Models;
 
 public class Address
@@ -35,7 +37,7 @@ public class Installment
 
 public class PaymentRule
 {
-    public required string Type { get; set; }
+    public required PaymentMethod Method { get; set; }
 
     public required List<Installment> Installments { get; set; }
 

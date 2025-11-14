@@ -1,4 +1,5 @@
 using FeevCheckout.Data;
+using FeevCheckout.Enums;
 using FeevCheckout.Models;
 using FeevCheckout.Services.Payments;
 
@@ -6,7 +7,7 @@ namespace FeevCheckout.Services;
 
 public interface IPaymentService
 {
-    Task<PaymentResult> Process(Transaction transaction, string method, int installments);
+    Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int installments);
 }
 
 public class PaymentService(
@@ -20,7 +21,7 @@ public class PaymentService(
 
     private readonly PaymentProcessorFactory _paymentProcessorFactory = paymentProcessorFactory;
 
-    public async Task<PaymentResult> Process(Transaction transaction, string method, int installments)
+    public async Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int installments)
     {
         var processor = ResolveProcessor(transaction, method) ??
                         throw new InvalidOperationException($"No processor registered for '{method}'.");
@@ -34,34 +35,33 @@ public class PaymentService(
         {
             var result = await processor.ProcessAsync(credentials, transaction);
 
-            await UpdateAttempt(attempt, result.ReferenceId, "pending");
+            await UpdateAttempt(attempt, result.ReferenceId, PaymentAttemptStatus.Pending);
 
             return result;
         }
         catch (Exception)
         {
-            await UpdateAttempt(attempt, null, "failed");
+            await UpdateAttempt(attempt, null, PaymentAttemptStatus.Failed);
             throw;
         }
     }
 
-    private IPaymentProcessor? ResolveProcessor(Transaction transaction, string method)
+    private IPaymentProcessor? ResolveProcessor(Transaction transaction, PaymentMethod method)
     {
         var rule = transaction.PaymentRules
-                       .FirstOrDefault(paymentRule =>
-                           string.Equals(paymentRule.Type, method, StringComparison.OrdinalIgnoreCase)) ??
+                       .FirstOrDefault(paymentRule => paymentRule.Method == method) ??
                    throw new InvalidOperationException(
                        $"Payment method '{method}' not supported for this transaction.");
 
         return _paymentProcessorFactory.GetProcessor(method);
     }
 
-    private Task<Credential?> ResolveCredentials(Transaction transaction, string method)
+    private Task<Credential?> ResolveCredentials(Transaction transaction, PaymentMethod method)
     {
         return _credentialService.GetCredentials(transaction.EstablishmentId, method);
     }
 
-    private async Task<PaymentAttempt> RegisterAttemp(Transaction transaction, string method)
+    private async Task<PaymentAttempt> RegisterAttemp(Transaction transaction, PaymentMethod method)
     {
         var paymentAttempt = new PaymentAttempt
         {
@@ -69,7 +69,7 @@ public class PaymentService(
             TransactionId = transaction.Id,
             Method = method,
             ReferenceId = null,
-            Status = "created",
+            Status = PaymentAttemptStatus.Created,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -79,7 +79,11 @@ public class PaymentService(
         return paymentAttempt;
     }
 
-    private async Task<PaymentAttempt> UpdateAttempt(PaymentAttempt paymentAttempt, string? referenceId, string status)
+    private async Task<PaymentAttempt> UpdateAttempt(
+        PaymentAttempt paymentAttempt,
+        string? referenceId,
+        PaymentAttemptStatus status
+    )
     {
         paymentAttempt.ReferenceId = referenceId;
         paymentAttempt.Status = status;
