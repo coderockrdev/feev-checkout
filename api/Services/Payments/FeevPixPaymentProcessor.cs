@@ -56,7 +56,8 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
 
     public PaymentMethod Method => PaymentMethod.FeevPix;
 
-    public async Task<PaymentResult> ProcessAsync(Credential credentials, Transaction transaction)
+    public async Task<PaymentResult> ProcessAsync(Credential credentials, Transaction transaction,
+        PaymentRule paymentRule, Installment installment)
     {
         var token = await Authenticate(credentials);
 
@@ -81,7 +82,7 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
                     numeroParcela = 1,
                     dataVencimento = DateTime.Now.ToString("yyyy-MM-dd"),
                     diasValidadeAposVencimento = 0,
-                    valor = transaction.TotalAmount / 100.0
+                    valor = installment.FinalAmount / 100.0
                 }
             }
         };

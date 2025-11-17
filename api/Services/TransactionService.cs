@@ -94,6 +94,9 @@ public class TransactionService(AppDbContext context) : ITransactionService
                 Address = new Address
                 {
                     Street = request.Customer.Address.Street,
+                    Number = request.Customer.Address.Number,
+                    Complement = request.Customer.Address.Complement,
+                    Neighborhood = request.Customer.Address.Neighborhood,
                     City = request.Customer.Address.City,
                     UF = request.Customer.Address.UF,
                     PostalCode = request.Customer.Address.PostalCode

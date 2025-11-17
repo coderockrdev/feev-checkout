@@ -1,0 +1,177 @@
+using FeevCheckout.Enums;
+using FeevCheckout.Models;
+
+using Flurl;
+using Flurl.Http;
+
+namespace FeevCheckout.Services.Payments;
+
+public class FeevBoletoInvoicesPaymentData
+{
+    public required int Installment { get; set; }
+
+    public required DateTime DueAt { get; set; }
+
+    public required string DigitableLine { get; set; }
+
+    public required string Link { get; set; }
+}
+
+public class FeevBoletoPaymentData
+{
+    public required int InvoiceNumber { get; set; }
+
+    public required string BookletLink { get; set; }
+
+    public required List<FeevBoletoInvoicesPaymentData> Invoices { get; set; }
+}
+
+public class FeevBoletoPaymentResult : PaymentResult
+{
+    public required new FeevBoletoPaymentData ExtraData { get; set; }
+}
+
+public class FeevBoleto
+{
+    // public required int NumeroBoleto { get; set; }
+
+    public required int NumeroParcela { get; set; }
+
+    public required DateTime Vencimento { get; set; }
+
+    // public required float Valor { get; set; }
+
+    public required string LinhaDigitavel { get; set; }
+
+    public required string LinkBoleto { get; set; }
+}
+
+public class FeevBoletoResponse
+{
+    public required int CodigoFatura { get; set; }
+
+    public required string LinkCarne { get; set; }
+
+    public required List<FeevBoleto> Boletos { get; set; }
+}
+
+public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPaymentProcessor
+{
+    private readonly string authBaseUrl = configuration["AppSettings:Feev:AuthBaseUrl"]
+                                          ?? throw new InvalidOperationException(
+                                              "Feev auth base URL not found or not specified.");
+
+    private readonly string boletoBaseUrl = configuration["AppSettings:Feev:BoletoBaseUrl"]
+                                            ?? throw new InvalidOperationException(
+                                                "Feev Pix base URL not found or not specified.");
+
+    public PaymentMethod Method => PaymentMethod.FeevBoleto;
+
+    public async Task<PaymentResult> ProcessAsync(Credential credentials, Transaction transaction,
+        PaymentRule paymentRule, Installment installment)
+    {
+        var token = await Authenticate(credentials);
+
+        var payload = new
+        {
+            codigoFaturaParceiro = transaction.Id,
+            descricaoFatura = transaction.Description,
+            dataFatura = DateTime.Now.ToString("yyyy-MM-dd"),
+            meioPagamento = "BOLETO",
+            itens = transaction.Products.Select(product =>
+            {
+                return new
+                {
+                    descricaoItem = product.Name,
+                    quantidadeItem = 1,
+                    valorItem = product.Price / 100.0
+                };
+            }),
+            parcelas = MapInstallments(paymentRule, installment),
+            pagador = new
+            {
+                numeroCpfCnpj = transaction.Customer.Document,
+                nome = transaction.Customer.Name,
+                email = transaction.Customer.Email,
+                endereco = new
+                {
+                    CEP = transaction.Customer.Address.PostalCode,
+                    logradouro = transaction.Customer.Address.Street,
+                    numero = transaction.Customer.Address.Number,
+                    complemento = transaction.Customer.Address.Complement,
+                    bairro = transaction.Customer.Address.Neighborhood,
+                    localidade = transaction.Customer.Address.City,
+                    transaction.Customer.Address.UF
+                },
+                telefones = Array.Empty<object>()
+            }
+        };
+
+        var response = await $"{boletoBaseUrl}/api/Fatura/InserirFatura"
+            .WithOAuthBearerToken(token)
+            .PostJsonAsync(payload)
+            .ReceiveJson<FeevBoletoResponse>();
+
+        return new FeevBoletoPaymentResult
+        {
+            Success = true,
+            Method = Method,
+            ReferenceId = response.CodigoFatura.ToString(),
+            ExtraData = new FeevBoletoPaymentData
+            {
+                InvoiceNumber = response.CodigoFatura,
+                BookletLink = response.LinkCarne,
+                Invoices = [.. response.Boletos.Select(invoice =>
+                {
+                    return new FeevBoletoInvoicesPaymentData
+                    {
+                        Installment = invoice.NumeroParcela,
+                        DueAt = invoice.Vencimento,
+                        DigitableLine = invoice.LinhaDigitavel,
+                        Link = invoice.LinkBoleto,
+                    };
+                })]
+            }
+        };
+    }
+
+    private async Task<string> Authenticate(Credential credentials)
+    {
+        var token = await $"{authBaseUrl}/api/autenticacao/obtertoken"
+            .SetQueryParams(credentials.Data)
+            .GetStringAsync();
+
+        return token.Trim();
+    }
+
+    private static List<object> MapInstallments(PaymentRule paymentRule, Installment installment)
+    {
+        var installments = new List<object>();
+
+        var totalAmount = installment.FinalAmount;
+        var installmentCount = installment.Number;
+
+        var baseAmount = totalAmount / installmentCount;
+        var remainder = totalAmount % installmentCount;
+
+        for (var index = 0; index < installment.Number; index++)
+        {
+            var installmentAmount = baseAmount + (index == 0 ? remainder : 0);
+
+            var duetAt = paymentRule.FirstInstallment!.Value.AddMonths(index);
+
+            installments.Add(new
+            {
+                valor = installmentAmount / 100.0,
+                vencimento = duetAt.ToString("yyyy-MM-dd"),
+                percentualMulta = paymentRule.LateFee,
+                percentualJurosMes = paymentRule.Interest,
+                dataLimitePagamento = duetAt.AddDays(5).ToString("yyyy-MM-dd"),
+                mensagem1 = $"Parcela {index + 1} de {installmentCount}",
+                mensagem2 = ""
+            });
+        }
+
+        return installments;
+    }
+}

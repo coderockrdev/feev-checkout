@@ -14,6 +14,11 @@ public record ProductDto(
 public record AddressDto(
     [Required(ErrorMessage = "Customer street is required.")]
     string Street,
+    [Required(ErrorMessage = "Customer address number is required.")]
+    string Number,
+    string Complement,
+    [Required(ErrorMessage = "Customer neighborhood is required.")]
+    string Neighborhood,
     [Required(ErrorMessage = "Customer city is required.")]
     string City,
     [Required(ErrorMessage = "Customer UF is required.")]

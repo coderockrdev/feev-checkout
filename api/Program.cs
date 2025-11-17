@@ -56,6 +56,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<PaymentProcessorFactory>();
 
+builder.Services.AddScoped<IPaymentProcessor, FeevBoletoPaymentProcessor>();
 builder.Services.AddScoped<IPaymentProcessor, FeevPixPaymentProcessor>();
 
 var app = builder.Build();
