@@ -26,14 +26,22 @@ public class PaymentService(
         var processor = ResolveProcessor(transaction, method) ??
                         throw new InvalidOperationException($"No processor registered for '{method}'.");
 
-        var credentials = await ResolveCredentials(transaction, method) ??
+        var credentials = await _credentialService.GetCredentials(transaction.EstablishmentId, method) ??
                           throw new InvalidOperationException($"No credentials registered for '{method}'.");
+
+        var paymentRules = transaction.PaymentRules.FirstOrDefault(paymentRule => paymentRule.Method == method) ??
+                           throw new InvalidOperationException(
+                               $"Payment method '{method}' not available for this transaction.");
+
+        var installment = paymentRules.Installments.FirstOrDefault(installment => installment.Number == installments) ??
+                          throw new InvalidOperationException(
+                              $"Installments number '{installments}' not available for this payment method.");
 
         var attempt = await RegisterAttemp(transaction, method);
 
         try
         {
-            var result = await processor.ProcessAsync(credentials, transaction);
+            var result = await processor.ProcessAsync(credentials, transaction, paymentRules, installment);
 
             await UpdateAttempt(attempt, result.ReferenceId, PaymentAttemptStatus.Pending);
 
@@ -54,11 +62,6 @@ public class PaymentService(
                        $"Payment method '{method}' not supported for this transaction.");
 
         return _paymentProcessorFactory.GetProcessor(method);
-    }
-
-    private Task<Credential?> ResolveCredentials(Transaction transaction, PaymentMethod method)
-    {
-        return _credentialService.GetCredentials(transaction.EstablishmentId, method);
     }
 
     private async Task<PaymentAttempt> RegisterAttemp(Transaction transaction, PaymentMethod method)
