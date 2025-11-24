@@ -16,7 +16,7 @@ public record AddressDto(
     string Street,
     [Required(ErrorMessage = "Customer address number is required.")]
     string Number,
-    string Complement,
+    string? Complement,
     [Required(ErrorMessage = "Customer neighborhood is required.")]
     string Neighborhood,
     [Required(ErrorMessage = "Customer city is required.")]
@@ -111,5 +111,6 @@ public record CreateTransactionRequest(
     CustomerDto Customer,
     [Required(ErrorMessage = "Payment rules is required.")]
     [MinLength(1)]
-    List<PaymentRuleDto> PaymentRules
+    List<PaymentRuleDto> PaymentRules,
+    DateTime? ExpireAt
 );
