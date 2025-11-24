@@ -100,6 +100,8 @@ public record PaymentRuleDto(
 }
 
 public record CreateTransactionRequest(
+    [Required(ErrorMessage = "Identifier is required.")]
+    string Identifier,
     [Required(ErrorMessage = "Description is required.")]
     string Description,
     [Required(ErrorMessage = "Products is required.")]

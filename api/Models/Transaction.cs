@@ -60,6 +60,8 @@ public class Transaction
 
     public required Guid EstablishmentId { get; set; }
 
+    public required string Identifier { get; set; }
+
     public Establishment? Establishment { get; set; }
 
     public required string Description { get; set; }

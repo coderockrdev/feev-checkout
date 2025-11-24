@@ -56,6 +56,7 @@ namespace FeevCheckout.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     EstablishmentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Identifier = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     CustomerName = table.Column<string>(type: "text", nullable: false),
                     CustomerDocument = table.Column<string>(type: "text", nullable: false),
