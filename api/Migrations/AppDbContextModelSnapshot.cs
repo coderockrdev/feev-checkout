@@ -141,6 +141,9 @@ namespace FeevCheckout.Migrations
                     b.Property<Guid>("EstablishmentId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("ExpireAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Identifier")
                         .IsRequired()
                         .HasColumnType("text");

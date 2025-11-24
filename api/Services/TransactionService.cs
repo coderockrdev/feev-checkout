@@ -105,6 +105,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
             },
             TotalAmount = totalAmount,
             PaymentRules = [.. paymentRules],
+            ExpireAt = request.ExpireAt ?? DateTime.UtcNow.AddDays(30),
             CreatedAt = DateTime.UtcNow
         };
 

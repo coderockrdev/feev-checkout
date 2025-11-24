@@ -70,6 +70,7 @@ namespace FeevCheckout.Migrations
                     CustomerAddressPostalCode = table.Column<string>(type: "text", nullable: false),
                     TotalAmount = table.Column<int>(type: "integer", nullable: false),
                     PaymentRules = table.Column<string>(type: "jsonb", nullable: false),
+                    ExpireAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CanceledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },

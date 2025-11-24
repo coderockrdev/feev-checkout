@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeevCheckout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251124144223_InitialCreate")]
+    [Migration("20251124145452_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -143,6 +143,9 @@ namespace FeevCheckout.Migrations
 
                     b.Property<Guid>("EstablishmentId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ExpireAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Identifier")
                         .IsRequired()

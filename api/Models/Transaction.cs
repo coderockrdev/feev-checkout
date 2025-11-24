@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 using FeevCheckout.Enums;
 
 namespace FeevCheckout.Models;
@@ -74,7 +76,24 @@ public class Transaction
 
     public required List<PaymentRule> PaymentRules { get; set; }
 
+    public DateTime? ExpireAt { get; set; }
+
     public DateTime? CanceledAt { get; set; }
 
     public required DateTime CreatedAt { get; set; }
+
+    [NotMapped]
+    public TransactionStatus Status
+    {
+        get
+        {
+            if (CanceledAt.HasValue)
+                return TransactionStatus.Canceled;
+
+            if (ExpireAt.HasValue && ExpireAt.Value <= DateTime.UtcNow)
+                return TransactionStatus.Expired;
+
+            return TransactionStatus.Available;
+        }
+    }
 }
