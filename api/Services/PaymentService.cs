@@ -23,6 +23,12 @@ public class PaymentService(
 
     public async Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int installments)
     {
+        if (transaction.Status == TransactionStatus.Canceled)
+            throw new InvalidOperationException("Canceled transactions cannot be paid.");
+
+        if (transaction.Status == TransactionStatus.Expired)
+            throw new InvalidOperationException("Expired transactions cannot be paid.");
+
         var processor = ResolveProcessor(transaction, method) ??
                         throw new InvalidOperationException($"No processor registered for '{method}'.");
 
