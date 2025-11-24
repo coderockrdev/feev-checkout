@@ -7,7 +7,7 @@ namespace FeevCheckout.Services;
 
 public interface IPaymentService
 {
-    Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int installments);
+    Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int? installments);
 }
 
 public class PaymentService(
@@ -21,7 +21,7 @@ public class PaymentService(
 
     private readonly PaymentProcessorFactory _paymentProcessorFactory = paymentProcessorFactory;
 
-    public async Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int installments)
+    public async Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int? installments)
     {
         if (transaction.Status == TransactionStatus.Canceled)
             throw new InvalidOperationException("Canceled transactions cannot be paid.");
@@ -39,7 +39,10 @@ public class PaymentService(
                            throw new InvalidOperationException(
                                $"Payment method '{method}' not available for this transaction.");
 
-        var installment = paymentRules.Installments.FirstOrDefault(installment => installment.Number == installments) ??
+        var installment = (method == PaymentMethod.FeevBoleto || method == PaymentMethod.FeevPix
+                              ? paymentRules.Installments.FirstOrDefault()
+                              : paymentRules.Installments.FirstOrDefault(installment =>
+                                  installment.Number == installments)) ??
                           throw new InvalidOperationException(
                               $"Installments number '{installments}' not available for this payment method.");
 

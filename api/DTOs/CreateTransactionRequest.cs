@@ -78,6 +78,11 @@ public record PaymentRuleDto(
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
+        if (Method == PaymentMethod.FeevBoleto || Method == PaymentMethod.FeevPix)
+            if (Installments.Count > 1)
+                yield return new ValidationResult("Payment installments cannot be greater than 1.",
+                    [nameof(Installments)]);
+
         if (Method == PaymentMethod.FeevBoleto)
         {
             if (FirstInstallment == null)
