@@ -85,6 +85,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
         {
             Id = Guid.NewGuid(),
             EstablishmentId = establishmentId,
+            Identifier = request.Identifier,
             Description = request.Description,
             Customer = new Customer
             {

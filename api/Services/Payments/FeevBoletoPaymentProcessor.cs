@@ -28,18 +28,14 @@ public class FeevBoletoPaymentData
 
 public class FeevBoletoPaymentResult : PaymentResult
 {
-    public required new FeevBoletoPaymentData ExtraData { get; set; }
+    public new required FeevBoletoPaymentData ExtraData { get; set; }
 }
 
 public class FeevBoleto
 {
-    // public required int NumeroBoleto { get; set; }
-
     public required int NumeroParcela { get; set; }
 
     public required DateTime Vencimento { get; set; }
-
-    // public required float Valor { get; set; }
 
     public required string LinhaDigitavel { get; set; }
 
@@ -74,7 +70,7 @@ public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPayment
 
         var payload = new
         {
-            codigoFaturaParceiro = transaction.Id,
+            codigoFaturaParceiro = transaction.Identifier,
             descricaoFatura = transaction.Description,
             dataFatura = DateTime.Now.ToString("yyyy-MM-dd"),
             meioPagamento = "BOLETO",
@@ -121,16 +117,19 @@ public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPayment
             {
                 InvoiceNumber = response.CodigoFatura,
                 BookletLink = response.LinkCarne,
-                Invoices = [.. response.Boletos.Select(invoice =>
-                {
-                    return new FeevBoletoInvoicesPaymentData
+                Invoices =
+                [
+                    .. response.Boletos.Select(invoice =>
                     {
-                        Installment = invoice.NumeroParcela,
-                        DueAt = invoice.Vencimento,
-                        DigitableLine = invoice.LinhaDigitavel,
-                        Link = invoice.LinkBoleto,
-                    };
-                })]
+                        return new FeevBoletoInvoicesPaymentData
+                        {
+                            Installment = invoice.NumeroParcela,
+                            DueAt = invoice.Vencimento,
+                            DigitableLine = invoice.LinhaDigitavel,
+                            Link = invoice.LinkBoleto
+                        };
+                    })
+                ]
             }
         };
     }

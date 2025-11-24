@@ -141,6 +141,10 @@ namespace FeevCheckout.Migrations
                     b.Property<Guid>("EstablishmentId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Identifier")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("PaymentRules")
                         .IsRequired()
                         .HasColumnType("jsonb");
