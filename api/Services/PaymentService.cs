@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using FeevCheckout.Data;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
@@ -52,7 +54,7 @@ public class PaymentService(
         {
             var result = await processor.ProcessAsync(credentials, transaction, paymentRules, installment);
 
-            await UpdateAttempt(attempt, result.ReferenceId, PaymentAttemptStatus.Pending, result.Response);
+            await UpdateAttempt(attempt, result.ReferenceId, PaymentAttemptStatus.Completed, result.Response);
             await UpdateTransaction(transaction, attempt);
 
             return result;
@@ -97,7 +99,7 @@ public class PaymentService(
         PaymentAttempt paymentAttempt,
         string? referenceId,
         PaymentAttemptStatus status,
-        object? response
+        JsonDocument? response
     )
     {
         paymentAttempt.ReferenceId = referenceId;

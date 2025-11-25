@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
@@ -111,7 +113,7 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
             cidadeDevedor = transaction.Customer.Address.City,
             ufDevedor = transaction.Customer.Address.UF,
             cepDevedor = transaction.Customer.Address.PostalCode,
-            descricao = $"Transação {transaction.Id}",
+            descricao = transaction.Description,
             codigoContaCorrente = 8,
             parcelas = new[]
             {
@@ -143,7 +145,9 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
                 DueAt = response.Parcelas[0].DataVencimento,
                 ExpireAt = response.Parcelas[0].DataHoraExpiracao
             },
-            Response = response
+            Response = JsonDocument.Parse(
+                JsonSerializer.Serialize(response)
+            )
         };
     }
 

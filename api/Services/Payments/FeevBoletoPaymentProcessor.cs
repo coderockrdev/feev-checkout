@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
@@ -163,7 +165,9 @@ public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPayment
                     })
                 ]
             },
-            Response = response
+            Response = JsonDocument.Parse(
+                JsonSerializer.Serialize(response)
+            )
         };
     }
 
