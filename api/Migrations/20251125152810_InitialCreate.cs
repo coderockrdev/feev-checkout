@@ -51,6 +51,23 @@ namespace FeevCheckout.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PaymentAttempts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TransactionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Method = table.Column<PaymentMethod>(type: "payment_method", nullable: false),
+                    ReferenceId = table.Column<string>(type: "text", nullable: true),
+                    Status = table.Column<PaymentAttemptStatus>(type: "payment_attempt_status", nullable: false),
+                    Response = table.Column<string>(type: "jsonb", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentAttempts", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Transactions",
                 columns: table => new
                 {
@@ -70,6 +87,7 @@ namespace FeevCheckout.Migrations
                     CustomerAddressPostalCode = table.Column<string>(type: "text", nullable: false),
                     TotalAmount = table.Column<int>(type: "integer", nullable: false),
                     PaymentRules = table.Column<string>(type: "jsonb", nullable: false),
+                    SuccessfulPaymentAttemptId = table.Column<Guid>(type: "uuid", nullable: true),
                     ExpireAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CanceledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -83,29 +101,11 @@ namespace FeevCheckout.Migrations
                         principalTable: "Establishments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PaymentAttempts",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TransactionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Method = table.Column<PaymentMethod>(type: "payment_method", nullable: false),
-                    ReferenceId = table.Column<string>(type: "text", nullable: true),
-                    Status = table.Column<PaymentAttemptStatus>(type: "payment_attempt_status", nullable: false),
-                    Response = table.Column<string>(type: "jsonb", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PaymentAttempts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PaymentAttempts_Transactions_TransactionId",
-                        column: x => x.TransactionId,
-                        principalTable: "Transactions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Transactions_PaymentAttempts_SuccessfulPaymentAttemptId",
+                        column: x => x.SuccessfulPaymentAttemptId,
+                        principalTable: "PaymentAttempts",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -147,25 +147,46 @@ namespace FeevCheckout.Migrations
                 name: "IX_Transactions_EstablishmentId",
                 table: "Transactions",
                 column: "EstablishmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Transactions_SuccessfulPaymentAttemptId",
+                table: "Transactions",
+                column: "SuccessfulPaymentAttemptId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_PaymentAttempts_Transactions_TransactionId",
+                table: "PaymentAttempts",
+                column: "TransactionId",
+                principalTable: "Transactions",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Credentials");
+            migrationBuilder.DropForeignKey(
+                name: "FK_Transactions_Establishments_EstablishmentId",
+                table: "Transactions");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_PaymentAttempts_Transactions_TransactionId",
+                table: "PaymentAttempts");
 
             migrationBuilder.DropTable(
-                name: "PaymentAttempts");
+                name: "Credentials");
 
             migrationBuilder.DropTable(
                 name: "Products");
 
             migrationBuilder.DropTable(
+                name: "Establishments");
+
+            migrationBuilder.DropTable(
                 name: "Transactions");
 
             migrationBuilder.DropTable(
-                name: "Establishments");
+                name: "PaymentAttempts");
         }
     }
 }
