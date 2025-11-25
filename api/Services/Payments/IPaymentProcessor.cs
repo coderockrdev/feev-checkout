@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
@@ -13,7 +15,7 @@ public class PaymentResult
 
     public object? ExtraData { get; set; }
 
-    public required object Response { get; set; }
+    public required JsonDocument Response { get; set; }
 }
 
 public interface IPaymentProcessor

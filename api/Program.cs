@@ -6,6 +6,7 @@ using FeevCheckout.Data;
 using FeevCheckout.Enums;
 using FeevCheckout.Services;
 using FeevCheckout.Services.Payments;
+using FeevCheckout.Services.Webhooks;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -55,9 +56,12 @@ builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<PaymentProcessorFactory>();
+builder.Services.AddScoped<WebhookProcessorFactory>();
 
 builder.Services.AddScoped<IPaymentProcessor, FeevBoletoPaymentProcessor>();
 builder.Services.AddScoped<IPaymentProcessor, FeevPixPaymentProcessor>();
+
+builder.Services.AddScoped<IWebhookProcessor, FeevBoletoWebhookProcessor>();
 
 var app = builder.Build();
 

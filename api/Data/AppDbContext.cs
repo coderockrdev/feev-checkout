@@ -48,10 +48,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         builder.Entity<PaymentAttempt>()
             .Property(paymentAttempt => paymentAttempt.Response)
-            .HasConversion(
-                data => JsonSerializer.Serialize(data, (JsonSerializerOptions?)null),
-                data => JsonSerializer.Deserialize<Dictionary<string, string>>(data, (JsonSerializerOptions?)null)!
-            )
+            .HasConversion<JsonDocument>()
             .HasColumnType("jsonb");
 
         builder.Entity<Transaction>()

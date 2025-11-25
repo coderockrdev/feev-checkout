@@ -1,5 +1,6 @@
 using FeevCheckout.Data;
 using FeevCheckout.Dtos;
+using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
 using Microsoft.EntityFrameworkCore;
@@ -134,7 +135,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
         var transaction = await _context.Transactions
             .FirstOrDefaultAsync(transaction => transaction.Id == id && transaction.EstablishmentId == establishmentId);
 
-        if (transaction == null || transaction.CanceledAt != null)
+        if (transaction == null || transaction.CanceledAt != null || transaction.Status != TransactionStatus.Available)
             return false;
 
         transaction.CanceledAt = DateTime.UtcNow;

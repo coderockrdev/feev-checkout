@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using FeevCheckout.Enums;
 
 namespace FeevCheckout.Models;
@@ -16,7 +18,7 @@ public class PaymentAttempt
 
     public required PaymentAttemptStatus Status { get; set; }
 
-    public required object? Response { get; set; }
+    public required JsonDocument? Response { get; set; }
 
     public required DateTime CreatedAt { get; set; }
 }
