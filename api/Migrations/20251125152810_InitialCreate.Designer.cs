@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeevCheckout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251125140235_InitialCreate")]
+    [Migration("20251125152810_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -158,12 +158,17 @@ namespace FeevCheckout.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<Guid?>("SuccessfulPaymentAttemptId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("TotalAmount")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EstablishmentId");
+
+                    b.HasIndex("SuccessfulPaymentAttemptId");
 
                     b.ToTable("Transactions");
                 });
@@ -208,6 +213,10 @@ namespace FeevCheckout.Migrations
                         .HasForeignKey("EstablishmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("FeevCheckout.Models.PaymentAttempt", "SuccessfulPaymentAttempt")
+                        .WithMany()
+                        .HasForeignKey("SuccessfulPaymentAttemptId");
 
                     b.OwnsOne("FeevCheckout.Models.Customer", "Customer", b1 =>
                         {
@@ -288,6 +297,8 @@ namespace FeevCheckout.Migrations
                         .IsRequired();
 
                     b.Navigation("Establishment");
+
+                    b.Navigation("SuccessfulPaymentAttempt");
                 });
 
             modelBuilder.Entity("FeevCheckout.Models.Transaction", b =>

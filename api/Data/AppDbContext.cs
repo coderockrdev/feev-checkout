@@ -77,5 +77,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 paymentRule => JsonSerializer.Deserialize<List<PaymentRule>>(paymentRule, (JsonSerializerOptions?)null)!
             )
             .HasColumnType("jsonb");
+
+        builder.Entity<Transaction>()
+            .HasOne(transaction => transaction.SuccessfulPaymentAttempt)
+            .WithMany()
+            .HasForeignKey(transaction => transaction.SuccessfulPaymentAttemptId);
     }
 }

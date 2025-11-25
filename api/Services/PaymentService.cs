@@ -53,6 +53,7 @@ public class PaymentService(
             var result = await processor.ProcessAsync(credentials, transaction, paymentRules, installment);
 
             await UpdateAttempt(attempt, result.ReferenceId, PaymentAttemptStatus.Pending, result.Response);
+            await UpdateTransaction(transaction, attempt);
 
             return result;
         }
@@ -107,5 +108,15 @@ public class PaymentService(
         await _context.SaveChangesAsync();
 
         return paymentAttempt;
+    }
+
+    private async Task<Transaction> UpdateTransaction(Transaction transaction, PaymentAttempt paymentAttempt)
+    {
+        transaction.SuccessfulPaymentAttemptId = paymentAttempt.Id;
+
+        _context.Transactions.Update(transaction);
+        await _context.SaveChangesAsync();
+
+        return transaction;
     }
 }
