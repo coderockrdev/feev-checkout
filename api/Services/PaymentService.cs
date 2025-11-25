@@ -52,13 +52,13 @@ public class PaymentService(
         {
             var result = await processor.ProcessAsync(credentials, transaction, paymentRules, installment);
 
-            await UpdateAttempt(attempt, result.ReferenceId, PaymentAttemptStatus.Pending);
+            await UpdateAttempt(attempt, result.ReferenceId, PaymentAttemptStatus.Pending, result.Response);
 
             return result;
         }
         catch (Exception)
         {
-            await UpdateAttempt(attempt, null, PaymentAttemptStatus.Failed);
+            await UpdateAttempt(attempt, null, PaymentAttemptStatus.Failed, null);
             throw;
         }
     }
@@ -82,6 +82,7 @@ public class PaymentService(
             Method = method,
             ReferenceId = null,
             Status = PaymentAttemptStatus.Created,
+            Response = null,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -94,11 +95,13 @@ public class PaymentService(
     private async Task<PaymentAttempt> UpdateAttempt(
         PaymentAttempt paymentAttempt,
         string? referenceId,
-        PaymentAttemptStatus status
+        PaymentAttemptStatus status,
+        object? response
     )
     {
         paymentAttempt.ReferenceId = referenceId;
         paymentAttempt.Status = status;
+        paymentAttempt.Response = response;
 
         _context.PaymentAttempts.Update(paymentAttempt);
         await _context.SaveChangesAsync();

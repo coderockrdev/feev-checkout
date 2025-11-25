@@ -16,5 +16,7 @@ public class PaymentAttempt
 
     public required PaymentAttemptStatus Status { get; set; }
 
+    public required object? Response { get; set; }
+
     public required DateTime CreatedAt { get; set; }
 }

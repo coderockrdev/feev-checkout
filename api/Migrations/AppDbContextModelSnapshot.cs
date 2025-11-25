@@ -86,6 +86,9 @@ namespace FeevCheckout.Migrations
                     b.Property<string>("ReferenceId")
                         .HasColumnType("text");
 
+                    b.Property<string>("Response")
+                        .HasColumnType("jsonb");
+
                     b.Property<PaymentAttemptStatus>("Status")
                         .HasColumnType("payment_attempt_status");
 

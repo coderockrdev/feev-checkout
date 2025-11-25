@@ -18,7 +18,7 @@ public record PaymentRequest(
                 yield return new ValidationResult($"Installments are not allowed for '{Method}'.",
                     [nameof(Installments)]);
 
-        if (Method == PaymentMethod.FeevPix)
+        if (Method == PaymentMethod.BraspagCartao)
             if (Installments == null)
                 yield return new ValidationResult("Installments are required.",
                     [nameof(Installments)]);
