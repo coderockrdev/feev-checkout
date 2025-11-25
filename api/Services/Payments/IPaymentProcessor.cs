@@ -12,6 +12,8 @@ public class PaymentResult
     public required string ReferenceId { get; set; }
 
     public object? ExtraData { get; set; }
+
+    public required object Response { get; set; }
 }
 
 public interface IPaymentProcessor

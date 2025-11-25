@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeevCheckout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251124145452_InitialCreate")]
+    [Migration("20251125140235_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -88,6 +88,9 @@ namespace FeevCheckout.Migrations
 
                     b.Property<string>("ReferenceId")
                         .HasColumnType("text");
+
+                    b.Property<string>("Response")
+                        .HasColumnType("jsonb");
 
                     b.Property<PaymentAttemptStatus>("Status")
                         .HasColumnType("payment_attempt_status");

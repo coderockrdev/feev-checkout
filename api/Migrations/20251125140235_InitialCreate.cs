@@ -94,6 +94,7 @@ namespace FeevCheckout.Migrations
                     Method = table.Column<PaymentMethod>(type: "payment_method", nullable: false),
                     ReferenceId = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<PaymentAttemptStatus>(type: "payment_attempt_status", nullable: false),
+                    Response = table.Column<string>(type: "jsonb", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
