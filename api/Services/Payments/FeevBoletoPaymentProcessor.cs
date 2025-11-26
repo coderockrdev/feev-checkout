@@ -194,16 +194,14 @@ public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPayment
         {
             var installmentAmount = baseAmount + (index == 0 ? remainder : 0);
 
-            var duetAt = paymentRule.FirstInstallment!.Value.AddMonths(index);
-
             installments.Add(new
             {
                 valor = installmentAmount / 100.0,
-                vencimento = duetAt.ToString("yyyy-MM-dd"),
+                vencimento = installment.DueAt,
                 percentualMulta = paymentRule.LateFee,
                 percentualJurosMes = paymentRule.Interest,
-                dataLimitePagamento = duetAt.AddDays(5).ToString("yyyy-MM-dd"),
-                mensagem1 = $"Parcela {index + 1} de {installmentCount}",
+                dataLimitePagamento = installment.ExpireAt,
+                mensagem1 = "",
                 mensagem2 = ""
             });
         }

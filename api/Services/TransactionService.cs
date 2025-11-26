@@ -71,6 +71,8 @@ public class TransactionService(AppDbContext context) : ITransactionService
                     return new Installment
                     {
                         Number = installment.Number,
+                        DueAt = installment.DueAt,
+                        ExpireAt = installment.ExpireAt,
                         Fee = installment.Fee,
                         FeeType = installment.FeeType,
                         FinalAmount = CalculateInstallmentFinalAmount(installment, totalAmount)

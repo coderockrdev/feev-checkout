@@ -36,6 +36,10 @@ public class Installment
 {
     public required int Number { get; set; }
 
+    public DateOnly? DueAt { get; set; }
+
+    public DateOnly? ExpireAt { get; set; }
+
     public int? Fee { get; set; }
 
     public string? FeeType { get; set; }
