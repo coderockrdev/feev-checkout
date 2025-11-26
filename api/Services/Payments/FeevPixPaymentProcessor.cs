@@ -105,7 +105,7 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
         {
             tipoCobrancaPix = "imediato",
             TipoOrigemCobranca = "outros",
-            segundosExpiracao = 3600,
+            segundosExpiracao = 30 * 60, // 30 minutes
             nomeDevedor = transaction.Customer.Name,
             cpfCnpjDevedor = transaction.Customer.Document,
             emailDevedor = transaction.Customer.Email,
