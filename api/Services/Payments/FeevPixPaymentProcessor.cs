@@ -136,7 +136,7 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
         {
             Success = true,
             Method = Method,
-            ReferenceId = response.Parcelas[0].TxId,
+            ExternalId = response.Parcelas[0].TxId,
             ExtraData = new FeevPixPaymentData
             {
                 Code = response.Parcelas[0].Brcode,

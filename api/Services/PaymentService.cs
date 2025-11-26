@@ -54,7 +54,7 @@ public class PaymentService(
         {
             var result = await processor.ProcessAsync(credentials, transaction, paymentRules, installment);
 
-            await UpdateAttempt(attempt, result.ReferenceId, PaymentAttemptStatus.Completed, result.Response);
+            await UpdateAttempt(attempt, result.ExternalId, PaymentAttemptStatus.Created, result.Response);
             await UpdateTransaction(transaction, attempt);
 
             return result;
@@ -83,8 +83,8 @@ public class PaymentService(
             Id = Guid.NewGuid(),
             TransactionId = transaction.Id,
             Method = method,
-            ReferenceId = null,
-            Status = PaymentAttemptStatus.Created,
+            ExternalId = null,
+            Status = PaymentAttemptStatus.Pending,
             Response = null,
             CreatedAt = DateTime.UtcNow
         };
@@ -97,12 +97,12 @@ public class PaymentService(
 
     private async Task<PaymentAttempt> UpdateAttempt(
         PaymentAttempt paymentAttempt,
-        string? referenceId,
+        string? externalId,
         PaymentAttemptStatus status,
         JsonDocument? response
     )
     {
-        paymentAttempt.ReferenceId = referenceId;
+        paymentAttempt.ExternalId = externalId;
         paymentAttempt.Status = status;
         paymentAttempt.Response = response;
 

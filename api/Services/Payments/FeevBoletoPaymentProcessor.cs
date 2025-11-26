@@ -146,7 +146,7 @@ public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPayment
         {
             Success = true,
             Method = Method,
-            ReferenceId = response.CodigoFatura.ToString(),
+            ExternalId = response.Boletos[0].NumeroBoleto.ToString(),
             ExtraData = new FeevBoletoPaymentData
             {
                 InvoiceNumber = response.CodigoFatura,
