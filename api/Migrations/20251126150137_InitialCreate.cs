@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using FeevCheckout.Enums;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -13,7 +14,7 @@ namespace FeevCheckout.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:Enum:payment_attempt_status", "created,pending,failed,completed")
+                .Annotation("Npgsql:Enum:payment_attempt_status", "pending,created,completed,failed")
                 .Annotation("Npgsql:Enum:payment_method", "feev_pix,feev_boleto,braspag_cartao");
 
             migrationBuilder.CreateTable(
@@ -57,9 +58,9 @@ namespace FeevCheckout.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     TransactionId = table.Column<Guid>(type: "uuid", nullable: false),
                     Method = table.Column<PaymentMethod>(type: "payment_method", nullable: false),
-                    ReferenceId = table.Column<string>(type: "text", nullable: true),
+                    ExternalId = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<PaymentAttemptStatus>(type: "payment_attempt_status", nullable: false),
-                    Response = table.Column<string>(type: "jsonb", nullable: true),
+                    Response = table.Column<JsonDocument>(type: "jsonb", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>

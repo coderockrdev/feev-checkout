@@ -68,13 +68,8 @@ public class FeevBoletoWebhookProcessor(AppDbContext context, ITransactionServic
         return await _context.PaymentAttempts
             .Include(paymentAttemp => paymentAttemp.Transaction)
             .Where(paymentAttempt => paymentAttempt.Method == PaymentMethod.FeevBoleto)
-            .Where(paymentAttempt => paymentAttempt.Status == PaymentAttemptStatus.Completed)
-            .Where(paymentAttempt =>
-                paymentAttempt.Response != null && EF.Functions.JsonContains(
-                    paymentAttempt.Response,
-                    $$""" { "Boletos": [ { "NumeroBoleto": {{invoiceNumber}} } ] } """
-                )
-            )
+            .Where(paymentAttempt => paymentAttempt.Status == PaymentAttemptStatus.Created)
+            .Where(paymentAttempt => paymentAttempt.ExternalId == invoiceNumber.ToString())
             .FirstOrDefaultAsync();
     }
 
