@@ -41,6 +41,8 @@ public record CustomerDto(
 public record InstallmentDto(
     [Required(ErrorMessage = "Installment number is required.")]
     int Number,
+    DateOnly? DueAt,
+    DateOnly? ExpireAt,
     int? Fee,
     string? FeeType
 ) : IValidatableObject
@@ -78,13 +80,37 @@ public record PaymentRuleDto(
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (Method == PaymentMethod.FeevBoleto || Method == PaymentMethod.FeevPix)
+        if (Method == PaymentMethod.FeevBoleto)
+        {
             if (Installments.Count > 1)
                 yield return new ValidationResult("Payment installments cannot be greater than 1.",
                     [nameof(Installments)]);
 
-        if (Method == PaymentMethod.FeevBoleto)
-        {
+            foreach (var installment in Installments.Select((value, index) => new { value, index }))
+            {
+                if (installment.value.DueAt == null)
+                    yield return new ValidationResult(
+                        $"Payment rule installment[{installment.index}] due at is required.",
+                        [nameof(installment.value.DueAt)]);
+
+                if (installment.value.DueAt.HasValue &&
+                    installment.value.DueAt.Value <= DateOnly.FromDateTime(DateTime.Now))
+                    yield return new ValidationResult(
+                        $"Payment rule installment[{installment.index}] due at must be a future date.",
+                        [nameof(installment.value.DueAt)]);
+
+                if (installment.value.ExpireAt == null)
+                    yield return new ValidationResult(
+                        $"Payment rule installment[{installment.index}] expire at is required for boleto.",
+                        [nameof(installment.value.ExpireAt)]);
+
+                if (installment.value.ExpireAt.HasValue &&
+                    installment.value.ExpireAt.Value <= DateOnly.FromDateTime(DateTime.Now))
+                    yield return new ValidationResult(
+                        $"Payment rule installment[{installment.index}] expire at must be a future date.",
+                        [nameof(installment.value.ExpireAt)]);
+            }
+
             if (FirstInstallment == null)
                 yield return new ValidationResult("Payment rule first installemnt is required.",
                     [nameof(FirstInstallment)]);
@@ -99,8 +125,13 @@ public record PaymentRuleDto(
 
             // Ensure lateFee > 0 if sent
             if (LateFee.HasValue && LateFee <= 0)
-                yield return new ValidationResult("Payment rule late fee must be greater than 0.", [nameof(Interest)]);
+                yield return new ValidationResult("Payment rule late fee must be greater than 0.", [nameof(LateFee)]);
         }
+
+        if (Method == PaymentMethod.FeevPix)
+            if (Installments.Count > 1)
+                yield return new ValidationResult("Payment installments cannot be greater than 1.",
+                    [nameof(Installments)]);
     }
 }
 
