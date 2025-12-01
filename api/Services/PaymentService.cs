@@ -48,7 +48,7 @@ public class PaymentService(
                           throw new InvalidOperationException(
                               $"Installments number '{installments}' not available for this payment method.");
 
-        var attempt = await RegisterAttemp(transaction, method);
+        var attempt = await RegisterAttempt(transaction, method);
 
         try
         {
@@ -76,7 +76,7 @@ public class PaymentService(
         return _paymentProcessorFactory.GetProcessor(method);
     }
 
-    private async Task<PaymentAttempt> RegisterAttemp(Transaction transaction, PaymentMethod method)
+    private async Task<PaymentAttempt> RegisterAttempt(Transaction transaction, PaymentMethod method)
     {
         var paymentAttempt = new PaymentAttempt
         {

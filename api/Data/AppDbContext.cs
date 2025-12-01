@@ -39,11 +39,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasColumnType("jsonb");
 
         builder.Entity<PaymentAttempt>()
-            .Property(paymentAttemp => paymentAttemp.Method)
+            .Property(paymentAttempt => paymentAttempt.Method)
             .HasColumnType("payment_method");
 
         builder.Entity<PaymentAttempt>()
-            .Property(paymentAttemp => paymentAttemp.Status)
+            .Property(paymentAttempt => paymentAttempt.Status)
             .HasColumnType("payment_attempt_status");
 
         builder.Entity<PaymentAttempt>()
