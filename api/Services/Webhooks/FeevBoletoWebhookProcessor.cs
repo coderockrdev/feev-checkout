@@ -19,6 +19,33 @@ public class FeevBoletoWebhookProcessor(AppDbContext context, ITransactionServic
 
     public async Task<object> ProcessAsync(JsonElement payload)
     {
+        var eventName = await GetEventName(payload);
+
+        switch (eventName)
+        {
+            case "fatura.cancelada":
+            case "boleto.expirado":
+                var transaction = await GetTransactionFromPayload(payload, eventName) ??
+                                  throw new BadHttpRequestException("Unable to find the related transaction.");
+
+                var result = await _transactionService.CancelTransaction(transaction.EstablishmentId, transaction.Id);
+
+                if (!result)
+                    throw new BadHttpRequestException("Transaction not available for cancellation.");
+
+                break;
+            default:
+                throw new NotImplementedException($"Handle of {eventName} events is not implemeneted yet.");
+        }
+
+        return new
+        {
+            Status = "processed"
+        };
+    }
+
+    private static async Task<string> GetEventName(JsonElement payload)
+    {
         var supportedEvents = new[]
         {
             "fatura.cancelada",
@@ -38,18 +65,7 @@ public class FeevBoletoWebhookProcessor(AppDbContext context, ITransactionServic
         if (!supportedEvents.Contains(eventName))
             throw new BadHttpRequestException($"'{eventName}' is not a supported event.");
 
-        var transaction = await GetTransactionFromPayload(payload, eventName) ??
-                          throw new BadHttpRequestException("Unable to find the related transaction.");
-
-        var result = await _transactionService.CancelTransaction(transaction.EstablishmentId, transaction.Id);
-
-        if (!result)
-            throw new BadHttpRequestException("Transaction not available for cancellation.");
-
-        return new
-        {
-            Status = "processed"
-        };
+        return eventName;
     }
 
     private async Task<Transaction?> GetTransactionFromPayload(JsonElement payload, string eventName)
