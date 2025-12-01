@@ -12,6 +12,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
+static string? GetArgValue(string[] args, string key)
+{
+    var index = Array.IndexOf(args, key);
+
+    return index >= 0 && index < args.Length - 1 ? args[index + 1] : null;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtKey = builder.Configuration["AppSettings:JwtKey"]
@@ -93,5 +100,22 @@ app.Use(async (context, next) =>
 });
 
 app.MapControllers();
+
+if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
+{
+    var name = GetArgValue(args, "--name") ?? throw new Exception("Missing --name");
+
+    using var scope = app.Services.CreateScope();
+    var service = scope.ServiceProvider.GetRequiredService<IEstablishmentService>();
+
+    var establishment = await service.CreateEstablishment(name);
+
+    Console.WriteLine("Establishment created sucessfully!");
+    Console.WriteLine($"Name: {name}");
+    Console.WriteLine($"Client ID: {establishment.ClientId}");
+    Console.WriteLine($"Client Secret: {establishment.ClientSecret}");
+
+    return;
+}
 
 app.Run();
