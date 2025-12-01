@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 using FeevCheckout.Data;
@@ -17,7 +18,11 @@ public interface IEstablishmentService
 
     string GenerateJwt(Establishment establishment);
 
+    string GenerateClientId(int size);
+
     Task<Establishment?> GetEstablishment(string clientID);
+
+    Task<Establishment> CreateEstablishment(string name);
 }
 
 public class EstablishmentService(AppDbContext context, IConfiguration configuration) : IEstablishmentService
@@ -60,9 +65,33 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
+    public string GenerateClientId(int size = 20)
+    {
+        var bytes = RandomNumberGenerator.GetBytes(size);
+
+        return Convert.ToBase64String(bytes)
+            .Replace("+", "")
+            .Replace("/", "")
+            .Replace("=", "");
+    }
+
     public async Task<Establishment?> GetEstablishment(string clientID)
     {
         return await context.Establishments
             .FirstOrDefaultAsync(establishment => establishment.ClientId == clientID);
+    }
+
+    public async Task<Establishment> CreateEstablishment(string name)
+    {
+        var id = GenerateClientId(12);
+        var secret = HmacValidator.Compute(id, secretKey);
+
+        var establishment = new Establishment
+            { Id = Guid.NewGuid(), Name = name, ClientId = id, ClientSecret = secret };
+
+        context.Establishments.Add(establishment);
+        await context.SaveChangesAsync();
+
+        return establishment;
     }
 }
