@@ -6,7 +6,7 @@ public class Establishment
 
     public required string Name { get; set; }
 
-    public required string Username { get; set; }
+    public required string ClientId { get; set; }
 
-    public required string Secret { get; set; }
+    public required string ClientSecret { get; set; }
 }

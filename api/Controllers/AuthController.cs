@@ -15,7 +15,7 @@ public class AuthController(IEstablishmentService establishmentService) : Contro
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var establishment = await establishmentService.GetEstablishment(request.Username);
+        var establishment = await establishmentService.GetEstablishment(request.ClientId);
 
         if (establishment == null)
             return NotFound(new { message = "Establishment not found." });
@@ -24,7 +24,7 @@ public class AuthController(IEstablishmentService establishmentService) : Contro
 
         try
         {
-            isValid = establishmentService.ValidateSecret(establishment, request.Secret);
+            isValid = establishmentService.ValidateSecret(establishment, request.ClientSecret);
         }
         catch (FormatException)
         {
