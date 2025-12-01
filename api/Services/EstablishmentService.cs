@@ -17,7 +17,7 @@ public interface IEstablishmentService
 
     string GenerateJwt(Establishment establishment);
 
-    Task<Establishment?> GetEstablishment(string username);
+    Task<Establishment?> GetEstablishment(string clientID);
 }
 
 public class EstablishmentService(AppDbContext context, IConfiguration configuration) : IEstablishmentService
@@ -33,7 +33,7 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
 
     public bool ValidateSecret(Establishment establishment, string input)
     {
-        var hash = HmacValidator.Compute(establishment.Username, secretKey);
+        var hash = HmacValidator.Compute(establishment.ClientId, secretKey);
 
         return HmacValidator.Validate(hash, input);
     }
@@ -46,7 +46,7 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
         var claims = new[]
         {
             new Claim("id", establishment.Id.ToString()),
-            new Claim("username", establishment.Username),
+            new Claim("client_id", establishment.ClientId),
             new Claim("name", establishment.Name)
         };
 
@@ -60,9 +60,9 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public async Task<Establishment?> GetEstablishment(string username)
+    public async Task<Establishment?> GetEstablishment(string clientID)
     {
         return await context.Establishments
-            .FirstOrDefaultAsync(establishment => establishment.Username == username);
+            .FirstOrDefaultAsync(establishment => establishment.ClientId == clientID);
     }
 }
