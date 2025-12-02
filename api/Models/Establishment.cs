@@ -9,4 +9,12 @@ public class Establishment
     public required string ClientId { get; set; }
 
     public required string ClientSecret { get; set; }
+
+    public string? BankNumber { get; set; }
+
+    public string? BankAgency { get; set; }
+
+    public string? BankAccount { get; set; }
+
+    public string? CheckingAccountNumber { get; set; }
 }

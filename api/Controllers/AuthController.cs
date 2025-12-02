@@ -15,7 +15,7 @@ public class AuthController(IEstablishmentService establishmentService) : Contro
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var establishment = await establishmentService.GetEstablishment(request.ClientId);
+        var establishment = await establishmentService.GetEstablishmentByClientId(request.ClientId);
 
         if (establishment == null)
             return NotFound(new { message = "Establishment not found." });

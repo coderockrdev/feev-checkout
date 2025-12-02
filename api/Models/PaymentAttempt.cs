@@ -8,6 +8,10 @@ public class PaymentAttempt
 {
     public required Guid Id { get; set; }
 
+    public required Guid EstablishmentId { get; set; }
+
+    public Establishment? Establishment { get; set; }
+
     public required Guid TransactionId { get; set; }
 
     public Transaction? Transaction { get; set; }

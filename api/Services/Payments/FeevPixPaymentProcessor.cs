@@ -96,9 +96,17 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
 
     public PaymentMethod Method => PaymentMethod.FeevPix;
 
-    public async Task<PaymentResult> ProcessAsync(Credential credentials, Transaction transaction,
-        PaymentRule paymentRule, Installment installment)
+    public async Task<PaymentResult> ProcessAsync(
+        Establishment establishment,
+        Credential credentials,
+        Transaction transaction,
+        PaymentRule paymentRule,
+        Installment installment
+    )
     {
+        if (string.IsNullOrEmpty(establishment.CheckingAccountNumber))
+            throw new InvalidOperationException("Establishment's checking account number not set.");
+
         var token = await Authenticate(credentials);
 
         var payload = new
@@ -114,7 +122,7 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
             ufDevedor = transaction.Customer.Address.UF,
             cepDevedor = transaction.Customer.Address.PostalCode,
             descricao = transaction.Description,
-            codigoContaCorrente = 8,
+            codigoContaCorrente = establishment.CheckingAccountNumber,
             parcelas = new[]
             {
                 new

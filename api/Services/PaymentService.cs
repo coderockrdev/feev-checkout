@@ -9,22 +9,30 @@ namespace FeevCheckout.Services;
 
 public interface IPaymentService
 {
-    Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int? installments);
+    Task<PaymentResult> Process(Guid establishmentId, Transaction transaction, PaymentMethod method, int? installments);
 }
 
 public class PaymentService(
     AppDbContext context,
     PaymentProcessorFactory paymentProcessorFactory,
-    ICredentialService credentialService) : IPaymentService
+    ICredentialService credentialService,
+    IEstablishmentService establishmentService
+) : IPaymentService
 {
-    private readonly AppDbContext _context = context;
+    private readonly AppDbContext context = context;
 
-    private readonly ICredentialService _credentialService = credentialService;
+    private readonly ICredentialService credentialService = credentialService;
 
-    private readonly PaymentProcessorFactory _paymentProcessorFactory = paymentProcessorFactory;
+    private readonly IEstablishmentService establishmentService = establishmentService;
 
-    public async Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int? installments)
+    private readonly PaymentProcessorFactory paymentProcessorFactory = paymentProcessorFactory;
+
+    public async Task<PaymentResult> Process(Guid establishmentId, Transaction transaction, PaymentMethod method,
+        int? installments)
     {
+        var establishment = await establishmentService.GetEstablishment(establishmentId)
+                            ?? throw new InvalidOperationException("Establishment not found or not available.");
+
         if (transaction.Status == TransactionStatus.Canceled)
             throw new InvalidOperationException("Canceled transactions cannot be paid.");
 
@@ -34,7 +42,7 @@ public class PaymentService(
         var processor = ResolveProcessor(transaction, method) ??
                         throw new InvalidOperationException($"No processor registered for '{method}'.");
 
-        var credentials = await _credentialService.GetCredentials(transaction.EstablishmentId, method) ??
+        var credentials = await credentialService.GetCredentials(establishment.Id, method) ??
                           throw new InvalidOperationException($"No credentials registered for '{method}'.");
 
         var paymentRules = transaction.PaymentRules.FirstOrDefault(paymentRule => paymentRule.Method == method) ??
@@ -52,7 +60,8 @@ public class PaymentService(
 
         try
         {
-            var result = await processor.ProcessAsync(credentials, transaction, paymentRules, installment);
+            var result =
+                await processor.ProcessAsync(establishment, credentials, transaction, paymentRules, installment);
 
             await UpdateAttempt(attempt, result.ExternalId, PaymentAttemptStatus.Created, result.Response);
             await UpdateTransaction(transaction, attempt);
@@ -73,7 +82,7 @@ public class PaymentService(
                    throw new InvalidOperationException(
                        $"Payment method '{method}' not supported for this transaction.");
 
-        return _paymentProcessorFactory.GetProcessor(method);
+        return paymentProcessorFactory.GetProcessor(method);
     }
 
     private async Task<PaymentAttempt> RegisterAttempt(Transaction transaction, PaymentMethod method)
@@ -81,6 +90,7 @@ public class PaymentService(
         var paymentAttempt = new PaymentAttempt
         {
             Id = Guid.NewGuid(),
+            EstablishmentId = transaction.EstablishmentId,
             TransactionId = transaction.Id,
             Method = method,
             ExternalId = null,
@@ -89,8 +99,8 @@ public class PaymentService(
             CreatedAt = DateTime.UtcNow
         };
 
-        _context.PaymentAttempts.Add(paymentAttempt);
-        await _context.SaveChangesAsync();
+        context.PaymentAttempts.Add(paymentAttempt);
+        await context.SaveChangesAsync();
 
         return paymentAttempt;
     }
@@ -106,8 +116,8 @@ public class PaymentService(
         paymentAttempt.Status = status;
         paymentAttempt.Response = response;
 
-        _context.PaymentAttempts.Update(paymentAttempt);
-        await _context.SaveChangesAsync();
+        context.PaymentAttempts.Update(paymentAttempt);
+        await context.SaveChangesAsync();
 
         return paymentAttempt;
     }
@@ -116,8 +126,8 @@ public class PaymentService(
     {
         transaction.SuccessfulPaymentAttemptId = paymentAttempt.Id;
 
-        _context.Transactions.Update(transaction);
-        await _context.SaveChangesAsync();
+        context.Transactions.Update(transaction);
+        await context.SaveChangesAsync();
 
         return transaction;
     }

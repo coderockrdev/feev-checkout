@@ -20,7 +20,9 @@ public interface IEstablishmentService
 
     string GenerateClientId(int size);
 
-    Task<Establishment?> GetEstablishment(string clientID);
+    Task<Establishment?> GetEstablishment(Guid id);
+
+    Task<Establishment?> GetEstablishmentByClientId(string clientID);
 
     Task<Establishment> CreateEstablishment(string name);
 }
@@ -75,10 +77,16 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
             .Replace("=", "");
     }
 
-    public async Task<Establishment?> GetEstablishment(string clientID)
+    public async Task<Establishment?> GetEstablishment(Guid id)
     {
         return await context.Establishments
-            .FirstOrDefaultAsync(establishment => establishment.ClientId == clientID);
+            .FirstOrDefaultAsync(establishment => establishment.Id == id);
+    }
+
+    public async Task<Establishment?> GetEstablishmentByClientId(string clientId)
+    {
+        return await context.Establishments
+            .FirstOrDefaultAsync(establishment => establishment.ClientId == clientId);
     }
 
     public async Task<Establishment> CreateEstablishment(string name)
