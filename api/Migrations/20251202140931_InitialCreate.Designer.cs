@@ -14,7 +14,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeevCheckout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251201153528_InitialCreate")]
+    [Migration("20251202140931_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -58,6 +58,18 @@ namespace FeevCheckout.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BankAccount")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankAgency")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CheckingAccountNumber")
+                        .HasColumnType("text");
+
                     b.Property<string>("ClientId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -84,6 +96,9 @@ namespace FeevCheckout.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("EstablishmentId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("ExternalId")
                         .HasColumnType("text");
 
@@ -100,6 +115,8 @@ namespace FeevCheckout.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EstablishmentId");
 
                     b.HasIndex("TransactionId");
 
@@ -187,11 +204,19 @@ namespace FeevCheckout.Migrations
 
             modelBuilder.Entity("FeevCheckout.Models.PaymentAttempt", b =>
                 {
+                    b.HasOne("FeevCheckout.Models.Establishment", "Establishment")
+                        .WithMany()
+                        .HasForeignKey("EstablishmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FeevCheckout.Models.Transaction", "Transaction")
                         .WithMany()
                         .HasForeignKey("TransactionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Establishment");
 
                     b.Navigation("Transaction");
                 });

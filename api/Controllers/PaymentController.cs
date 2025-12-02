@@ -26,7 +26,7 @@ public class PaymentController(ITransactionService transactionService, IPaymentS
         if (transaction == null)
             return NotFound(new { message = "Transaction not found." });
 
-        var result = await paymentService.Process(transaction, request.Method, request.Installments);
+        var result = await paymentService.Process(establishmentId, transaction, request.Method, request.Installments);
 
         return Ok(result);
     }

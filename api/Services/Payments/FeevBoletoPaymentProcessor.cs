@@ -97,9 +97,18 @@ public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPayment
 
     public PaymentMethod Method => PaymentMethod.FeevBoleto;
 
-    public async Task<PaymentResult> ProcessAsync(Credential credentials, Transaction transaction,
-        PaymentRule paymentRule, Installment installment)
+    public async Task<PaymentResult> ProcessAsync(
+        Establishment establishment,
+        Credential credentials,
+        Transaction transaction,
+        PaymentRule paymentRule,
+        Installment installment
+    )
     {
+        if (string.IsNullOrEmpty(establishment.BankNumber) || string.IsNullOrEmpty(establishment.BankAgency) ||
+            string.IsNullOrEmpty(establishment.BankAccount))
+            throw new InvalidOperationException("Establishment's bank account information is incompleted.");
+
         var token = await Authenticate(credentials);
 
         var payload = new
@@ -108,6 +117,9 @@ public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPayment
             descricaoFatura = transaction.Description,
             dataFatura = DateTime.Now.ToString("yyyy-MM-dd"),
             meioPagamento = "BOLETO",
+            banco = establishment.BankNumber,
+            agencia = establishment.BankAgency,
+            conta = establishment.BankAccount,
             itens = transaction.Products.Select(product =>
             {
                 return new

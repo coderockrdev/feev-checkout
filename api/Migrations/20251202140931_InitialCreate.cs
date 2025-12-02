@@ -24,7 +24,11 @@ namespace FeevCheckout.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     ClientId = table.Column<string>(type: "text", nullable: false),
-                    ClientSecret = table.Column<string>(type: "text", nullable: false)
+                    ClientSecret = table.Column<string>(type: "text", nullable: false),
+                    BankNumber = table.Column<string>(type: "text", nullable: true),
+                    BankAgency = table.Column<string>(type: "text", nullable: true),
+                    BankAccount = table.Column<string>(type: "text", nullable: true),
+                    CheckingAccountNumber = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -56,6 +60,7 @@ namespace FeevCheckout.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    EstablishmentId = table.Column<Guid>(type: "uuid", nullable: false),
                     TransactionId = table.Column<Guid>(type: "uuid", nullable: false),
                     Method = table.Column<PaymentMethod>(type: "payment_method", nullable: false),
                     ExternalId = table.Column<string>(type: "text", nullable: true),
@@ -66,6 +71,12 @@ namespace FeevCheckout.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PaymentAttempts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PaymentAttempts_Establishments_EstablishmentId",
+                        column: x => x.EstablishmentId,
+                        principalTable: "Establishments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -135,6 +146,11 @@ namespace FeevCheckout.Migrations
                 column: "EstablishmentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PaymentAttempts_EstablishmentId",
+                table: "PaymentAttempts",
+                column: "EstablishmentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PaymentAttempts_TransactionId",
                 table: "PaymentAttempts",
                 column: "TransactionId");
@@ -166,6 +182,10 @@ namespace FeevCheckout.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_PaymentAttempts_Establishments_EstablishmentId",
+                table: "PaymentAttempts");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_Transactions_Establishments_EstablishmentId",
                 table: "Transactions");

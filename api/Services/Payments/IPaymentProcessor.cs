@@ -22,6 +22,11 @@ public interface IPaymentProcessor
 {
     PaymentMethod Method { get; }
 
-    Task<PaymentResult> ProcessAsync(Credential credentials, Transaction transaction, PaymentRule paymentRule,
-        Installment installment);
+    Task<PaymentResult> ProcessAsync(
+        Establishment establishment,
+        Credential credentials,
+        Transaction transaction,
+        PaymentRule paymentRule,
+        Installment installment
+    );
 }
