@@ -7,6 +7,7 @@ using FeevCheckout.Enums;
 using FeevCheckout.Services;
 using FeevCheckout.Services.Payments;
 using FeevCheckout.Services.Webhooks;
+using FeevCheckout.Services.Webhooks.FeevBoleto;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -25,12 +26,17 @@ var jwtKey = builder.Configuration["AppSettings:JwtKey"]
              ?? throw new InvalidOperationException("JWT Key not found or not specified.");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), options =>
-    {
-        options.MapEnum<PaymentMethod>();
-        options.MapEnum<PaymentAttemptStatus>();
-    })
-);
+{
+    // options.EnableSensitiveDataLogging();
+
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsqlOptions =>
+        {
+            npgsqlOptions.MapEnum<PaymentMethod>();
+            npgsqlOptions.MapEnum<PaymentAttemptStatus>();
+        });
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -58,6 +64,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 builder.Services.AddGrpcSwagger();
 
+// Common
 builder.Services.AddScoped<ICredentialService, CredentialService>();
 builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
@@ -65,10 +72,14 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<PaymentProcessorFactory>();
 builder.Services.AddScoped<WebhookProcessorFactory>();
 
+// Payment Gateways
 builder.Services.AddScoped<IPaymentProcessor, FeevBoletoPaymentProcessor>();
 builder.Services.AddScoped<IPaymentProcessor, FeevPixPaymentProcessor>();
 
+// Webhooks
 builder.Services.AddScoped<IWebhookProcessor, FeevBoletoWebhookProcessor>();
+builder.Services.AddScoped<BoletoCancellationService>();
+builder.Services.AddScoped<BoletoResponseFileService>();
 
 var app = builder.Build();
 
