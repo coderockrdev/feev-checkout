@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 using FeevCheckout.Data;
 using FeevCheckout.Enums;
+using FeevCheckout.Queue;
 using FeevCheckout.Services;
 using FeevCheckout.Services.Payments;
 using FeevCheckout.Services.Webhooks;
@@ -80,6 +81,9 @@ builder.Services.AddScoped<IPaymentProcessor, FeevPixPaymentProcessor>();
 builder.Services.AddScoped<IWebhookProcessor, FeevBoletoWebhookProcessor>();
 builder.Services.AddScoped<BoletoCancellationService>();
 builder.Services.AddScoped<BoletoResponseFileService>();
+
+// Queue
+builder.Services.AddHostedService<FeevBoletoResponseFileWoker>();
 
 var app = builder.Build();
 
