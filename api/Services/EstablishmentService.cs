@@ -95,7 +95,12 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
         var secret = HmacValidator.Compute(id, secretKey);
 
         var establishment = new Establishment
-            { Id = Guid.NewGuid(), Name = name, ClientId = id, ClientSecret = secret };
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            ClientId = id,
+            ClientSecret = secret
+        };
 
         context.Establishments.Add(establishment);
         await context.SaveChangesAsync();

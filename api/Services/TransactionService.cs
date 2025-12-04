@@ -127,8 +127,6 @@ public class TransactionService(AppDbContext context) : ITransactionService
 
         await _context.SaveChangesAsync();
 
-        await Task.CompletedTask;
-
         return transaction;
     }
 

@@ -102,6 +102,7 @@ namespace FeevCheckout.Migrations
                     SuccessfulPaymentAttemptId = table.Column<Guid>(type: "uuid", nullable: true),
                     ExpireAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CanceledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
