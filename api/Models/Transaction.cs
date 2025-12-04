@@ -88,6 +88,8 @@ public class Transaction
 
     public DateTime? CanceledAt { get; set; }
 
+    public DateTime? CompletedAt { get; set; }
+
     public required DateTime CreatedAt { get; set; }
 
     [NotMapped]

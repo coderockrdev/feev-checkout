@@ -14,7 +14,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeevCheckout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251202140931_InitialCreate")]
+    [Migration("20251203215401_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -153,6 +153,9 @@ namespace FeevCheckout.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("CanceledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAt")

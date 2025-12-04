@@ -93,7 +93,7 @@ public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPayment
 
     private readonly string boletoBaseUrl = configuration["AppSettings:Feev:BoletoBaseUrl"]
                                             ?? throw new InvalidOperationException(
-                                                "Feev Pix base URL not found or not specified.");
+                                                "Feev Boleto base URL not found or not specified.");
 
     public PaymentMethod Method => PaymentMethod.FeevBoleto;
 
