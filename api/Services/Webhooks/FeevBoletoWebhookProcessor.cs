@@ -1,17 +1,18 @@
 using System.Text.Json;
 
 using FeevCheckout.Enums;
+using FeevCheckout.Services.Webhooks.FeevBoleto;
 
 namespace FeevCheckout.Services.Webhooks;
 
 public class FeevBoletoWebhookProcessor(
-    FeevBoletoCancellationService cancellationService,
-    FeevResponseFileHandling responseFileHandling
+    BoletoCancellationService cancellationService,
+    BoletoResponseFileService responseFileHandling
 ) : IWebhookProcessor
 {
-    private readonly FeevBoletoCancellationService cancellationService = cancellationService;
+    private readonly BoletoCancellationService cancellationService = cancellationService;
 
-    private readonly FeevResponseFileHandling responseFileHandling = responseFileHandling;
+    private readonly BoletoResponseFileService responseFileHandling = responseFileHandling;
 
     public PaymentMethod Method => PaymentMethod.FeevBoleto;
 

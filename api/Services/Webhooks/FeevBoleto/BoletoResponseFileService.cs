@@ -9,7 +9,7 @@ using Flurl.Http;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace FeevCheckout.Services.Webhooks;
+namespace FeevCheckout.Services.Webhooks.FeevBoleto;
 
 public class FeevOcorrencia
 {
@@ -65,12 +65,8 @@ public class FeevFaturaResponse
     public required FeevOcorrencia[] Ocorrencias { get; set; }
 }
 
-public class FeevResponseFileHandling(AppDbContext context, ICredentialService credentialService)
+public class BoletoResponseFileService(AppDbContext context, ICredentialService credentialService)
 {
-    private readonly AppDbContext context = context;
-
-    private readonly ICredentialService credentialService = credentialService;
-
     // private readonly string authBaseUrl = configuration["AppSettings:Feev:AuthBaseUrl"]
     //     ?? throw new InvalidOperationException(
     //         "Feev auth base URL not found or not specified.");
@@ -82,6 +78,9 @@ public class FeevResponseFileHandling(AppDbContext context, ICredentialService c
     private readonly string authBaseUrl = "https://apiseguranca.2safe.com";
 
     private readonly string boletoBaseUrl = "https://api.fatura.2safe.com";
+    private readonly AppDbContext context = context;
+
+    private readonly ICredentialService credentialService = credentialService;
 
     public async Task Handle(string _, JsonElement payload)
     {
@@ -89,7 +88,8 @@ public class FeevResponseFileHandling(AppDbContext context, ICredentialService c
                             throw new BadHttpRequestException("Unable to find the related establishment.");
 
         var credentials = await credentialService.GetCredentials(establishment.Id, PaymentMethod.FeevBoleto) ??
-                          throw new InvalidOperationException($"No credentials registered for '{PaymentMethod.FeevBoleto}'.");
+                          throw new InvalidOperationException(
+                              $"No credentials registered for '{PaymentMethod.FeevBoleto}'.");
 
         if (!payload.TryGetProperty("Lote", out var batch) &&
             !payload.TryGetProperty("lote", out batch))
@@ -110,7 +110,7 @@ public class FeevResponseFileHandling(AppDbContext context, ICredentialService c
                 continue;
 
             var transaction = paymentAttempt.Transaction ??
-                throw new BadHttpRequestException("Unable to find the related transaction.");
+                              throw new BadHttpRequestException("Unable to find the related transaction.");
 
             paymentAttempt.Status = PaymentAttemptStatus.Completed;
             transaction.CompletedAt = DateTime.UtcNow;
