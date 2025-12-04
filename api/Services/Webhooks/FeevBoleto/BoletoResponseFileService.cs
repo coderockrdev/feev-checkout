@@ -3,9 +3,7 @@ using System.Text.Json;
 using FeevCheckout.Data;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
-
-using Flurl;
-using Flurl.Http;
+using FeevCheckout.Queue;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -67,17 +65,6 @@ public class FeevFaturaResponse
 
 public class BoletoResponseFileService(AppDbContext context, ICredentialService credentialService)
 {
-    // private readonly string authBaseUrl = configuration["AppSettings:Feev:AuthBaseUrl"]
-    //     ?? throw new InvalidOperationException(
-    //         "Feev auth base URL not found or not specified.");
-
-    // private readonly string boletoBaseUrl = configuration["AppSettings:Feev:BoletoBaseUrl"]
-    //                                         ?? throw new InvalidOperationException(
-    //                                             "Feev Boleto base URL not found or not specified.");
-
-    private readonly string authBaseUrl = "https://apiseguranca.2safe.com";
-
-    private readonly string boletoBaseUrl = "https://api.fatura.2safe.com";
     private readonly AppDbContext context = context;
 
     private readonly ICredentialService credentialService = credentialService;
@@ -95,28 +82,12 @@ public class BoletoResponseFileService(AppDbContext context, ICredentialService 
             !payload.TryGetProperty("lote", out batch))
             throw new BadHttpRequestException("'Lote' (or 'lote') is required.");
 
-        var token = await Authenticate(credentials);
-
-        var occurrences = await GetOcurrences(token, establishment, batch.GetInt32());
-
-        foreach (var occurrence in occurrences)
+        await FeevBoletoResponseFileQueue.Channel.Writer.WriteAsync(new FeevBoletoResponseFileWokerPayload
         {
-            var invoiceNumber = occurrence.NumeroBoleto;
-
-            var paymentAttempt = await GetPaymentAttemptFromInvoiceNumber(establishment, invoiceNumber);
-
-            // TODO: should we log it or something?
-            if (paymentAttempt == null)
-                continue;
-
-            var transaction = paymentAttempt.Transaction ??
-                              throw new BadHttpRequestException("Unable to find the related transaction.");
-
-            paymentAttempt.Status = PaymentAttemptStatus.Completed;
-            transaction.CompletedAt = DateTime.UtcNow;
-        }
-
-        await context.SaveChangesAsync();
+            Establishment = establishment,
+            Credentials = credentials,
+            Batch = batch.ToString()
+        });
     }
 
     private async Task<Establishment?> GetEstablishmentFromPayload(JsonElement payload)
@@ -137,45 +108,5 @@ public class BoletoResponseFileService(AppDbContext context, ICredentialService 
             establishments.BankNumber == bankNumber.GetString() &&
             establishments.BankAgency == bankAgency.GetString() &&
             establishments.BankAccount == bankAccount.GetString());
-    }
-
-    private async Task<string> Authenticate(Credential credentials)
-    {
-        var token = await $"{authBaseUrl}/api/autenticacao/obtertoken"
-            .SetQueryParams(credentials.Data)
-            .GetStringAsync();
-
-        return token.Trim();
-    }
-
-    private async Task<FeevOcorrencia[]> GetOcurrences(string token, Establishment establishment, int batch)
-    {
-        var response = await $"{boletoBaseUrl}/api/Fatura/ConsultaArquivoRetorno"
-            .WithOAuthBearerToken(token)
-            .SetQueryParams(new
-            {
-                banco = establishment.BankNumber,
-                agencia = establishment.BankAgency,
-                conta = establishment.BankAccount,
-                lote = batch,
-                codigoOcorrenciaBancaria = 6
-            })
-            .GetJsonAsync<FeevFaturaResponse>();
-
-        return response.Ocorrencias;
-    }
-
-    private async Task<PaymentAttempt?> GetPaymentAttemptFromInvoiceNumber(
-        Establishment establishment,
-        int invoiceNumber
-    )
-    {
-        return await context.PaymentAttempts
-            .Include(paymentAttemp => paymentAttemp.Transaction)
-            .Where(paymentAttempt => paymentAttempt.EstablishmentId == establishment.Id)
-            .Where(paymentAttempt => paymentAttempt.Method == PaymentMethod.FeevBoleto)
-            .Where(paymentAttempt => paymentAttempt.Status == PaymentAttemptStatus.Created)
-            .Where(paymentAttempt => paymentAttempt.ExternalId == invoiceNumber.ToString())
-            .FirstOrDefaultAsync();
     }
 }
