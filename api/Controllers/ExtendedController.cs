@@ -1,6 +1,6 @@
-namespace FeevCheckout.Controllers;
-
 using Microsoft.AspNetCore.Mvc;
+
+namespace FeevCheckout.Controllers;
 
 public class ExtendedController : ControllerBase
 {

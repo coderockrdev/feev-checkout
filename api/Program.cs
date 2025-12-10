@@ -11,8 +11,10 @@ using FeevCheckout.Services.Webhooks;
 using FeevCheckout.Services.Webhooks.FeevBoleto;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 static string? GetArgValue(string[] args, string key)
 {
@@ -62,7 +64,52 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, token) =>
+    {
+        document.Components ??= new OpenApiComponents();
+
+        document.Components.SecuritySchemes.TryAdd("Bearer", new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+        });
+
+        return Task.CompletedTask;
+    });
+
+    options.AddOperationTransformer((operation, context, cancellationToken) =>
+    {
+        var hasAuthorize = context.Description.ActionDescriptor.EndpointMetadata
+            .OfType<AuthorizeAttribute>()
+            .Any();
+
+        if (hasAuthorize)
+        {
+            operation.Security ??= [];
+
+            operation.Security.Add(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+        }
+
+        return Task.CompletedTask;
+    });
+});
+
 builder.Services.AddGrpcSwagger();
 
 // Common

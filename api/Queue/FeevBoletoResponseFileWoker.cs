@@ -21,6 +21,10 @@ public class FeevBoletoResponseFileWokerPayload
 
 public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : BackgroundService
 {
+    private readonly string authBaseUrl = "https://apiseguranca.2safe.com";
+
+    private readonly string boletoBaseUrl = "https://api.fatura.2safe.com";
+
     // private readonly string authBaseUrl = configuration["AppSettings:Feev:AuthBaseUrl"]
     //     ?? throw new InvalidOperationException(
     //         "Feev auth base URL not found or not specified.");
@@ -30,10 +34,6 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
     //                                             "Feev Boleto base URL not found or not specified.");
 
     private readonly IServiceProvider serviceProvider = serviceProvider;
-
-    private readonly string authBaseUrl = "https://apiseguranca.2safe.com";
-
-    private readonly string boletoBaseUrl = "https://api.fatura.2safe.com";
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
