@@ -13,7 +13,7 @@ public class PaymentController(ITransactionService transactionService, IPaymentS
     : ExtendedController
 {
     [HttpPost("{id:guid}")]
-    public async Task<IActionResult> Index(Guid id, [FromBody][Required] PaymentRequest request)
+    public async Task<IActionResult> Index(Guid id, [FromBody] [Required] PaymentRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
