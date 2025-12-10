@@ -9,7 +9,7 @@ namespace FeevCheckout.Services;
 
 public interface IPaymentService
 {
-    Task<PaymentResult> Process(Guid establishmentId, Transaction transaction, PaymentMethod method, int? installments);
+    Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int? installments);
 }
 
 public class PaymentService(
@@ -27,10 +27,10 @@ public class PaymentService(
 
     private readonly PaymentProcessorFactory paymentProcessorFactory = paymentProcessorFactory;
 
-    public async Task<PaymentResult> Process(Guid establishmentId, Transaction transaction, PaymentMethod method,
+    public async Task<PaymentResult> Process(Transaction transaction, PaymentMethod method,
         int? installments)
     {
-        var establishment = await establishmentService.GetEstablishment(establishmentId)
+        var establishment = await establishmentService.GetEstablishment(transaction.EstablishmentId)
                             ?? throw new InvalidOperationException("Establishment not found or not available.");
 
         if (transaction.Status == TransactionStatus.Canceled)
