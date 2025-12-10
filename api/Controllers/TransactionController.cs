@@ -10,9 +10,9 @@ namespace FeevCheckout.Controllers;
 
 [ApiController]
 [Route("/transaction")]
-[Authorize]
 public class TransactionController(ITransactionService transactionService) : ExtendedController
 {
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> ListTransactions(
         [FromQuery] ListTransactionsRequest request)
@@ -30,8 +30,7 @@ public class TransactionController(ITransactionService transactionService) : Ext
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetTransaction(Guid id)
     {
-        var establishmentId = ResolveEstablishmentGuid();
-        var transaction = await transactionService.GetTransaction(establishmentId, id);
+        var transaction = await transactionService.GetPublicTransaction(id);
 
         if (transaction == null)
             return NotFound(new { message = "Transaction not found." });
@@ -39,8 +38,9 @@ public class TransactionController(ITransactionService transactionService) : Ext
         return Ok(transaction);
     }
 
+    [Authorize]
     [HttpPost]
-    public async Task<IActionResult> CreateTransaction([FromBody] [Required] CreateTransactionRequest request)
+    public async Task<IActionResult> CreateTransaction([FromBody][Required] CreateTransactionRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -51,6 +51,7 @@ public class TransactionController(ITransactionService transactionService) : Ext
         return Ok(transaction);
     }
 
+    [Authorize]
     [HttpPost("{id:guid}/cancel")]
     public async Task<IActionResult> CancelTransaction(Guid id)
     {

@@ -13,6 +13,8 @@ public interface ITransactionService
 
     Task<Transaction?> GetTransaction(Guid establishmentId, Guid id);
 
+    Task<Transaction?> GetPublicTransaction(Guid id);
+
     Task<Transaction> CreateTransaction(Guid establishmentId, CreateTransactionRequest request);
 
     Task<bool> CancelTransaction(Guid establishmentId, Guid id);
@@ -55,6 +57,13 @@ public class TransactionService(AppDbContext context) : ITransactionService
                 transaction.Id == id &&
                 transaction.EstablishmentId == establishmentId
             );
+    }
+
+    public async Task<Transaction?> GetPublicTransaction(Guid id)
+    {
+        return await _context.Transactions
+            .Include(transaction => transaction.Products)
+            .FirstOrDefaultAsync(transaction => transaction.Id == id);
     }
 
     public async Task<Transaction> CreateTransaction(Guid establishmentId, CreateTransactionRequest request)
