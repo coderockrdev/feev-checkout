@@ -1,95 +1,59 @@
-# Metronic 9 | All-in-One Tailwind based HTML/React/Next.js Template for Modern Web Applications
+# MetronicTailwindAngular
 
-## Getting Started
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.13.
 
-Refer to the [Metronic Vite Documentation](https://docs.keenthemes.com/metronic-react)
-for comprehensive guidance on setting up and getting started your project with Metronic.
+## Development server
 
-## ReUI Components
-
-Metronic now leverages [ReUI](https://reui.io), our open-source React component library.
-
-Star the [ReUI on GitHub](https://github.com/keenthemes/reui) to help us grow the project and stay updated on new features!
-
-## Login with Supabase Auth
-
-This project uses Supabase for authentication. Follow these steps to set up and test the login functionality:
-
-### Prerequisites
-
-- Node.js 16.x or higher
-- Npm or Yarn
-- Tailwind CSS 4.x
-- React 19.x
-- A Supabase account and project
-
-### Installation
-
-To set up the project dependencies, including those required for React 19, use the `--force` flag to resolve any dependency conflicts:
+To start a local development server, run:
 
 ```bash
-npm install --force
+ng serve
 ```
 
-### Environment Setup
+Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-1. Make sure your `.env` file is configured with Supabase credentials:
+## Code scaffolding
 
-```
-
-VITE_SUPABASE_URL=https://your-project-url.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-for-admin-functions
-
-```
-
-### Creating a Demo User
-
-For testing purposes, you can create a demo user with:
+Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
 
 ```bash
-npm run create-demo-user
+ng generate component component-name
 ```
 
-This will create a user with the following credentials:
-
-- Email: demo@kt.com
-- Password: demo123
-
-### Login Features
-
-The login implementation includes:
-
-- Email/Password authentication
-- Google OAuth integration
-- Password reset flow
-- Error handling
-- Token management
-- Protected routes
-
-### Setting Up the Demo Layout
-
-Follow the [Metronic Vite Documentation](https://docs.keenthemes.com/metronic-vite/guides/layouts) to configure and use the demo layout of your choice.
-
-### Development
-
-Start the development server:
+For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
 
 ```bash
-npm run dev
+ng generate --help
 ```
 
-Visit `http://localhost:5173/auth/signin` to test the login functionality.
+## Building
 
-### Testing Login
+To build the project run:
 
-You can test login using:
+```bash
+ng build
+```
 
-1. The demo account credentials
-2. Register a new account (when implemented)
-3. Google Sign-in (requires proper OAuth setup in Supabase)
+This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-### Reporting Issues
+## Running unit tests
 
-If you encounter any issues or have suggestions for improvement, please contact us at [support@keenthemes.com](mailto:support@keenthemes.com).
-Include a detailed description of the issue or suggestion, and we will work to address it in the next stable release.
+To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+
+```bash
+ng test
+```
+
+## Running end-to-end tests
+
+For end-to-end (e2e) testing, run:
+
+```bash
+ng e2e
+```
+
+Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+
+## Additional Resources
+
+For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
