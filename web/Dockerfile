@@ -4,4 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-ENTRYPOINT ["npm", "run", "dev"]
+EXPOSE 4200
+
+ENTRYPOINT ["npm", "run", "ng", "serve", "--", "--host", "0.0.0.0"]

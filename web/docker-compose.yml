@@ -3,6 +3,6 @@ services:
         build: .
         restart: unless-stopped
         ports:
-            - "5173:5173"
+            - "4200:4200"
         volumes:
             - ./:/app

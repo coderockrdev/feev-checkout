@@ -1,0 +1,19 @@
+<!-- Header -->
+<header
+  app-header
+  class="h-[120px] flex shrink-0 items-center bg-background transition-[height]"
+  data-kt-sticky="true"
+  data-kt-sticky-class="transition-[height] fixed z-10 top-0 left-0 right-0 backdrop-blur-md bg-background/70 border-b border-border"
+  data-kt-sticky-name="header"
+  data-kt-sticky-offset="200px"
+  id="header"
+>
+</header>
+
+<!-- Content -->
+<main class="grow my-9" id="content" role="content">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Footer -->
+<footer app-footer class="footer"></footer>
