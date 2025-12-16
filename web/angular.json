@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "metronic-tailwind-angular": {
+    "feev-checkout": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/metronic-tailwind-angular",
+            "outputPath": "dist/feev-checkout",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -78,10 +78,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "metronic-tailwind-angular:build:production"
+              "buildTarget": "feev-checkout:build:production"
             },
             "development": {
-              "buildTarget": "metronic-tailwind-angular:build:development"
+              "buildTarget": "feev-checkout:build:development"
             }
           },
           "defaultConfiguration": "development",

@@ -1,6 +1,7 @@
 {
-  "name": "metronic-tailwind-angular",
-  "version": "0.0.0",
+  "name": "feev-checkout",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -10,7 +11,6 @@
     "lint": "ng lint",
     "lint:fix": "ng lint --fix"
   },
-  "private": true,
   "dependencies": {
     "@angular/common": "^20.1.0",
     "@angular/compiler": "^20.1.0",
