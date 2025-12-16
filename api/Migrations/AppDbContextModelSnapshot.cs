@@ -32,6 +32,9 @@ namespace FeevCheckout.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BraspagProvider")
+                        .HasColumnType("text");
+
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -284,7 +287,7 @@ namespace FeevCheckout.Migrations
                                     b2.Property<string>("Complement")
                                         .HasColumnType("text");
 
-                                    b2.Property<string>("Neighborhood")
+                                    b2.Property<string>("District")
                                         .IsRequired()
                                         .HasColumnType("text");
 
@@ -292,20 +295,20 @@ namespace FeevCheckout.Migrations
                                         .IsRequired()
                                         .HasColumnType("text");
 
-                                    b2.Property<string>("PostalCode")
+                                    b2.Property<string>("State")
                                         .IsRequired()
                                         .HasColumnType("text")
-                                        .HasColumnName("CustomerAddressPostalCode");
+                                        .HasColumnName("CustomerAddressUF");
 
                                     b2.Property<string>("Street")
                                         .IsRequired()
                                         .HasColumnType("text")
                                         .HasColumnName("CustomerAddressStreet");
 
-                                    b2.Property<string>("UF")
+                                    b2.Property<string>("ZipCode")
                                         .IsRequired()
                                         .HasColumnType("text")
-                                        .HasColumnName("CustomerAddressUF");
+                                        .HasColumnName("CustomerAddressPostalCode");
 
                                     b2.HasKey("CustomerTransactionId");
 

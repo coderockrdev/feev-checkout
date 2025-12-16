@@ -12,13 +12,13 @@ public class Address
 
     public string? Complement { get; set; } = null;
 
-    public required string Neighborhood { get; set; }
+    public required string District { get; set; }
 
     public required string City { get; set; }
 
-    public required string UF { get; set; }
+    public required string State { get; set; }
 
-    public required string PostalCode { get; set; }
+    public required string ZipCode { get; set; }
 }
 
 public class Customer

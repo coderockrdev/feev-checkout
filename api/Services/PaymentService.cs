@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using FeevCheckout.Data;
+using FeevCheckout.Dtos;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 using FeevCheckout.Services.Payments;
@@ -9,7 +10,7 @@ namespace FeevCheckout.Services;
 
 public interface IPaymentService
 {
-    Task<PaymentResult> Process(Transaction transaction, PaymentMethod method, int? installments);
+    Task<PaymentResult> Process(Transaction transaction, PaymentRequestDto request);
 }
 
 public class PaymentService(
@@ -27,8 +28,7 @@ public class PaymentService(
 
     private readonly PaymentProcessorFactory paymentProcessorFactory = paymentProcessorFactory;
 
-    public async Task<PaymentResult> Process(Transaction transaction, PaymentMethod method,
-        int? installments)
+    public async Task<PaymentResult> Process(Transaction transaction, PaymentRequestDto request)
     {
         var establishment = await establishmentService.GetEstablishment(transaction.EstablishmentId)
                             ?? throw new InvalidOperationException("Establishment not found or not available.");
@@ -39,29 +39,31 @@ public class PaymentService(
         if (transaction.Status == TransactionStatus.Expired)
             throw new InvalidOperationException("Expired transactions cannot be paid.");
 
-        var processor = ResolveProcessor(transaction, method) ??
-                        throw new InvalidOperationException($"No processor registered for '{method}'.");
+        var processor = ResolveProcessor(transaction, request.Method) ??
+                        throw new InvalidOperationException($"No processor registered for '{request.Method}'.");
 
-        var credentials = await credentialService.GetCredentials(establishment.Id, method) ??
-                          throw new InvalidOperationException($"No credentials registered for '{method}'.");
+        var credentials = await credentialService.GetCredentials(establishment.Id, request.Method) ??
+                          throw new InvalidOperationException($"No credentials registered for '{request.Method}'.");
 
-        var paymentRules = transaction.PaymentRules.FirstOrDefault(paymentRule => paymentRule.Method == method) ??
-                           throw new InvalidOperationException(
-                               $"Payment method '{method}' not available for this transaction.");
+        var paymentRules =
+            transaction.PaymentRules.FirstOrDefault(paymentRule => paymentRule.Method == request.Method) ??
+            throw new InvalidOperationException(
+                $"Payment method '{request.Method}' not available for this transaction.");
 
-        var installment = (method == PaymentMethod.FeevBoleto || method == PaymentMethod.FeevPix
+        var installment = (request.Method == PaymentMethod.FeevBoleto || request.Method == PaymentMethod.FeevPix
                               ? paymentRules.Installments.FirstOrDefault()
                               : paymentRules.Installments.FirstOrDefault(installment =>
-                                  installment.Number == installments)) ??
+                                  installment.Number == request.Installments)) ??
                           throw new InvalidOperationException(
-                              $"Installments number '{installments}' not available for this payment method.");
+                              $"Installments number '{request.Installments}' not available for this payment method.");
 
-        var attempt = await RegisterAttempt(transaction, method);
+        var attempt = await RegisterAttempt(transaction, request.Method);
 
         try
         {
             var result =
-                await processor.ProcessAsync(establishment, credentials, transaction, paymentRules, installment);
+                await processor.ProcessAsync(establishment, credentials, transaction, paymentRules, installment,
+                    request);
 
             await UpdateAttempt(attempt, result.ExternalId, PaymentAttemptStatus.Created, result.Response);
             await UpdateTransaction(transaction, attempt);
@@ -75,12 +77,16 @@ public class PaymentService(
         }
     }
 
-    private IPaymentProcessor? ResolveProcessor(Transaction transaction, PaymentMethod method)
+    private IPaymentProcessor? ResolveProcessor(
+        Transaction transaction,
+        PaymentMethod method
+    )
     {
         var rule = transaction.PaymentRules
-                       .FirstOrDefault(paymentRule => paymentRule.Method == method) ??
-                   throw new InvalidOperationException(
-                       $"Payment method '{method}' not supported for this transaction.");
+                       .FirstOrDefault(paymentRule => paymentRule.Method == method)
+                   ?? throw new InvalidOperationException(
+                       $"Payment method '{method}' not supported for this transaction."
+                   );
 
         return paymentProcessorFactory.GetProcessor(method);
     }

@@ -13,4 +13,6 @@ public class Credential
     public required PaymentMethod Method { get; set; }
 
     public required Dictionary<string, string> Data { get; set; }
+
+    public required string? BraspagProvider { get; set; }
 }

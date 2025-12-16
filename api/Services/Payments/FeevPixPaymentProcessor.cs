@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using FeevCheckout.Dtos;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
@@ -101,7 +102,8 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
         Credential credentials,
         Transaction transaction,
         PaymentRule paymentRule,
-        Installment installment
+        Installment installment,
+        PaymentRequestDto request
     )
     {
         if (string.IsNullOrEmpty(establishment.CheckingAccountNumber))
@@ -119,8 +121,8 @@ public class FeevPixPaymentProcessor(IConfiguration configuration) : IPaymentPro
             emailDevedor = transaction.Customer.Email,
             logradouroDevedor = transaction.Customer.Address.Street,
             cidadeDevedor = transaction.Customer.Address.City,
-            ufDevedor = transaction.Customer.Address.UF,
-            cepDevedor = transaction.Customer.Address.PostalCode,
+            ufDevedor = transaction.Customer.Address.State,
+            cepDevedor = transaction.Customer.Address.ZipCode,
             descricao = transaction.Description,
             codigoContaCorrente = establishment.CheckingAccountNumber,
             parcelas = new[]

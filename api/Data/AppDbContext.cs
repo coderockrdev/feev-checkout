@@ -62,8 +62,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 {
                     address.Property(address => address.Street).HasColumnName("CustomerAddressStreet");
                     address.Property(address => address.City).HasColumnName("CustomerAddressCity");
-                    address.Property(address => address.UF).HasColumnName("CustomerAddressUF");
-                    address.Property(address => address.PostalCode).HasColumnName("CustomerAddressPostalCode");
+                    address.Property(address => address.State).HasColumnName("CustomerAddressUF");
+                    address.Property(address => address.ZipCode).HasColumnName("CustomerAddressPostalCode");
                 });
             });
 
