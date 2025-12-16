@@ -4,7 +4,7 @@ using FeevCheckout.Data;
 using FeevCheckout.Dtos;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
-using FeevCheckout.Services.Payments;
+using FeevCheckout.Processors.Payments;
 
 namespace FeevCheckout.Services;
 

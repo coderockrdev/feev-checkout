@@ -10,6 +10,7 @@ namespace FeevCheckout.Services.Payments;
 public interface IBraspagCartaoService
 {
     public Task<SalesResponse> CreatePayment(
+        Establishment establishment,
         Credential credentials,
         Transaction transaction,
         Installment installment,
@@ -17,18 +18,21 @@ public interface IBraspagCartaoService
     );
 }
 
-public class BraspagCartaoService(IBraspagClient client) : IBraspagCartaoService
+public class BraspagCartaoService(IBraspagClient braspagClient) : IBraspagCartaoService
 {
-    private readonly IBraspagClient client = client;
+    private readonly IBraspagClient braspagClient = braspagClient;
 
     public async Task<SalesResponse> CreatePayment(
+        Establishment establishment,
         Credential credentials,
         Transaction transaction,
         Installment installment,
         CardDto card
     )
     {
-        return await client.CreateRequest(credentials, "/sales").PostJsonAsync(new
+        var request = braspagClient.CreateRequest(credentials, "/sales");
+
+        return await request.PostJsonAsync(new
         {
             MerchantOrderId = transaction.Identifier,
             Customer = new

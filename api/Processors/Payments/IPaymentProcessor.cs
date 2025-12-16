@@ -4,7 +4,7 @@ using FeevCheckout.Dtos;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
-namespace FeevCheckout.Services.Payments;
+namespace FeevCheckout.Processors.Payments;
 
 public class PaymentResult
 {
