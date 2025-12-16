@@ -4,21 +4,26 @@ using Flurl.Http;
 
 namespace FeevCheckout.Libraries.Http;
 
-public class BraspagClient(IConfiguration configuration)
+public interface IBraspagClient
 {
-    private readonly IConfiguration configuration = configuration;
+    IFlurlRequest CreateRequest(Credential credential, string path);
+}
 
-    public IFlurlClient Build(Credential credentials)
+public class BraspagClient(IConfiguration configuration) : IBraspagClient
+{
+    private readonly string baseUrl = configuration["AppSettings:Braspag:BaseUrl"]
+                                      ?? throw new InvalidOperationException(
+                                          "Braspag base URL not found or not specified.");
+
+    public IFlurlRequest CreateRequest(Credential credential, string path)
     {
-        var baseUrl = configuration["AppSettings:Braspag:BaseUrl"]
-                      ?? throw new InvalidOperationException("Braspag base URL not found or not specified.");
-
-        return new FlurlClient(baseUrl)
+        return new FlurlRequest(baseUrl)
+            .AppendPathSegment(path)
             .WithHeaders(new
             {
                 Accept = "application/json",
                 ContentType = "application/json"
             })
-            .WithHeaders(credentials.Data);
+            .WithHeaders(credential.Data);
     }
 }
