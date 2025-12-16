@@ -1,28 +1,55 @@
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import globals from 'globals';
-import tseslint from 'typescript-eslint';
+// @ts-check
+const eslint = require('@eslint/js');
+const { defineConfig } = require("eslint/config");
+const tseslint = require('typescript-eslint');
+const angular = require("angular-eslint");
+const prettierPlugin = require('eslint-plugin-prettier');
+const prettierConfig = require('eslint-config-prettier');
 
-// Clean up globals by removing entries with whitespace
-const cleanGlobals = Object.fromEntries(
-  Object.entries(globals.browser).map(([key, value]) => [key.trim(), value]),
-);
-
-export default tseslint.config(
-  { ignores: ['dist'] },
+module.exports = defineConfig(
   {
-    extends: [...tseslint.configs.recommended],
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: cleanGlobals,
-    },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-    },
+    files: ['**/*.ts'],
+    extends: [
+      eslint.configs.recommended,
+      tseslint.configs.recommended,
+      tseslint.configs.stylistic,
+      angular.configs.tsRecommended,
+      prettierConfig,
+    ],
+    plugins: { prettier: prettierPlugin },
+    processor: angular.processInlineTemplates,
     rules: {
-      ...reactHooks.configs.recommended.rules,
+      '@angular-eslint/directive-selector': [
+        'error',
+        {
+          type: 'attribute',
+          prefix: 'app',
+          style: 'camelCase',
+        },
+      ],
+      '@angular-eslint/component-selector': [
+        'warn',
+        {
+          type: 'element',
+          prefix: 'app',
+          style: 'kebab-case',
+        },
+      ],
+      "no-empty-function": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@angular-eslint/no-empty-lifecycle-method": "off",
+      "@angular-eslint/no-input-rename": "off",
+      '@typescript-eslint/no-explicit-any': 'error',
+      'prettier/prettier': 'error',
     },
+  },
+  {
+    files: ['**/*.html'],
+    extends: [
+      ...angular.configs.templateRecommended,
+      ...angular.configs.templateAccessibility,
+      prettierConfig,
+    ],
+    rules: {},
   },
 );
