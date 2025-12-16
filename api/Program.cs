@@ -123,7 +123,7 @@ builder.Services.AddScoped<PaymentProcessorFactory>();
 builder.Services.AddScoped<WebhookProcessorFactory>();
 
 // HTTP Clients
-builder.Services.AddScoped<BraspagClient>();
+builder.Services.AddScoped<IBraspagClient, BraspagClient>();
 
 // Payment Gateways
 builder.Services.AddScoped<IPaymentProcessor, BraspagCartaoPaymentProcessor>();
