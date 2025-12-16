@@ -106,13 +106,13 @@ public class TransactionService(AppDbContext context) : ITransactionService
                 Email = request.Customer.Email,
                 Address = new Address
                 {
+                    ZipCode = request.Customer.Address.ZipCode,
+                    State = request.Customer.Address.State,
+                    City = request.Customer.Address.City,
+                    District = request.Customer.Address.District,
                     Street = request.Customer.Address.Street,
                     Number = request.Customer.Address.Number,
-                    Complement = request.Customer.Address.Complement,
-                    Neighborhood = request.Customer.Address.Neighborhood,
-                    City = request.Customer.Address.City,
-                    UF = request.Customer.Address.UF,
-                    PostalCode = request.Customer.Address.PostalCode
+                    Complement = request.Customer.Address.Complement
                 }
             },
             TotalAmount = totalAmount,

@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 using FeevCheckout.Data;
 using FeevCheckout.Enums;
+using FeevCheckout.Libraries.Http;
 using FeevCheckout.Queue;
 using FeevCheckout.Services;
 using FeevCheckout.Services.Payments;
@@ -74,7 +75,7 @@ builder.Services.AddOpenApi(options =>
         {
             Type = SecuritySchemeType.Http,
             Scheme = "bearer",
-            BearerFormat = "JWT",
+            BearerFormat = "JWT"
         });
 
         return Task.CompletedTask;
@@ -113,6 +114,7 @@ builder.Services.AddOpenApi(options =>
 builder.Services.AddGrpcSwagger();
 
 // Common
+builder.Services.AddScoped<IBraspagCartaoService, BraspagCartaoService>();
 builder.Services.AddScoped<ICredentialService, CredentialService>();
 builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
@@ -120,7 +122,11 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<PaymentProcessorFactory>();
 builder.Services.AddScoped<WebhookProcessorFactory>();
 
+// HTTP Clients
+builder.Services.AddScoped<BraspagClient>();
+
 // Payment Gateways
+builder.Services.AddScoped<IPaymentProcessor, BraspagCartaoPaymentProcessor>();
 builder.Services.AddScoped<IPaymentProcessor, FeevBoletoPaymentProcessor>();
 builder.Services.AddScoped<IPaymentProcessor, FeevPixPaymentProcessor>();
 

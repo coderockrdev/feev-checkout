@@ -42,7 +42,8 @@ namespace FeevCheckout.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     EstablishmentId = table.Column<Guid>(type: "uuid", nullable: false),
                     Method = table.Column<PaymentMethod>(type: "payment_method", nullable: false),
-                    Data = table.Column<string>(type: "jsonb", nullable: false)
+                    Data = table.Column<string>(type: "jsonb", nullable: false),
+                    BraspagProvider = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -93,7 +94,7 @@ namespace FeevCheckout.Migrations
                     CustomerAddressStreet = table.Column<string>(type: "text", nullable: false),
                     Customer_Address_Number = table.Column<string>(type: "text", nullable: false),
                     Customer_Address_Complement = table.Column<string>(type: "text", nullable: true),
-                    Customer_Address_Neighborhood = table.Column<string>(type: "text", nullable: false),
+                    Customer_Address_District = table.Column<string>(type: "text", nullable: false),
                     CustomerAddressCity = table.Column<string>(type: "text", nullable: false),
                     CustomerAddressUF = table.Column<string>(type: "text", nullable: false),
                     CustomerAddressPostalCode = table.Column<string>(type: "text", nullable: false),

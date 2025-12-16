@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using FeevCheckout.Dtos;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
@@ -27,6 +28,7 @@ public interface IPaymentProcessor
         Credential credentials,
         Transaction transaction,
         PaymentRule paymentRule,
-        Installment installment
+        Installment installment,
+        PaymentRequestDto request
     );
 }

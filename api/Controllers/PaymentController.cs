@@ -13,7 +13,7 @@ public class PaymentController(ITransactionService transactionService, IPaymentS
     : ExtendedController
 {
     [HttpPost("{id:guid}")]
-    public async Task<IActionResult> Index(Guid id, [FromBody] [Required] PaymentRequest request)
+    public async Task<IActionResult> Index(Guid id, [FromBody] [Required] PaymentRequestDto request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -23,7 +23,7 @@ public class PaymentController(ITransactionService transactionService, IPaymentS
         if (transaction == null)
             return NotFound(new { message = "Transaction not found." });
 
-        var result = await paymentService.Process(transaction, request.Method, request.Installments);
+        var result = await paymentService.Process(transaction, request);
 
         return Ok(result);
     }

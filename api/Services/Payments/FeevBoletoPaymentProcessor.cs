@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using FeevCheckout.Dtos;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
@@ -102,7 +103,8 @@ public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPayment
         Credential credentials,
         Transaction transaction,
         PaymentRule paymentRule,
-        Installment installment
+        Installment installment,
+        PaymentRequestDto request
     )
     {
         if (string.IsNullOrEmpty(establishment.BankNumber) || string.IsNullOrEmpty(establishment.BankAgency) ||
@@ -137,13 +139,13 @@ public class FeevBoletoPaymentProcessor(IConfiguration configuration) : IPayment
                 email = transaction.Customer.Email,
                 endereco = new
                 {
-                    CEP = transaction.Customer.Address.PostalCode,
+                    CEP = transaction.Customer.Address.ZipCode,
                     logradouro = transaction.Customer.Address.Street,
                     numero = transaction.Customer.Address.Number,
                     complemento = transaction.Customer.Address.Complement,
-                    bairro = transaction.Customer.Address.Neighborhood,
+                    bairro = transaction.Customer.Address.District,
                     localidade = transaction.Customer.Address.City,
-                    transaction.Customer.Address.UF
+                    transaction.Customer.Address.State
                 },
                 telefones = Array.Empty<object>()
             }
