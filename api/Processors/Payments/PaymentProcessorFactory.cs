@@ -1,6 +1,6 @@
 using FeevCheckout.Enums;
 
-namespace FeevCheckout.Services.Payments;
+namespace FeevCheckout.Processors.Payments;
 
 public class PaymentProcessorFactory(IEnumerable<IPaymentProcessor> processors)
 {

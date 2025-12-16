@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using FeevCheckout.Data;
 using FeevCheckout.Enums;
 using FeevCheckout.Libraries.Http;
+using FeevCheckout.Processors.Payments;
 using FeevCheckout.Queue;
 using FeevCheckout.Services;
 using FeevCheckout.Services.Payments;
@@ -113,25 +114,34 @@ builder.Services.AddOpenApi(options =>
 
 builder.Services.AddGrpcSwagger();
 
-// Common
+// Payment Services
 builder.Services.AddScoped<IBraspagCartaoService, BraspagCartaoService>();
+builder.Services.AddScoped<IFeevBoletoService, FeevBoletoService>();
+builder.Services.AddScoped<IFeevPixService, FeevPixService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+// Common Services
 builder.Services.AddScoped<ICredentialService, CredentialService>();
 builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<PaymentProcessorFactory>();
-builder.Services.AddScoped<WebhookProcessorFactory>();
 
 // HTTP Clients
 builder.Services.AddScoped<IBraspagClient, BraspagClient>();
+builder.Services.AddScoped<IFeevClient, FeevClient>();
+builder.Services.AddScoped<IFeevBoletoClient, FeevBoletoClient>();
+builder.Services.AddScoped<IFeevPixClient, FeevPixClient>();
 
-// Payment Gateways
+// Payment Processors
 builder.Services.AddScoped<IPaymentProcessor, BraspagCartaoPaymentProcessor>();
 builder.Services.AddScoped<IPaymentProcessor, FeevBoletoPaymentProcessor>();
 builder.Services.AddScoped<IPaymentProcessor, FeevPixPaymentProcessor>();
+builder.Services.AddScoped<PaymentProcessorFactory>();
 
-// Webhooks
+// Webhook Processors
 builder.Services.AddScoped<IWebhookProcessor, FeevBoletoWebhookProcessor>();
+builder.Services.AddScoped<WebhookProcessorFactory>();
+
+// TODO: REVIEW
 builder.Services.AddScoped<BoletoCancellationService>();
 builder.Services.AddScoped<BoletoResponseFileService>();
 

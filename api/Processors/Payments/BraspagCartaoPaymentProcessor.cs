@@ -3,8 +3,9 @@ using System.Text.Json;
 using FeevCheckout.Dtos;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
+using FeevCheckout.Services.Payments;
 
-namespace FeevCheckout.Services.Payments;
+namespace FeevCheckout.Processors.Payments;
 
 public class PaymentData
 {
@@ -29,7 +30,9 @@ public class BraspagCartaoPaymentProcessor(IBraspagCartaoService braspagCartaoSe
         if (string.IsNullOrEmpty(credentials.BraspagProvider))
             throw new InvalidOperationException("Establishment's Braspag Provider information is incompleted.");
 
-        var response = await braspagCartaoService.CreatePayment(credentials, transaction, installment, request.Card!);
+        var response =
+            await braspagCartaoService.CreatePayment(establishment, credentials, transaction, installment,
+                request.Card!);
 
         return new PaymentResult
         {
