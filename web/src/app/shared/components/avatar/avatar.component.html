@@ -1,0 +1,15 @@
+@if (isLoading()) {
+  <div class="kt-skeleton size-10 rounded-full"></div>
+} @else {
+  <div class="kt-avatar">
+    @if (source()) {
+      <div class="kt-avatar-image w-full h-full border border-gray-400/10">
+        <img [src]="source()" [alt]="name()" />
+      </div>
+    } @else {
+      <div class="kt-avatar-fallback text-gray-900 bg-gray-100">
+        {{ initials() }}
+      </div>
+    }
+  </div>
+}

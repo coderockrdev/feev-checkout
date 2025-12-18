@@ -1,0 +1,52 @@
+<div class="kt-container-fixed space-y-12">
+  <div>
+    <h1 class="text-xl font-medium text-gray-900">Pagamento</h1>
+    <p class="text-sm text-gray-700">Realize o pagamento de maneira prática e segura conforme as opções disponívels.</p>
+  </div>
+  <div class="grid grid-cols-2 gap-x-10">
+    <div class="flex flex-col gap-y-10">
+      <!-- Customer and Establishment information -->
+      <app-card heading="Pagador e Recebedor">
+        <div class="grid grid-cols-[1fr_auto_1fr] items-center justify-between">
+          <app-party-summary name="Nicolas Amaro Feitoza" document="047.***.***-30" />
+          <app-icon-frame class="text-highlight">
+            <app-icon icon="arrow-right-left" [size]="18" />
+          </app-icon-frame>
+          <app-party-summary class="justify-self-end" [name]="theme()?.name!" document="31.743.818/0001-28"
+            [source]="theme()?.assets?.logo" />
+        </div>
+      </app-card>
+
+      <!-- Transaction Summary -->
+      <div class="flex flex-col gap-y-5">
+        <app-card heading="Resumo da Transação" [contentNoPadding]="true">
+          <app-table [columns]="columns" [data]="products" />
+        </app-card>
+        <div class="flex gap-x-5 items-center justify-end bg-gray-50 rounded-md px-2.5 py-3">
+          <span class="text-sm text-gray-900 font-medium leading-tight">Total</span>
+          <span class="text-sm text-black font-semibold leading-tight">{{ total }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col gap-y-10">
+      <!-- Payment Methods -->
+      <app-card heading="Forma de Pagamento">
+        <form class="flex gap-4" [formGroup]="paymentMethodForm">
+          @for (method of paymentMethods; track method.value) {
+            <app-fancy-radio-button
+              [id]="method.value"
+              name="method"
+              formControlName="method"
+              [label]="method.label"
+              [value]="method.value"
+              [icon]="method.icon"
+            />
+          }
+        </form>
+      </app-card>
+
+      <!-- Credit Card Form -->
+      <app-card heading="Cartão de Crédito"></app-card>
+    </div>
+  </div>
+</div>
