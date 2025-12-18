@@ -29,6 +29,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
         var query = context.Transactions
             .Include(transaction => transaction.Establishment)
             .Include(transaction => transaction.Products)
+            .Include(transaction => transaction.SuccessfulPaymentAttempt)
             .Where(transaction => transaction.EstablishmentId == establishmentId)
             .AsQueryable();
 
@@ -55,6 +56,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
         return await context.Transactions
             .Include(transaction => transaction.Establishment)
             .Include(transaction => transaction.Products)
+            .Include(transaction => transaction.SuccessfulPaymentAttempt)
             .FirstOrDefaultAsync(transaction =>
                 transaction.Id == id &&
                 transaction.EstablishmentId == establishmentId
@@ -66,6 +68,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
         return await context.Transactions
             .Include(transaction => transaction.Establishment)
             .Include(transaction => transaction.Products)
+            .Include(transaction => transaction.SuccessfulPaymentAttempt)
             .FirstOrDefaultAsync(transaction => transaction.Id == id);
     }
 

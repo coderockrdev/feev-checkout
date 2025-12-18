@@ -1,4 +1,4 @@
-import { Component, forwardRef, signal } from "@angular/core";
+import { Component, forwardRef, input, signal } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 @Component({
@@ -20,7 +20,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 export class RadioGroupComponent<T> implements ControlValueAccessor {
   value = signal<Nullable<T>>(null);
 
-  protected disabled = signal(false);
+  disabled = input(false);
+
+  protected isDisabled = signal(false);
 
   private onChange = (_: T) => {};
   private onTouched = () => {};
@@ -38,10 +40,12 @@ export class RadioGroupComponent<T> implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled.set(isDisabled);
+    this.isDisabled.set(isDisabled);
   }
 
   select(value: T): void {
+    if (this.isDisabled() || this.disabled()) return;
+
     this.value.set(value);
     this.onChange(value);
     this.onTouched();

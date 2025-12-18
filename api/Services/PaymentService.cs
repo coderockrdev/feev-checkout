@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using FeevCheckout.Data;
 using FeevCheckout.DTOs;
 using FeevCheckout.Enums;
@@ -65,14 +63,14 @@ public class PaymentService(
                 await processor.ProcessAsync(establishment, credentials, transaction, paymentRules, installment,
                     request);
 
-            await UpdateAttempt(attempt, result.ExternalId, PaymentAttemptStatus.Created, result.Response);
+            await UpdateAttempt(attempt, PaymentAttemptStatus.Created, result);
             await UpdateTransaction(transaction, attempt);
 
             return result;
         }
         catch (Exception)
         {
-            await UpdateAttempt(attempt, null, PaymentAttemptStatus.Failed, null);
+            await UpdateAttempt(attempt, PaymentAttemptStatus.Failed, null);
             throw;
         }
     }
@@ -102,6 +100,7 @@ public class PaymentService(
             ExternalId = null,
             Status = PaymentAttemptStatus.Pending,
             Response = null,
+            ExtraData = null,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -113,14 +112,18 @@ public class PaymentService(
 
     private async Task<PaymentAttempt> UpdateAttempt(
         PaymentAttempt paymentAttempt,
-        string? externalId,
         PaymentAttemptStatus status,
-        JsonDocument? response
+        PaymentResult? paymentResult
     )
     {
-        paymentAttempt.ExternalId = externalId;
         paymentAttempt.Status = status;
-        paymentAttempt.Response = response;
+
+        if (paymentResult != null)
+        {
+            paymentAttempt.ExternalId = paymentResult.ExternalId;
+            paymentAttempt.ExtraData = paymentResult.ExtraData;
+            paymentAttempt.Response = paymentResult.Response;
+        }
 
         context.PaymentAttempts.Update(paymentAttempt);
         await context.SaveChangesAsync();

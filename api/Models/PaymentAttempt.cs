@@ -22,6 +22,8 @@ public class PaymentAttempt
 
     public required PaymentAttemptStatus Status { get; set; }
 
+    public required JsonDocument? ExtraData { get; set; }
+
     public required JsonDocument? Response { get; set; }
 
     public required DateTime CreatedAt { get; set; }

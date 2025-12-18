@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, computed, input } from "@angular/core";
 
 @Component({
   selector: "app-icon-frame",
@@ -9,4 +9,8 @@ import { Component } from "@angular/core";
     class: "inline-flex",
   },
 })
-export class IconFrameComponent {}
+export class IconFrameComponent {
+  size = input<number>(44);
+
+  protected height = computed(() => this.size() + 3);
+}

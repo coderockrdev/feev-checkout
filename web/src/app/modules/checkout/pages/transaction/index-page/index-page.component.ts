@@ -1,49 +1,43 @@
 import { Component, computed, effect, inject, signal } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { HttpResourceRef } from "@angular/common/http";
 import * as z from "zod";
 
-import { CardComponent } from "@shared/components/card/card.component";
-import { ColumnsFor } from "@shared/types/table/column";
-import { FancyRadioButtonComponent } from "@shared/components/fancy-radio-button/fancy-radio-button.component";
 import { IconComponent } from "@shared/components/icon/icon.component";
 import { IconFrameComponent } from "@shared/components/icon-frame/icon-frame.component";
-import { PAYMENT_METHODS_OPTIONS } from "@modules/checkout/constants/payment-methods-options";
-import { PartySummaryComponent } from "@modules/checkout/components/party-summary/party-summary.component";
-import { Product } from "@modules/checkout/types/product";
-import { TableComponent } from "@shared/components/table/table.component";
 import { ThemeService } from "@shared/services/theme/theme.service";
-import { integerToCurrency } from "@shared/utils/currency.utils";
-import { RadioGroupComponent } from "@shared/components/radio-group/radio-group.component";
-import { TransactionService } from "@modules/checkout/services/transaction/transaction.service";
 import { PaymentMethod } from "@modules/checkout/enums/payment-method";
-import { maskDocument } from "@modules/checkout/utils/document.utils";
-import { InputComponent } from "@shared/components/input/input.component";
-import { SelectComponent } from "@shared/components/select/select.component";
-import { SelectOption } from "@shared/types/select/select-option";
-import { Mask } from "@modules/checkout/masks/mask";
 import { CardNumberSchema } from "@modules/checkout/schemas/card-number.schema";
 import { ValidThruSchema } from "@modules/checkout/schemas/valid-thru.schema";
 import { zodForm } from "@shared/utils/zod.utils";
-import { PaymentRequestDtoSchema } from "@app/modules/checkout/schemas/payment-request-dto.schema";
+import { PaymentRequestDtoSchema } from "@modules/checkout/schemas/payment-request-dto.schema";
+import { ModalComponent } from "@shared/components/modal/modal.component";
+import { PaymentFormComponent } from "@modules/checkout/components/payment-form/payment-form.component";
+import { PaymentAttempt } from "@modules/checkout/types/payment-attempt";
+import { PaymentFinishComponent } from "@modules/checkout/components/payment-finish/payment-finish.component";
+import { TransactionStatus } from "@modules/checkout/enums/transaction-status";
+import { PaymentStatus } from "@modules/checkout/enums/payment-status";
+import { isFuture } from "@shared/utils/date.utils";
+import { TransactionStore } from "@modules/checkout/stores/transaction/transaction.store";
+import { TransactionService } from "@modules/checkout/services/transaction/transaction.service";
+import { ModalService } from "@app/shared/services/modal/modal.service";
 
 @Component({
   selector: "app-index-page",
   imports: [
-    CardComponent,
     IconComponent,
     IconFrameComponent,
-    PartySummaryComponent,
-    TableComponent,
-    FancyRadioButtonComponent,
     ReactiveFormsModule,
-    RadioGroupComponent,
-    InputComponent,
-    SelectComponent,
+    ModalComponent,
+    PaymentFormComponent,
+    PaymentFinishComponent,
   ],
   templateUrl: "./index-page.component.html",
   styleUrl: "./index-page.component.scss",
+  host: {
+    class: "h-full",
+  },
 })
 export class IndexPageComponent {
   constructor() {
@@ -52,48 +46,91 @@ export class IndexPageComponent {
         this.creditCardForm.reset();
       }
     });
+
+    effect(() => {
+      const payment = this.payment();
+
+      if (!payment) return;
+
+      if (payment.error()) {
+        this.isSubmitting.set(false);
+
+        this.modal.open({
+          title: "Algo saiu errado!",
+          message: [
+            "Não foi possível concluir a transação com o método de pagamento escolhido.",
+            "Por favor, escolha <b>outro método de pagamento</b> ou tente novamente.",
+          ],
+          type: "error",
+          actions: [
+            {
+              label: "Tentar novamente",
+              variant: "secondary",
+              onClick: () => {
+                this.modal.close();
+
+                // Wait until the modal is fully closed
+                setTimeout(() => {
+                  this.onSubmit();
+                }, 300);
+              },
+            },
+            {
+              label: "Alterar forma de pagamento",
+              icon: "right",
+              onClick: () => this.modal.close(),
+            },
+          ],
+        });
+      }
+
+      if (payment.hasValue()) {
+        this.isSubmitting.set(false);
+        this.transaction.updatePayment(payment.value());
+      }
+    });
   }
 
-  private readonly route = inject(ActivatedRoute);
   protected readonly theme = inject(ThemeService).theme;
-  protected readonly service = inject(TransactionService);
+  private readonly service = inject(TransactionService);
+  protected readonly transaction = inject(TransactionStore);
+  protected readonly modal = inject(ModalService);
 
-  private readonly params = toSignal(this.route.paramMap, { initialValue: null });
-
-  protected readonly transactionId = computed(() => this.params()?.get("transaction") ?? null);
-
-  protected readonly transaction = this.service.getTransaction(this.transactionId);
-  protected readonly isLoading = computed(() => this.transaction.isLoading());
-  protected readonly error = computed(() => this.transaction.error());
   protected isSubmitting = signal(false);
 
+  protected payment = signal<Nullable<HttpResourceRef<PaymentAttempt | undefined>>>(null);
+
+  protected paymentInfo = computed<Nullable<PaymentAttempt>>(
+    () => this.transaction.resource.value()?.successfulPaymentAttempt ?? null,
+  );
+
+  protected showPaymentStep = computed(() => {
+    const paymentInfo = this.paymentInfo();
+
+    if (paymentInfo?.status === PaymentStatus.Created || paymentInfo?.status === null) {
+      if (paymentInfo.method === PaymentMethod.PIX) return isFuture(paymentInfo.extraData.expireAt);
+    }
+
+    return false;
+  });
+
   protected readonly errorMessage = computed(() => {
-    return this.transaction.statusCode() === 404
+    if (
+      this.transaction.resource.hasValue() &&
+      this.transaction.resource.value().status !== TransactionStatus.Available
+    ) {
+      return this.transaction.resource.value().status === TransactionStatus.Canceled
+        ? "Transação cancelada"
+        : "Transação expirada";
+    }
+
+    return this.transaction.resource.statusCode() === 404
       ? "Transação não encontrada"
       : "Não foi possível carregar essa transação";
   });
 
-  protected readonly cardMask = Mask.card;
-  protected readonly validThruMask = Mask.validThru;
-  protected readonly cvvMask = Mask.cvv;
-
-  protected readonly customer = computed(() => this.transaction.value()?.customer);
-
-  // TODO: Should be replaced with establishment document from the transaction
-  protected readonly domainDocument = computed(() => "31743818000128");
-
-  protected readonly paymentMethods = computed(() =>
-    PAYMENT_METHODS_OPTIONS.filter((method) =>
-      this.transaction.value()?.paymentRules.some((rule) => rule.method === method.value),
-    ),
-  );
-
   protected readonly hasPaymentMethod = computed(() => this.method() !== null);
   protected readonly isCreditCard = computed(() => this.method() === PaymentMethod.CreditCard);
-  protected readonly total = computed(() =>
-    integerToCurrency(this.transaction.value()?.totalAmount ?? 0),
-  );
-  protected readonly products = computed(() => this.transaction.value()?.products ?? []);
 
   protected paymentMethodForm = new FormGroup({
     method: new FormControl<Nullable<PaymentMethod>>(null),
@@ -139,40 +176,9 @@ export class IndexPageComponent {
     initialValue: this.paymentMethodForm.controls.method.value,
   });
 
-  protected readonly columns: ColumnsFor<Product> = [
-    {
-      key: "name",
-      label: "Descrição",
-      variant: "highlight",
-    },
-    {
-      key: "price",
-      label: "Valor Unitário",
-      render: integerToCurrency,
-    },
-  ];
+  onSubmit = () => {
+    if (this.isSubmitting() || this.transaction.isLoading()) return;
 
-  protected readonly creditCardRules = computed(() =>
-    this.transaction.value()?.paymentRules.find((rule) => rule.method === PaymentMethod.CreditCard),
-  );
-
-  protected readonly installmentOptions = computed<SelectOption<number>[]>(
-    () =>
-      this.creditCardRules()?.installments.map((installment) => ({
-        value: installment.number,
-        label: `${installment.number}x de ${integerToCurrency(installment.finalAmount)}`,
-      })) ?? [],
-  );
-
-  protected getPartyName(name?: Nullable<string>) {
-    return name ?? "";
-  }
-
-  protected getPartyDocument(document?: Nullable<string>, obscure = true) {
-    return !document ? "" : maskDocument(document, obscure);
-  }
-
-  onSubmit() {
     const isCreditCard = this.isCreditCard();
 
     if (isCreditCard) {
@@ -192,15 +198,26 @@ export class IndexPageComponent {
     });
 
     if (!payload.success) {
-      throw new Error("Invalid payload");
+      this.modal.open({
+        title: "Algo saiu errado!",
+        message:
+          "Não foi possível concluir a transação, revise os dados inseridos e tente novamente.",
+        type: "error",
+        actions: [
+          {
+            label: "Fechar",
+            variant: "secondary",
+            onClick: () => this.modal.close(),
+          },
+        ],
+      });
+      return;
     }
 
     this.isSubmitting.set(true);
 
-    const response = this.service.pay(this.transactionId, payload.data);
+    const payment = this.service.pay(this.transaction.transactionId, payload.data);
 
-    if (response.error()) {
-      throw new Error("Failed to create payment");
-    }
-  }
+    this.payment.set(payment);
+  };
 }

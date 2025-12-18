@@ -1,14 +1,29 @@
-<button type="button" class="w-full grid grid-cols-[auto_1fr_auto] xl:grid-cols-[auto_auto] justify-between shadow-card p-4 gap-2.5 xl:gap-1 rounded-xl transition-all"
-  [disabled]="disabled()" [class.cursor-pointer]="!disabled()" [class.cursor-not-allowed]="disabled()"
-  [ngClass]="stateClass()" (click)="clicked.emit(value())">
-  <app-icon [icon]="icon()" [size]="28" />
+<button
+  type="button"
+  class="w-full grid grid-cols-[auto_1fr_auto] xl:grid-cols-[auto_auto] justify-between shadow-card p-4 gap-2.5 xl:gap-1 rounded-xl transition-all"
+  [disabled]="disabled()"
+  [class.cursor-pointer]="!disabled()"
+  [class.cursor-not-allowed]="disabled()"
+  [class.opacity-50]="disabled()"
+  [ngClass]="stateClass()"
+  (click)="clicked.emit(value())"
+>
+  <app-icon [icon]="icon()" [size]="28"/>
   <span class="kt-label xl:col-span-full xl:order-last grow text-gray-900 text-start font-medium leading-tight">
     {{ label() }}
   </span>
-  <div class="flex grow justify-end w-full">
-    <input [id]="id()" type="radio"
+  <div class="flex grow justify-end w-full items-center lg:items-start">
+    <input
+      [id]="id()"
+      type="radio"
+      [disabled]="disabled()"
       class="w-5 h-5 border border-gray-400 bg-white rounded-full checked:border-primary/50 checked:border-5 outline-none appearance-none"
-      [class.cursor-pointer]="!disabled()" [class.cursor-not-allowed]="disabled()" [name]="name()"
-      [checked]="selected()" [value]="value()" tabindex="-1" />
+      [class.cursor-pointer]="!disabled()"
+      [class.cursor-not-allowed]="disabled()"
+      [name]="name()"
+      [checked]="selected()"
+      [value]="value()"
+      tabindex="-1"
+    />
   </div>
 </button>

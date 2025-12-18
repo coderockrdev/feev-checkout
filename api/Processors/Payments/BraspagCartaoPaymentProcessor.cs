@@ -39,7 +39,7 @@ public class BraspagCartaoPaymentProcessor(IBraspagCartaoService braspagCartaoSe
             Success = true,
             Method = request.Method,
             ExternalId = response.Payment.PaymentId,
-            ExtraData = new
+            ExtraData = JsonDocument.Parse(JsonSerializer.Serialize(new
             {
                 response.Payment.ProofOfSale,
                 response.Payment.AcquirerTransactionId,
@@ -55,7 +55,7 @@ public class BraspagCartaoPaymentProcessor(IBraspagCartaoService braspagCartaoSe
                 response.Payment.ProviderReturnCode,
                 response.Payment.ProviderReturnMessage,
                 response.Payment.CreditCard.PaymentAccountReference
-            },
+            })),
             Response = JsonDocument.Parse(
                 JsonSerializer.Serialize(response)
             )

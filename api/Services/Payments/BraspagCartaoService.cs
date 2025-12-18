@@ -18,7 +18,8 @@ public interface IBraspagCartaoService
     );
 }
 
-public class BraspagCartaoService(IBraspagClient braspagClient, ICardBrandPatternService cardBrandPatternService) : IBraspagCartaoService
+public class BraspagCartaoService(IBraspagClient braspagClient, ICardBrandPatternService cardBrandPatternService)
+    : IBraspagCartaoService
 {
     private readonly IBraspagClient braspagClient = braspagClient;
 

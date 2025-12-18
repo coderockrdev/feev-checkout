@@ -46,6 +46,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasColumnType("payment_attempt_status");
 
         builder.Entity<PaymentAttempt>()
+            .Property(paymentAttempt => paymentAttempt.ExtraData)
+            .HasConversion<JsonDocument>()
+            .HasColumnType("jsonb");
+
+        builder.Entity<PaymentAttempt>()
             .Property(paymentAttempt => paymentAttempt.Response)
             .HasConversion<JsonDocument>()
             .HasColumnType("jsonb");

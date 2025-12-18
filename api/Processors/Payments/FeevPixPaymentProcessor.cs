@@ -7,24 +7,6 @@ using FeevCheckout.Services.Payments;
 
 namespace FeevCheckout.Processors.Payments;
 
-public class FeevPixExtraData
-{
-    public required string Code { get; set; }
-
-    public required string Location { get; set; }
-
-    public required DateTime CreatedAt { get; set; }
-
-    public required DateTime DueAt { get; set; }
-
-    public required DateTime ExpireAt { get; set; }
-}
-
-public class FeevPixPaymentResult : PaymentResult
-{
-    public new required FeevPixExtraData ExtraData { get; set; }
-}
-
 public class FeevPixPaymentProcessor(IFeevPixService feevPixService) : IPaymentProcessor
 {
     private readonly IFeevPixService feevPixService = feevPixService;
@@ -48,19 +30,21 @@ public class FeevPixPaymentProcessor(IFeevPixService feevPixService) : IPaymentP
             installment
         );
 
-        return new FeevPixPaymentResult
+        return new PaymentResult
         {
             Success = true,
             Method = Method,
             ExternalId = response.Parcelas[0].TxId,
-            ExtraData = new FeevPixExtraData
-            {
-                Code = response.Parcelas[0].Brcode,
-                Location = response.Parcelas[0].Location,
-                CreatedAt = response.Parcelas[0].DataHoraCriacao,
-                DueAt = response.Parcelas[0].DataVencimento,
-                ExpireAt = response.Parcelas[0].DataHoraExpiracao
-            },
+            ExtraData = JsonDocument.Parse(
+                JsonSerializer.Serialize(new
+                {
+                    Code = response.Parcelas[0].Brcode,
+                    response.Parcelas[0].Location,
+                    CreatedAt = response.Parcelas[0].DataHoraCriacao,
+                    DueAt = response.Parcelas[0].DataVencimento,
+                    ExpireAt = response.Parcelas[0].DataHoraExpiracao
+                })
+            ),
             Response = JsonDocument.Parse(
                 JsonSerializer.Serialize(response)
             )
