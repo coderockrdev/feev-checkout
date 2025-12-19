@@ -1,0 +1,25 @@
+<div class="kt-form-item">
+  @if (label()) {
+    <label class="kt-form-label text-gray-900 font-medium text-xs" [for]="key">
+      {{ label() }}
+    </label>
+  }
+
+  <div class="kt-form-control" [class.kt-input-group]="!!icon()">
+    @if (icon()) {
+      <span class="kt-input-addon">
+        <app-icon class="text-gray-400" [icon]="icon()!" [size]="18" />
+      </span>
+    }
+
+    <input [id]="key" class="kt-input" [type]="type()" [placeholder]="placeholder()" [disabled]="disabled()" />
+  </div>
+
+  @if (description()) {
+    <div class="kt-form-description">Enter your email to proceed.</div>
+  }
+
+  @if (error()) {
+    <div class="kt-form-message">Please enter a valid email address.</div>
+  }
+</div>

@@ -7,5 +7,5 @@ export const AddressSchema = z.object({
   district: z.string().min(1).max(255),
   city: z.string().min(3).max(50),
   state: z.string().regex(/^[A-Z]{2}$/),
-  zipCode: z.string().regex(/^\d+&/).length(8),
+  zipCode: z.string().regex(/^\d+$/).length(8),
 });

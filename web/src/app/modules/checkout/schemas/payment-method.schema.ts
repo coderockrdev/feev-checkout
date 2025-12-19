@@ -1,3 +1,5 @@
 import * as z from "zod";
 
-export const PaymentMethodSchema = z.enum(["feev_pix", "feev_boleto", "braspag_cartao"]);
+import { PaymentMethod } from "@modules/checkout/enums/payment-method";
+
+export const PaymentMethodSchema = z.enum(PaymentMethod);

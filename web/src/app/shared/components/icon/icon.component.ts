@@ -9,7 +9,7 @@ import { IconName } from "@shared/types/icon-name";
   templateUrl: "./icon.component.html",
   styleUrl: "./icon.component.scss",
   host: {
-    class: "",
+    class: "flex",
   },
 })
 export class IconComponent {

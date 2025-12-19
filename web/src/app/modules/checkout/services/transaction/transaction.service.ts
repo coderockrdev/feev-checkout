@@ -9,7 +9,7 @@ const { apiUrl } = environment;
   providedIn: "root",
 })
 export class TransactionService {
-  getTransaction(id: Signal<string>) {
+  getTransaction(id: Signal<Nullable<string>>) {
     return resource({
       params: () => ({ id: id() }),
       loader: ({ params: { id } }) => {

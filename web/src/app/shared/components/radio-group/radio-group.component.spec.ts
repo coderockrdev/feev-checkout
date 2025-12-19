@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { SectionComponent } from "./section.component";
+import { RadioGroupComponent } from "./radio-group.component";
 
-describe("SectionComponent", () => {
-  let component: SectionComponent;
-  let fixture: ComponentFixture<SectionComponent>;
+describe("RadioGroupComponent", () => {
+  let component: RadioGroupComponent;
+  let fixture: ComponentFixture<RadioGroupComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SectionComponent],
+      imports: [RadioGroupComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SectionComponent);
+    fixture = TestBed.createComponent(RadioGroupComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,5 +1,7 @@
 import * as z from "zod";
 
+import { RawDateTimeSchema } from "@shared/schemas/date";
+
 import { CustomerSchema } from "./customer.schema";
 import { EstablishmentSchema } from "./establishment.schema";
 import { PaymentRuleSchema } from "./payment-rule.schema";
@@ -8,7 +10,7 @@ import { TransactionStatusSchema } from "./transaction-status.schema";
 
 export const TransactionSchema = z.object({
   id: z.guid(),
-  establishment: EstablishmentSchema,
+  establishment: EstablishmentSchema.nullable(),
   identifier: z.string(),
   description: z.string(),
   customer: CustomerSchema,
@@ -17,9 +19,9 @@ export const TransactionSchema = z.object({
   paymentRules: z.array(PaymentRuleSchema),
   successfulPaymentAttemptId: z.string().nullable(),
   successfulPaymentAttempt: z.string().nullable(),
-  expireAt: z.iso.datetime().nullable(),
-  canceledAt: z.iso.datetime().nullable(),
-  completedAt: z.iso.datetime().nullable(),
-  createdAt: z.iso.datetime(),
+  expireAt: RawDateTimeSchema.nullable(),
+  canceledAt: RawDateTimeSchema.nullable(),
+  completedAt: RawDateTimeSchema.nullable(),
+  createdAt: RawDateTimeSchema,
   status: TransactionStatusSchema,
 });

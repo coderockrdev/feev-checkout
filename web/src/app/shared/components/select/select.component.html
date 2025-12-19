@@ -1,0 +1,32 @@
+<div class="kt-form-item">
+  @if (label()) {
+    <label class="kt-form-label text-gray-900 font-medium text-xs" [for]="key">
+      {{ label() }}
+    </label>
+  }
+
+  <div class="kt-form-control">
+    <select
+      [id]="key"
+      class="kt-select"
+      [attr.data-kt-select]="true"
+      [attr.data-kt-select-placeholder]="placeholder()"
+      [attr.data-kt-select-disabled]="disabled()"
+      data-kt-select-config='{
+          "optionsClass": "kt-scrollable overflow-auto max-h-[250px]"
+        }'
+    >
+      @for (option of options(); track option.value) {
+        <option value="option.value">{{ option.label }}</option>
+      }
+    </select>
+  </div>
+
+  @if (description()) {
+    <div class="kt-form-description">Enter your email to proceed.</div>
+  }
+
+  @if (error()) {
+    <div class="kt-form-message">Please enter a valid email address.</div>
+  }
+</div>
