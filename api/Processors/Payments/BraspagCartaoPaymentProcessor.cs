@@ -7,11 +7,6 @@ using FeevCheckout.Services.Payments;
 
 namespace FeevCheckout.Processors.Payments;
 
-public class PaymentData
-{
-    public required CardDto Card { get; set; }
-}
-
 public class BraspagCartaoPaymentProcessor(IBraspagCartaoService braspagCartaoService) : IPaymentProcessor
 {
     private readonly IBraspagCartaoService braspagCartaoService = braspagCartaoService;

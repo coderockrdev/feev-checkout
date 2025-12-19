@@ -1,6 +1,6 @@
 using FeevCheckout.Enums;
 
-namespace FeevCheckout.Services.Webhooks;
+namespace FeevCheckout.Processors.Webhooks;
 
 public class WebhookProcessorFactory(IEnumerable<IWebhookProcessor> processors)
 {

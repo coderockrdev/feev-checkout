@@ -9,7 +9,7 @@ namespace FeevCheckout.Services.Payments;
 
 public interface IBraspagCartaoService
 {
-    public Task<SalesResponse> CreatePayment(
+    Task<SalesResponse> CreatePayment(
         Establishment establishment,
         Credential credentials,
         Transaction transaction,

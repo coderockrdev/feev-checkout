@@ -6,11 +6,11 @@ using FeevCheckout.Data;
 using FeevCheckout.Enums;
 using FeevCheckout.Libraries.Http;
 using FeevCheckout.Processors.Payments;
+using FeevCheckout.Processors.Webhooks;
 using FeevCheckout.Queue;
 using FeevCheckout.Services;
 using FeevCheckout.Services.Payments;
 using FeevCheckout.Services.Webhooks;
-using FeevCheckout.Services.Webhooks.FeevBoleto;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -120,6 +120,10 @@ builder.Services.AddScoped<IFeevBoletoService, FeevBoletoService>();
 builder.Services.AddScoped<IFeevPixService, FeevPixService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
+// Webhook Services
+builder.Services.AddScoped<IFeevBoletoCancellationService, FeevBoletoCancellationService>();
+builder.Services.AddScoped<IFeevBoletoResponseFileService, FeevBoletoResponseFileService>();
+
 // Common Services
 builder.Services.AddScoped<ICredentialService, CredentialService>();
 builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
@@ -140,10 +144,6 @@ builder.Services.AddScoped<PaymentProcessorFactory>();
 // Webhook Processors
 builder.Services.AddScoped<IWebhookProcessor, FeevBoletoWebhookProcessor>();
 builder.Services.AddScoped<WebhookProcessorFactory>();
-
-// TODO: REVIEW
-builder.Services.AddScoped<BoletoCancellationService>();
-builder.Services.AddScoped<BoletoResponseFileService>();
 
 // Queue
 builder.Services.AddHostedService<FeevBoletoResponseFileWoker>();

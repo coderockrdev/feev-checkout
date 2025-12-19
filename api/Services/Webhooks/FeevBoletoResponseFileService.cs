@@ -7,63 +7,15 @@ using FeevCheckout.Queue;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace FeevCheckout.Services.Webhooks.FeevBoleto;
+namespace FeevCheckout.Services.Webhooks;
 
-public class FeevOcorrencia
+public interface IFeevBoletoResponseFileService
 {
-    public required string Carteira { get; set; }
-
-    public required int NumeroBoleto { get; set; }
-
-    public required int CodigoOcorrenciaBancaria { get; set; }
-
-    public required string DescricaoOcorrencia { get; set; }
-
-    public required string DataOcorrencia { get; set; }
-
-    public required string NossoNumero { get; set; }
-
-    public required double ValorPago { get; set; }
-
-    public required string DataCredito { get; set; }
-
-    public required string DataHoraImportacao { get; set; }
-
-    public required string DataHoraProcessamento { get; set; }
-
-    public required string CodigoInconsistencia { get; set; }
-
-    public required string BancoCobrador { get; set; }
-
-    public required string AgenciaCobradora { get; set; }
-
-    public required string DescricaoInconsistencia { get; set; }
+    Task Handle(string _, JsonElement payload);
 }
 
-public class FeevFaturaResponse
-{
-    public required string Banco { get; set; }
-
-    public required string Agencia { get; set; }
-
-    public required string Conta { get; set; }
-
-    public required string DataGeracaoArquivo { get; set; }
-
-    public required string Lote { get; set; }
-
-    public required string Carteira { get; set; }
-
-    public required string LinkArquivoRetorno { get; set; }
-
-    public required string NomeArquivoRetorno { get; set; }
-
-    public required string Situacao { get; set; }
-
-    public required FeevOcorrencia[] Ocorrencias { get; set; }
-}
-
-public class BoletoResponseFileService(AppDbContext context, ICredentialService credentialService)
+public class FeevBoletoResponseFileService(AppDbContext context, ICredentialService credentialService)
+    : IFeevBoletoResponseFileService
 {
     private readonly AppDbContext context = context;
 

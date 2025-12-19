@@ -7,29 +7,29 @@ using FeevCheckout.Services.Payments;
 
 namespace FeevCheckout.Processors.Payments;
 
-public class FeevBoletoInvoicesPaymentData
+public class Boleto
 {
-    public required int Installment { get; set; }
+    public required int NumeroParcela { get; set; }
 
-    public required DateTime DueAt { get; set; }
+    public required DateTime Vencimento { get; set; }
 
-    public required string DigitableLine { get; set; }
+    public required string LinhaDigitavel { get; set; }
 
-    public required string Link { get; set; }
+    public required string LinkBoleto { get; set; }
 }
 
-public class FeevBoletoPaymentData
+public class FeevBoletoExtraData
 {
-    public required int InvoiceNumber { get; set; }
+    public required int CodigoFatura { get; set; }
 
-    public required string BookletLink { get; set; }
+    public required string LinkCarne { get; set; }
 
-    public required List<FeevBoletoInvoicesPaymentData> Invoices { get; set; }
+    public required List<Boleto> Boletos { get; set; }
 }
 
 public class FeevBoletoPaymentResult : PaymentResult
 {
-    public new required FeevBoletoPaymentData ExtraData { get; set; }
+    public new required FeevBoletoExtraData ExtraData { get; set; }
 }
 
 public class FeevBoletoPaymentProcessor(IFeevBoletoService feevBoletoService) : IPaymentProcessor
@@ -60,20 +60,20 @@ public class FeevBoletoPaymentProcessor(IFeevBoletoService feevBoletoService) : 
             Success = true,
             Method = Method,
             ExternalId = response.Boletos[0].NumeroBoleto.ToString(),
-            ExtraData = new FeevBoletoPaymentData
+            ExtraData = new FeevBoletoExtraData
             {
-                InvoiceNumber = response.CodigoFatura,
-                BookletLink = response.LinkCarne,
-                Invoices =
+                CodigoFatura = response.CodigoFatura,
+                LinkCarne = response.LinkCarne,
+                Boletos =
                 [
-                    .. response.Boletos.Select(invoice =>
+                    .. response.Boletos.Select(boleto =>
                     {
-                        return new FeevBoletoInvoicesPaymentData
+                        return new Boleto
                         {
-                            Installment = invoice.NumeroParcela,
-                            DueAt = invoice.Vencimento,
-                            DigitableLine = invoice.LinhaDigitavel,
-                            Link = invoice.LinkBoleto
+                            NumeroParcela = boleto.NumeroParcela,
+                            Vencimento = boleto.Vencimento,
+                            LinhaDigitavel = boleto.LinhaDigitavel,
+                            LinkBoleto = boleto.LinkBoleto
                         };
                     })
                 ]

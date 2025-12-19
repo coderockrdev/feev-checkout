@@ -7,7 +7,7 @@ using FeevCheckout.Services.Payments;
 
 namespace FeevCheckout.Processors.Payments;
 
-public class FeevPixPaymentData
+public class FeevPixExtraData
 {
     public required string Code { get; set; }
 
@@ -22,7 +22,7 @@ public class FeevPixPaymentData
 
 public class FeevPixPaymentResult : PaymentResult
 {
-    public new required FeevPixPaymentData ExtraData { get; set; }
+    public new required FeevPixExtraData ExtraData { get; set; }
 }
 
 public class FeevPixPaymentProcessor(IFeevPixService feevPixService) : IPaymentProcessor
@@ -53,7 +53,7 @@ public class FeevPixPaymentProcessor(IFeevPixService feevPixService) : IPaymentP
             Success = true,
             Method = Method,
             ExternalId = response.Parcelas[0].TxId,
-            ExtraData = new FeevPixPaymentData
+            ExtraData = new FeevPixExtraData
             {
                 Code = response.Parcelas[0].Brcode,
                 Location = response.Parcelas[0].Location,
