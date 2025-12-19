@@ -46,8 +46,6 @@ body {
   /* --color-zinc-950 */
   --mono-foreground: oklch(1 0 0);
 
-  --highlight: oklch(59.12% 0.199 256.76);
-
   /** Base Styles **/
   --border: oklch(94% 0.004 286.32);
   /* between --color-zinc-100 and --color-zinc-200 */
@@ -76,8 +74,6 @@ body {
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
 
-  --color-highlight: var(--highlight);
-
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
 
@@ -104,9 +100,17 @@ body {
 }
 
 @layer components {
-  .kt-radio:checked, .kt-radio:indeterminate {
-    background-color: var(--highlight);
-    border-color: var(--highlight);
+  .kt-btn {
+    background-color: --alpha(var(--primary) / 50%);
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    &:hover {
+      background-color: --alpha(var(--primary) / 65%);
+    }
   }
 
   .kt-container-fixed {

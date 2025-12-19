@@ -1,23 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { FancyRadioButtonComponent } from './fancy-radio-button.component';
+import { FancyRadioButtonComponent } from "./fancy-radio-button.component";
 
-describe('FancyRadioButtonComponent', () => {
-  let component: FancyRadioButtonComponent;
-  let fixture: ComponentFixture<FancyRadioButtonComponent>;
+describe("FancyRadioButtonComponent", () => {
+  let component: FancyRadioButtonComponent<unknown>;
+  let fixture: ComponentFixture<FancyRadioButtonComponent<unknown>>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FancyRadioButtonComponent]
-    })
-    .compileComponents();
+      imports: [FancyRadioButtonComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FancyRadioButtonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

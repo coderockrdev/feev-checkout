@@ -1,6 +1,5 @@
-import { Component, computed, forwardRef, input, signal } from "@angular/core";
+import { Component, computed, input, output, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { IconName } from "@shared/types/icon-name";
 import { IconComponent } from "../icon/icon.component";
@@ -10,53 +9,23 @@ import { IconComponent } from "../icon/icon.component";
   imports: [CommonModule, IconComponent],
   templateUrl: "./fancy-radio-button.component.html",
   styleUrl: "./fancy-radio-button.component.scss",
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FancyRadioButtonComponent),
-      multi: true,
-    },
-  ],
   host: {
     class: "w-full",
   },
 })
-export class FancyRadioButtonComponent<T> implements ControlValueAccessor {
+export class FancyRadioButtonComponent<T> {
   readonly id = input.required<string>();
   readonly name = input.required<string>();
   readonly label = input.required<string>();
   readonly value = input.required<T>();
   readonly icon = input.required<IconName>();
+  readonly selected = input.required<boolean>();
 
-  protected checked = signal(false);
-  protected disabled = false;
+  protected disabled = signal(false);
+
+  protected readonly clicked = output<T>();
 
   protected stateClass = computed(() =>
-    this.checked() ? "inset-ring-[3px] inset-ring-highlight" : "inset-ring inset-ring-gray-200",
+    this.selected() ? "inset-ring-[3px] inset-ring-primary/20" : "inset-ring inset-ring-gray-200",
   );
-
-  private onChange = (_: T) => {};
-  private onTouched = () => {};
-
-  writeValue(value: T): void {
-    console.log(value);
-    this.checked.set(value === this.value());
-  }
-
-  registerOnChange(fn: (val: T) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-  }
-
-  protected handleChange(): void {
-    this.onChange(this.value());
-    this.onTouched();
-  }
 }

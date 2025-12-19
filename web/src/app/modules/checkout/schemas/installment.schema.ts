@@ -1,10 +1,12 @@
 import * as z from "zod";
 
+import { RawDateOnlySchema } from "@app/shared/schemas/date";
+
 export const InstallmentSchema = z.object({
-  number: z.int().positive(),
-  dueAt: z.iso.date().nullable(),
-  expireAt: z.iso.date().nullable(),
-  fee: z.int().positive().nullable(),
+  number: z.int().min(0),
+  dueAt: RawDateOnlySchema.nullable(),
+  expireAt: RawDateOnlySchema.nullable(),
+  fee: z.int().min(0).nullable(),
   feeType: z.string().nullable(),
-  finalAmount: z.int().positive(),
+  finalAmount: z.int().min(0),
 });
