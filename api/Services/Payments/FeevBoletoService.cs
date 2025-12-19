@@ -8,12 +8,18 @@ namespace FeevCheckout.Services.Payments;
 
 public interface IFeevBoletoService
 {
-    public Task<InserirFaturaResponse> CreatePayment(
+    Task<InserirFaturaResponse> CreatePayment(
         Establishment establishment,
         Credential credentials,
         Transaction transaction,
         PaymentRule paymentRule,
         Installment installment
+    );
+
+    Task<ConsultaArquivoRetornoResponse> GetResponseFile(
+        Establishment establishment,
+        Credential credentials,
+        string batch
     );
 }
 
@@ -73,6 +79,25 @@ public class FeevBoletoService(IFeevBoletoClient feevBoletoClient) : IFeevBoleto
                 }
             })
             .ReceiveJson<InserirFaturaResponse>();
+    }
+
+    public async Task<ConsultaArquivoRetornoResponse> GetResponseFile(Establishment establishment,
+        Credential credentials, string batch)
+    {
+        if (string.IsNullOrEmpty(establishment.BankNumber) || string.IsNullOrEmpty(establishment.BankAgency) ||
+            string.IsNullOrEmpty(establishment.BankAccount))
+            throw new InvalidOperationException("Establishment's bank account information is incompleted.");
+
+        var request = await feevBoletoClient.CreateRequest(credentials, "/ConsultaArquivoRetorno");
+
+        return await request.SetQueryParams(new
+        {
+            banco = establishment.BankNumber,
+            agencia = establishment.BankAgency,
+            conta = establishment.BankAccount,
+            lote = batch,
+            codigoOcorrenciaBancaria = 6
+        }).GetJsonAsync<ConsultaArquivoRetornoResponse>();
     }
 
     private static List<object> MapInstallments(PaymentRule paymentRule, Installment installment)

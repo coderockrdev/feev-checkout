@@ -8,7 +8,7 @@ namespace FeevCheckout.Services.Payments;
 
 public interface IFeevPixService
 {
-    public Task<IncluirCobrancaPixResponse> CreatePayment(
+    Task<IncluirCobrancaPixResponse> CreatePayment(
         Establishment establishment,
         Credential credentials,
         Transaction transaction,

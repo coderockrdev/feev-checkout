@@ -2,7 +2,7 @@ using System.Text.Json;
 
 using FeevCheckout.Enums;
 
-namespace FeevCheckout.Services.Webhooks;
+namespace FeevCheckout.Processors.Webhooks;
 
 public interface IWebhookProcessor
 {

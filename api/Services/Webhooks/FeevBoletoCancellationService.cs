@@ -6,9 +6,15 @@ using FeevCheckout.Models;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace FeevCheckout.Services.Webhooks.FeevBoleto;
+namespace FeevCheckout.Services.Webhooks;
 
-public class BoletoCancellationService(AppDbContext context, ITransactionService transactionService)
+public interface IFeevBoletoCancellationService
+{
+    Task Handle(string eventName, JsonElement payload);
+}
+
+public class FeevBoletoCancellationService(AppDbContext context, ITransactionService transactionService)
+    : IFeevBoletoCancellationService
 {
     private readonly AppDbContext context = context;
 

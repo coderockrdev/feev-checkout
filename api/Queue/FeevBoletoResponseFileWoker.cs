@@ -1,10 +1,8 @@
 using FeevCheckout.Data;
 using FeevCheckout.Enums;
+using FeevCheckout.Libraries.Interfaces;
 using FeevCheckout.Models;
-using FeevCheckout.Services.Webhooks.FeevBoleto;
-
-using Flurl;
-using Flurl.Http;
+using FeevCheckout.Services.Payments;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -21,10 +19,6 @@ public class FeevBoletoResponseFileWokerPayload
 
 public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : BackgroundService
 {
-    private readonly string authBaseUrl = "https://apiseguranca.2safe.com";
-
-    private readonly string boletoBaseUrl = "https://api.fatura.2safe.com";
-
     // private readonly string authBaseUrl = configuration["AppSettings:Feev:AuthBaseUrl"]
     //     ?? throw new InvalidOperationException(
     //         "Feev auth base URL not found or not specified.");
@@ -49,9 +43,7 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        var token = await Authenticate(payload.Credentials);
-
-        var occurrences = await GetOcurrences(token, payload.Establishment, payload.Batch);
+        var occurrences = await GetOcurrences(payload.Establishment, payload.Credentials, payload.Batch);
 
         foreach (var occurrence in occurrences)
         {
@@ -75,30 +67,14 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
         await context.SaveChangesAsync();
     }
 
-    private async Task<string> Authenticate(Credential credentials)
+    private async Task<Ocorrencia[]> GetOcurrences(Establishment establishment, Credential credentials, string batch)
     {
-        var token = await $"{authBaseUrl}/api/autenticacao/obtertoken"
-            .SetQueryParams(credentials.Data)
-            .GetStringAsync();
+        using var scope = serviceProvider.CreateScope();
+        var feevBoletoService = scope.ServiceProvider.GetRequiredService<IFeevBoletoService>();
 
-        return token.Trim();
-    }
+        var responseFile = await feevBoletoService.GetResponseFile(establishment, credentials, batch);
 
-    private async Task<FeevOcorrencia[]> GetOcurrences(string token, Establishment establishment, string batch)
-    {
-        var response = await $"{boletoBaseUrl}/api/Fatura/ConsultaArquivoRetorno"
-            .WithOAuthBearerToken(token)
-            .SetQueryParams(new
-            {
-                banco = establishment.BankNumber,
-                agencia = establishment.BankAgency,
-                conta = establishment.BankAccount,
-                lote = batch,
-                codigoOcorrenciaBancaria = 6
-            })
-            .GetJsonAsync<FeevFaturaResponse>();
-
-        return response.Ocorrencias;
+        return responseFile.Ocorrencias;
     }
 
     private static async Task<PaymentAttempt?> GetPaymentAttemptFromInvoiceNumber(

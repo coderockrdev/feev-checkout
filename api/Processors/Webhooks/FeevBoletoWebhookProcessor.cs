@@ -1,18 +1,18 @@
 using System.Text.Json;
 
 using FeevCheckout.Enums;
-using FeevCheckout.Services.Webhooks.FeevBoleto;
+using FeevCheckout.Services.Webhooks;
 
-namespace FeevCheckout.Services.Webhooks;
+namespace FeevCheckout.Processors.Webhooks;
 
 public class FeevBoletoWebhookProcessor(
-    BoletoCancellationService cancellationService,
-    BoletoResponseFileService responseFileHandling
+    IFeevBoletoCancellationService feevBoletoCancellationService,
+    IFeevBoletoResponseFileService feevBoletoResponseFileService
 ) : IWebhookProcessor
 {
-    private readonly BoletoCancellationService cancellationService = cancellationService;
+    private readonly IFeevBoletoCancellationService feevBoletoCancellationService = feevBoletoCancellationService;
 
-    private readonly BoletoResponseFileService responseFileHandling = responseFileHandling;
+    private readonly IFeevBoletoResponseFileService feevBoletoResponseFileService = feevBoletoResponseFileService;
 
     public PaymentMethod Method => PaymentMethod.FeevBoleto;
 
@@ -24,11 +24,11 @@ public class FeevBoletoWebhookProcessor(
         {
             case "fatura.cancelada":
             case "boleto.expirado":
-                await cancellationService.Handle(eventName, payload);
+                await feevBoletoCancellationService.Handle(eventName, payload);
 
                 break;
             case "processamento.arquivo.retorno":
-                await responseFileHandling.Handle(eventName, payload);
+                await feevBoletoResponseFileService.Handle(eventName, payload);
 
                 break;
             default:
