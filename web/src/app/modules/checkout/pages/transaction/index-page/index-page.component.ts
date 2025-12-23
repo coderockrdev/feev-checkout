@@ -1,6 +1,8 @@
-import { Component, computed, inject } from "@angular/core";
+import { Component, computed, effect, inject, signal } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 import { toSignal } from "@angular/core/rxjs-interop";
+import * as z from "zod";
 
 import { CardComponent } from "@shared/components/card/card.component";
 import { ColumnsFor } from "@shared/types/table/column";
@@ -13,14 +15,18 @@ import { Product } from "@modules/checkout/types/product";
 import { TableComponent } from "@shared/components/table/table.component";
 import { ThemeService } from "@shared/services/theme/theme.service";
 import { integerToCurrency } from "@shared/utils/currency.utils";
-import { RadioGroupComponent } from "@app/shared/components/radio-group/radio-group.component";
-import { TransactionService } from "@app/modules/checkout/services/transaction/transaction.service";
-import { ActivatedRoute } from "@angular/router";
-import { PaymentMethod } from "@app/modules/checkout/enums/payment-method";
-import { maskDocument } from "@app/modules/checkout/utils/document.utils";
-import { InputComponent } from "@app/shared/components/input/input.component";
-import { SelectComponent } from "@app/shared/components/select/select.component";
-import { SelectOption } from "@app/shared/types/select/select-option";
+import { RadioGroupComponent } from "@shared/components/radio-group/radio-group.component";
+import { TransactionService } from "@modules/checkout/services/transaction/transaction.service";
+import { PaymentMethod } from "@modules/checkout/enums/payment-method";
+import { maskDocument } from "@modules/checkout/utils/document.utils";
+import { InputComponent } from "@shared/components/input/input.component";
+import { SelectComponent } from "@shared/components/select/select.component";
+import { SelectOption } from "@shared/types/select/select-option";
+import { Mask } from "@modules/checkout/masks/mask";
+import { CardNumberSchema } from "@modules/checkout/schemas/card-number.schema";
+import { ValidThruSchema } from "@modules/checkout/schemas/valid-thru.schema";
+import { zodForm } from "@shared/utils/zod.utils";
+import { PaymentRequestDtoSchema } from "@app/modules/checkout/schemas/payment-request-dto.schema";
 
 @Component({
   selector: "app-index-page",
@@ -40,6 +46,14 @@ import { SelectOption } from "@app/shared/types/select/select-option";
   styleUrl: "./index-page.component.scss",
 })
 export class IndexPageComponent {
+  constructor() {
+    effect(() => {
+      if (!this.isCreditCard()) {
+        this.creditCardForm.reset();
+      }
+    });
+  }
+
   private readonly route = inject(ActivatedRoute);
   protected readonly theme = inject(ThemeService).theme;
   protected readonly service = inject(TransactionService);
@@ -50,6 +64,18 @@ export class IndexPageComponent {
 
   protected readonly transaction = this.service.getTransaction(this.transactionId);
   protected readonly isLoading = computed(() => this.transaction.isLoading());
+  protected readonly error = computed(() => this.transaction.error());
+  protected isSubmitting = signal(false);
+
+  protected readonly errorMessage = computed(() => {
+    return this.transaction.statusCode() === 404
+      ? "Transação não encontrada"
+      : "Não foi possível carregar essa transação";
+  });
+
+  protected readonly cardMask = Mask.card;
+  protected readonly validThruMask = Mask.validThru;
+  protected readonly cvvMask = Mask.cvv;
 
   protected readonly customer = computed(() => this.transaction.value()?.customer);
 
@@ -71,6 +97,42 @@ export class IndexPageComponent {
 
   protected paymentMethodForm = new FormGroup({
     method: new FormControl<Nullable<PaymentMethod>>(null),
+  });
+
+  protected creditCardForm = zodForm({
+    cardHolder: {
+      defaultValue: "",
+      schema: z.string().min(1, { message: "O nome impresso no cartão é obrigatório" }),
+    },
+    cardNumber: {
+      defaultValue: "",
+      schema: CardNumberSchema,
+    },
+    validThru: {
+      defaultValue: "",
+      schema: ValidThruSchema,
+    },
+    cvv: {
+      defaultValue: "",
+      schema: z
+        .string()
+        .nonempty({ message: "O CVV é obrigatório" })
+        .regex(/^\d{3}$/, { message: "CVV inválido" }),
+    },
+    installments: {
+      defaultValue: null,
+      schema: z.preprocess(
+        (value) => (!value ? undefined : value),
+        z.coerce
+          .number({ message: "Seleciona a quantidade de parcelas" })
+          .int({ message: "Quantidade de parcelas inválidas" })
+          .min(1, { message: "Quantidade de parcelas inválidas" }),
+      ),
+    },
+  });
+
+  protected installments = toSignal(this.creditCardForm.controls.installments.valueChanges, {
+    initialValue: this.creditCardForm.controls.installments.value,
   });
 
   protected method = toSignal(this.paymentMethodForm.controls.method.valueChanges, {
@@ -108,5 +170,37 @@ export class IndexPageComponent {
 
   protected getPartyDocument(document?: Nullable<string>, obscure = true) {
     return !document ? "" : maskDocument(document, obscure);
+  }
+
+  onSubmit() {
+    const isCreditCard = this.isCreditCard();
+
+    if (isCreditCard) {
+      this.creditCardForm.markAllAsTouched();
+      this.creditCardForm.updateValueAndValidity();
+
+      if (this.creditCardForm.invalid) {
+        return;
+      }
+    }
+
+    const rawValue = isCreditCard ? this.creditCardForm.getRawValue() : {};
+
+    const payload = PaymentRequestDtoSchema.safeParse({
+      method: this.method(),
+      ...rawValue,
+    });
+
+    if (!payload.success) {
+      throw new Error("Invalid payload");
+    }
+
+    this.isSubmitting.set(true);
+
+    const response = this.service.pay(this.transactionId, payload.data);
+
+    if (response.error()) {
+      throw new Error("Failed to create payment");
+    }
   }
 }

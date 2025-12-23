@@ -100,6 +100,10 @@ body {
 }
 
 @layer components {
+  .kt-input-addon {
+    margin: 0;
+  }
+
   .kt-btn {
     background-color: --alpha(var(--primary) / 50%);
 
@@ -142,6 +146,21 @@ body {
   @media (min-width:64rem) {
     .lg\:\[\&_\.kt-container-fluid\]\:pe-4 .kt-container-fluid {
       padding-inline-end: calc(var(--spacing)*4)
+    }
+  }
+
+  .kt-select-select-all-button {
+
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--primary);
+      }
+    }
+
+    &:hover {
+      @media (hover: hover) {
+        color: var(--primary);
+      }
     }
   }
 }

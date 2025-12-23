@@ -8,25 +8,30 @@
   <div class="kt-form-control">
     <select
       [id]="key"
+      appKtSelect
       class="kt-select"
+      [attr.aria-invalid]="!!errorMessage"
       [attr.data-kt-select]="true"
       [attr.data-kt-select-placeholder]="placeholder()"
       [attr.data-kt-select-disabled]="disabled()"
+      [value]="value()"
       data-kt-select-config='{
           "optionsClass": "kt-scrollable overflow-auto max-h-[250px]"
         }'
+      (change)="select($event)"
+      (blue)="onTouched()"
     >
       @for (option of options(); track option.value) {
-        <option value="option.value">{{ option.label }}</option>
+        <option [value]="option.value">{{ option.label }}</option>
       }
     </select>
   </div>
 
   @if (description()) {
-    <div class="kt-form-description">Enter your email to proceed.</div>
+    <div class="kt-form-description">{{ description() }}</div>
   }
 
-  @if (error()) {
-    <div class="kt-form-message">Please enter a valid email address.</div>
+  @if (!!errorMessage) {
+    <div class="kt-form-message">{{ errorMessage }}</div>
   }
 </div>

@@ -1,4 +1,4 @@
-import { httpResource } from "@angular/common/http";
+import { httpResource, HttpResourceOptions } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 
 import { RequestFactory } from "@shared/types/api/request-factory";
@@ -10,8 +10,8 @@ const { apiUrl } = environment;
   providedIn: "root",
 })
 export class ApiService {
-  get<T>(requestFactory: RequestFactory) {
-    return httpResource<T>(() => {
+  get<TResult>(requestFactory: RequestFactory, options: HttpResourceOptions<TResult, unknown>) {
+    return httpResource<TResult>(() => {
       const { path, params } = requestFactory();
 
       return {
@@ -19,6 +19,23 @@ export class ApiService {
         params,
         method: "GET",
       };
-    });
+    }, options);
+  }
+
+  post<TResult, TBody>(
+    requestFactory: RequestFactory,
+    body: TBody,
+    options?: HttpResourceOptions<TResult, unknown>,
+  ) {
+    return httpResource<TResult>(() => {
+      const { path, params } = requestFactory();
+
+      return {
+        url: `${apiUrl}/${path}`,
+        params,
+        body,
+        method: "POST",
+      };
+    }, options);
   }
 }

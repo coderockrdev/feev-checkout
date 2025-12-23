@@ -1,79 +1,121 @@
 <div class="kt-container-fixed space-y-12">
-  <div>
-    <h1 class="text-xl font-medium text-gray-900">Pagamento</h1>
-    <p class="text-sm text-gray-700">Realize o pagamento de maneira prática e segura conforme as opções disponívels.</p>
-  </div>
-  <div class="grid grid-cols-2 gap-x-10">
-    <div class="flex flex-col gap-y-10">
-      <!-- Customer and Establishment information -->
-      <app-card heading="Pagador e Recebedor">
-        <div class="grid grid-cols-[1fr_auto_1fr] items-center justify-between">
-          <app-party-summary [name]="customer()?.name ?? ''" [document]="getPartyDocument(customer()?.document)" [isLoading]="isLoading()" />
-          <app-icon-frame class="text-primary/50">
-            <app-icon icon="arrow-right-left" [size]="18" />
-          </app-icon-frame>
-          <app-party-summary class="justify-self-end" [name]="theme()?.name!" [document]="getPartyDocument(domainDocument(), false)" [isLoading]="isLoading()"
-            [source]="theme()?.assets?.logo" />
-        </div>
-      </app-card>
-
-      <!-- Transaction Summary -->
-      <div class="flex flex-col gap-y-5">
-        <app-card heading="Resumo da Transação" [contentNoPadding]="true">
-          <app-table [columns]="columns" [data]="products()" />
+  @if (error()) {
+    <h1 class="text-xl font-medium text-gray-900 text-center">{{ errorMessage() }}</h1>
+  } @else {
+    <div>
+      <h1 class="text-xl font-medium text-gray-900">Pagamento</h1>
+      <p class="text-sm text-gray-700">Realize o pagamento de maneira prática e segura conforme as opções disponívels.</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-y-10 gap-x-10 md:gap-y-0">
+      <div class="flex flex-col gap-y-10">
+        <!-- Customer and Establishment information -->
+        <app-card heading="Pagador e Recebedor">
+          <div class="grid justify-center items-center gap-2.5 lg:grid-cols-[1fr_auto_1fr] lg:gap-0 lg:justify-between">
+            <app-party-summary [name]="customer()?.name ?? ''" [document]="getPartyDocument(customer()?.document)" [isLoading]="isLoading()" />
+            <app-icon-frame class="text-primary/50 mx-auto">
+              <app-icon icon="arrow-right-left" [size]="18" />
+            </app-icon-frame>
+            <app-party-summary class="justify-self-end" [name]="theme()?.name!" [document]="getPartyDocument(domainDocument(), false)" [isLoading]="isLoading()"
+              [source]="theme()?.assets?.logo" />
+          </div>
         </app-card>
-        <div class="flex gap-x-5 items-center justify-end bg-gray-50 rounded-md px-2.5 py-3">
-          <span class="text-sm text-gray-900 font-medium leading-tight">Total</span>
-          <span class="text-sm text-black font-semibold leading-tight">{{ total() }}</span>
+
+        <!-- Transaction Summary -->
+        <div class="flex flex-col gap-y-5">
+          <app-card heading="Resumo da Transação" [contentNoPadding]="true">
+            <app-table [columns]="columns" [data]="products()" />
+          </app-card>
+          <div class="flex gap-x-5 items-center justify-end bg-gray-50 rounded-md px-2.5 py-3">
+            <span class="text-sm text-gray-900 font-medium leading-tight">Total</span>
+            <span class="text-sm text-black font-semibold leading-tight">{{ total() }}</span>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="flex flex-col gap-y-10">
-      <!-- Payment Methods -->
-      <app-card heading="Forma de Pagamento">
-        <form class="flex flex-col items-end gap-y-8" [formGroup]="paymentMethodForm">
-          <app-radio-group #radioGroup class="w-full grid grid-cols-3 gap-4" formControlName="method">
-            @if (isLoading()) {
-              <div class="kt-skeleton w-full h-[88px] rounded-xl"></div>
-              <div class="kt-skeleton w-full h-[88px] rounded-xl"></div>
-              <div class="kt-skeleton w-full h-[88px] rounded-xl"></div>
-            } @else {
-              @for (method of paymentMethods(); track method.value) {
-                <app-fancy-radio-button
-                  [id]="method.value"
-                  name="method"
-                  [label]="method.label"
-                  [value]="method.value"
-                  [icon]="method.icon"
-                  [selected]="radioGroup.value() === method.value"
-                  (clicked)="radioGroup.select($event)"
-                />
+      <div class="flex flex-col gap-y-10">
+        <!-- Payment Methods -->
+        <app-card heading="Forma de Pagamento">
+          <form class="flex flex-col items-end gap-y-8" [formGroup]="paymentMethodForm" (ngSubmit)="onSubmit()">
+            <app-radio-group #radioGroup class="w-full grid xl:grid-cols-3 gap-4" formControlName="method">
+              @if (isLoading()) {
+                <div class="kt-skeleton w-full h-[88px] rounded-xl"></div>
+                <div class="kt-skeleton w-full h-[88px] rounded-xl"></div>
+                <div class="kt-skeleton w-full h-[88px] rounded-xl"></div>
+              } @else {
+                @for (method of paymentMethods(); track method.value) {
+                  <app-fancy-radio-button
+                    [id]="method.value"
+                    name="method"
+                    [label]="method.label"
+                    [value]="method.value"
+                    [icon]="method.icon"
+                    [selected]="radioGroup.value() === method.value"
+                    (clicked)="radioGroup.select($event)"
+                  />
+                }
               }
+            </app-radio-group>
+            @if (hasPaymentMethod() && !isCreditCard()) {
+              <button type="submit" class="kt-btn flex items-center">
+                <span class="leading-tight text-xs font-medium">
+                  Continuar
+                </span>
+                <app-icon icon="right" [size]="12" />
+              </button>
             }
-          </app-radio-group>
-          @if (hasPaymentMethod() && !isCreditCard()) {
-            <button type="button" class="kt-btn flex items-center">
-              <span class="leading-tight text-xs font-medium">
-                Continuar
-              </span>
-              <app-icon icon="right" [size]="12" />
-            </button>
-          }
-        </form>
-      </app-card>
-
-      <!-- Credit Card Form -->
-      @if (isCreditCard()) {
-        <app-card heading="Cartão de Crédito">
-          <form class="grid grid-cols-2 gap-5">
-            <app-input class="col-span-2" label="Nome impresso no cartão" />
-            <app-input class="col-span-2" label="Número do cartão" placeholder="Número do cartão" icon="credit-card" />
-            <app-input label="Data de validade" placeholder="MM/AA" icon="calendar" />
-            <app-input label="Código de segurança (CVV)" placeholder="CVV" icon="lock-2" />
-            <app-select label="Parcelamento" placeholder="Selecione a quantidade de parcelas" [options]="installmentOptions()" />
           </form>
         </app-card>
-      }
+
+        <!-- Credit Card Form -->
+        @if (isCreditCard()) {
+          <app-card heading="Cartão de Crédito">
+            <form class="grid sm:grid-cols-2 gap-5" [formGroup]="creditCardForm" (ngSubmit)="onSubmit()">
+              <app-input
+                formControlName="cardHolder"
+                class="col-span-full"
+                label="Nome impresso no cartão"
+                placeholder="Nome impresso no cartão"
+                icon="user"
+              />
+              <app-input
+                formControlName="cardNumber"
+                class="col-span-full"
+                label="Número do cartão"
+                placeholder="Número do cartão"
+                icon="credit-card"
+                [mask]="cardMask"
+              />
+              <app-input
+                formControlName="validThru"
+                label="Data de validade"
+                placeholder="MM/AA"
+                icon="calendar"
+                [mask]="validThruMask"
+              />
+              <app-input
+                formControlName="cvv"
+                label="Código de segurança (CVV)"
+                placeholder="CVV"
+                icon="lock-2"
+                [mask]="cvvMask"
+              />
+              <app-select
+                formControlName="installments"
+                label="Parcelamento"
+                placeholder="Selecione a quantidade de parcelas"
+                [options]="installmentOptions()"
+              />
+              <div class="flex justify-end col-span-full">
+                <button type="submit" class="kt-btn flex items-center">
+                  <span class="leading-tight text-xs font-medium">
+                    Continuar
+                  </span>
+                  <app-icon icon="right" [size]="12" />
+                </button>
+              </div>
+            </form>
+          </app-card>
+        }
+      </div>
     </div>
-  </div>
+  }
 </div>
