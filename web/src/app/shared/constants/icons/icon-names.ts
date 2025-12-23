@@ -10,4 +10,5 @@ export const ICON_NAMES = [
   "lock-2",
   "pix",
   "right",
+  "user",
 ] as const;

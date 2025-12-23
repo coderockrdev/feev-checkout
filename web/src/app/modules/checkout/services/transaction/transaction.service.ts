@@ -1,22 +1,31 @@
-import { Injectable, resource, Signal } from "@angular/core";
-import { environment } from "@environments/environment";
+import { inject, Injectable, Signal } from "@angular/core";
+import * as z from "zod";
 
 import { TransactionSchema } from "@modules/checkout/schemas/transaction.schema";
-
-const { apiUrl } = environment;
+import { PaymentRequestDtoSchema } from "@modules/checkout/schemas/payment-request-dto.schema";
+import { ApiService } from "@app/shared/services/api/api.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class TransactionService {
+  protected readonly api = inject(ApiService);
+
   getTransaction(id: Signal<Nullable<string>>) {
-    return resource({
-      params: () => ({ id: id() }),
-      loader: ({ params: { id } }) => {
-        return fetch(`${apiUrl}/transaction/${id}`)
-          .then((response) => response.json())
-          .then((response) => TransactionSchema.parse(response));
-      },
-    });
+    return this.api.get(
+      () => ({
+        path: `transaction/${id()}`,
+      }),
+      { parse: (response) => TransactionSchema.parse(response) },
+    );
+  }
+
+  pay(transactionId: Signal<Nullable<string>>, body: z.infer<typeof PaymentRequestDtoSchema>) {
+    return this.api.post(
+      () => ({
+        path: `payment/${transactionId()}`,
+      }),
+      body,
+    );
   }
 }
