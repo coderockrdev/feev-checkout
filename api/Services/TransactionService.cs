@@ -1,5 +1,5 @@
 using FeevCheckout.Data;
-using FeevCheckout.Dtos;
+using FeevCheckout.DTOs;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
@@ -9,7 +9,7 @@ namespace FeevCheckout.Services;
 
 public interface ITransactionService
 {
-    Task<object> ListTransactions(Guid establishmentId, int page, int pageSize);
+    Task<PagedResult<Transaction>> ListTransactions(Guid establishmentId, int page, int pageSize);
 
     Task<Transaction?> GetTransaction(Guid establishmentId, Guid id);
 
@@ -24,9 +24,10 @@ public class TransactionService(AppDbContext context) : ITransactionService
 {
     private readonly AppDbContext _context = context;
 
-    public async Task<object> ListTransactions(Guid establishmentId, int page, int pageSize)
+    public async Task<PagedResult<Transaction>> ListTransactions(Guid establishmentId, int page, int pageSize)
     {
         var query = _context.Transactions
+            .Include(transaction => transaction.Establishment)
             .Include(transaction => transaction.Products)
             .Where(transaction => transaction.EstablishmentId == establishmentId)
             .AsQueryable();
@@ -39,7 +40,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
             .Take(pageSize)
             .ToListAsync();
 
-        return new
+        return new PagedResult<Transaction>
         {
             Page = page,
             PageSize = pageSize,
@@ -52,6 +53,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
     public async Task<Transaction?> GetTransaction(Guid establishmentId, Guid id)
     {
         return await _context.Transactions
+            .Include(transaction => transaction.Establishment)
             .Include(transaction => transaction.Products)
             .FirstOrDefaultAsync(transaction =>
                 transaction.Id == id &&

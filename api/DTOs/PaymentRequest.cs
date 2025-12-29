@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 using FeevCheckout.Enums;
 
-namespace FeevCheckout.Dtos;
+namespace FeevCheckout.DTOs;
 
 public record CardDto(
     [Required(ErrorMessage = "Card holder is required.")]

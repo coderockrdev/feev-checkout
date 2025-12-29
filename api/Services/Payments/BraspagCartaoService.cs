@@ -1,4 +1,4 @@
-using FeevCheckout.Dtos;
+using FeevCheckout.DTOs;
 using FeevCheckout.Libraries.Http;
 using FeevCheckout.Libraries.Interfaces;
 using FeevCheckout.Models;

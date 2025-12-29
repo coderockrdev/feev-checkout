@@ -1,4 +1,4 @@
-using FeevCheckout.Dtos;
+using FeevCheckout.DTOs;
 using FeevCheckout.Services;
 
 using Microsoft.AspNetCore.Mvc;

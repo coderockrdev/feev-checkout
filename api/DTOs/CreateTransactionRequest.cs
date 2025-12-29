@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 using FeevCheckout.Enums;
 
-namespace FeevCheckout.Dtos;
+namespace FeevCheckout.DTOs;
 
 public record ProductDto(
     [Required(ErrorMessage = "Product name is required.")]

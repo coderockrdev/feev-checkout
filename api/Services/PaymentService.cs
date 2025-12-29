@@ -1,7 +1,7 @@
 using System.Text.Json;
 
 using FeevCheckout.Data;
-using FeevCheckout.Dtos;
+using FeevCheckout.DTOs;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 using FeevCheckout.Processors.Payments;
