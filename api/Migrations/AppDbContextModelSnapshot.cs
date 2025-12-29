@@ -67,6 +67,11 @@ namespace FeevCheckout.Migrations
                     b.Property<string>("BankNumber")
                         .HasColumnType("text");
 
+                    b.Property<string>("CNPJ")
+                        .IsRequired()
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)");
+
                     b.Property<string>("CheckingAccountNumber")
                         .HasColumnType("text");
 
@@ -78,9 +83,14 @@ namespace FeevCheckout.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("ShortName")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("character varying(13)");
 
                     b.HasKey("Id");
 

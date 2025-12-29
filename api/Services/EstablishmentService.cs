@@ -24,7 +24,16 @@ public interface IEstablishmentService
 
     Task<Establishment?> GetEstablishmentByClientId(string clientID);
 
-    Task<Establishment> CreateEstablishment(string name);
+    Task<Establishment> CreateEstablishment(
+        string fullName,
+        string shortName,
+        string cnpj,
+        string? bankNumber,
+        string? bankAgency,
+        string? bankAccount,
+        string? checkingAccountNumber,
+        string? creditCardProvider
+    );
 }
 
 public class EstablishmentService(AppDbContext context, IConfiguration configuration) : IEstablishmentService
@@ -54,7 +63,7 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
         {
             new Claim("id", establishment.Id.ToString()),
             new Claim("client_id", establishment.ClientId),
-            new Claim("name", establishment.Name)
+            new Claim("name", establishment.FullName)
         };
 
         var token = new JwtSecurityToken(
@@ -89,7 +98,16 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
             .FirstOrDefaultAsync(establishment => establishment.ClientId == clientId);
     }
 
-    public async Task<Establishment> CreateEstablishment(string name)
+    public async Task<Establishment> CreateEstablishment(
+        string fullName,
+        string shortName,
+        string cnpj,
+        string? bankNumber,
+        string? bankAgency,
+        string? bankAccount,
+        string? checkingAccountNumber,
+        string? creditCardProvider
+    )
     {
         var id = GenerateClientId(12);
         var secret = HmacValidator.Compute(id, secretKey);
@@ -97,7 +115,13 @@ public class EstablishmentService(AppDbContext context, IConfiguration configura
         var establishment = new Establishment
         {
             Id = Guid.NewGuid(),
-            Name = name,
+            FullName = fullName,
+            ShortName = shortName,
+            CNPJ = cnpj,
+            BankNumber = bankNumber,
+            BankAgency = bankAgency,
+            BankAccount = bankAccount,
+            CheckingAccountNumber = checkingAccountNumber,
             ClientId = id,
             ClientSecret = secret
         };

@@ -22,13 +22,15 @@ namespace FeevCheckout.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    ClientId = table.Column<string>(type: "text", nullable: false),
-                    ClientSecret = table.Column<string>(type: "text", nullable: false),
+                    FullName = table.Column<string>(type: "text", nullable: false),
+                    ShortName = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
+                    CNPJ = table.Column<string>(type: "character varying(14)", maxLength: 14, nullable: false),
                     BankNumber = table.Column<string>(type: "text", nullable: true),
                     BankAgency = table.Column<string>(type: "text", nullable: true),
                     BankAccount = table.Column<string>(type: "text", nullable: true),
-                    CheckingAccountNumber = table.Column<string>(type: "text", nullable: true)
+                    CheckingAccountNumber = table.Column<string>(type: "text", nullable: true),
+                    ClientId = table.Column<string>(type: "text", nullable: false),
+                    ClientSecret = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
