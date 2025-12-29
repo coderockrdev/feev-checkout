@@ -62,6 +62,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
     public async Task<Transaction?> GetPublicTransaction(Guid id)
     {
         return await _context.Transactions
+            .Include(transaction => transaction.Establishment)
             .Include(transaction => transaction.Products)
             .FirstOrDefaultAsync(transaction => transaction.Id == id);
     }
