@@ -1,0 +1,33 @@
+@if (label()) {
+  <label class="kt-form-label text-gray-900 font-medium text-xs" [for]="key">
+    {{ label() }}
+  </label>
+}
+
+<div class="kt-form-control" [class.kt-input-group]="!!icon()">
+  @if (icon()) {
+    <span class="kt-input-addon">
+      <app-icon class="text-gray-400" [icon]="icon()!" [size]="18" />
+    </span>
+  }
+
+  <input
+    [id]="key"
+    class="kt-input"
+    [attr.aria-invalid]="!!errorMessage"
+    [name]="name()"
+    [type]="type()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [maskito]="mask()"
+    [value]="value()"
+    (input)="handleChange($event)"
+    (blur)="onTouched()"
+  />
+</div>
+
+@if (description()) {
+  <div class="kt-form-description">{{ description() }}</div>
+}
+
+<div class="kt-form-message">{{ errorMessage }}</div>

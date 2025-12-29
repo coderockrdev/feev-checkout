@@ -1,0 +1,28 @@
+<div class="kt-card-table" data-kt-datatable="true">
+  <div class="kt-table-wrapper kt-scrollable">
+    <table class="kt-table kt-table-border" data-kt-datatable-table="true">
+      <thead>
+        <tr>
+          @for (col of columns(); track col.key) {
+            <th scope="col" class="w-30" [attr.data-kt-datatable-column]="col.key">
+              <div class="kt-table-col">
+                <span class="text-[13px] text-gray-700">{{ col.label }}</span>
+              </div>
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of data(); track row) {
+          <tr>
+            @for (col of columns(); track col.key) {
+              <td class="text-sm px-5 py-6" [ngClass]="getColClassNames(col)">
+                {{ col.render ? col.render(row[col.key], row, $index) : row[col.key]}}
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
