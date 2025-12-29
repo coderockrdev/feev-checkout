@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 using FeevCheckout.Data;
 using FeevCheckout.Enums;
@@ -18,12 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
-static string? GetArgValue(string[] args, string key)
-{
-    var index = Array.IndexOf(args, key);
-
-    return index >= 0 && index < args.Length - 1 ? args[index + 1] : null;
-}
+using Spectre.Console;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -181,17 +177,220 @@ app.MapControllers();
 
 if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
 {
-    var name = GetArgValue(args, "--name") ?? throw new Exception("Missing --name");
+    var fullName = AnsiConsole.Prompt(
+        new TextPrompt<string>("What is the [green]establishment full name[/]?")
+            .PromptStyle("green")
+            .Validate(name =>
+                string.IsNullOrWhiteSpace(name)
+                    ? ValidationResult.Error("Full name cannot be empty.")
+                    : ValidationResult.Success())
+    );
+
+    var shortName = AnsiConsole.Prompt(
+        new TextPrompt<string>("What is the [green]short name[/] (max 13 chars)?")
+            .PromptStyle("green")
+            .Validate(name =>
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                    return ValidationResult.Error("Short name cannot be empty.");
+
+                if (name.Length > 13)
+                    return ValidationResult.Error("Short name must be at most 13 characters.");
+
+                return ValidationResult.Success();
+            })
+    );
+
+    var cnpj = AnsiConsole.Prompt(
+        new TextPrompt<string>("What is the [green]CNPJ[/] (numbers only)?")
+            .PromptStyle("green")
+            .Validate(cnpj =>
+            {
+                if (!Regex.IsMatch(cnpj, @"^\d{14}$"))
+                    return ValidationResult.Error("CNPJ must contain exactly 14 numeric digits.");
+
+                return ValidationResult.Success();
+            })
+    );
+
+    var paymentMethods = AnsiConsole.Prompt(
+        new MultiSelectionPrompt<string>()
+            .Title("Which [green]payment methods[/] will this establishment use?")
+            .AddChoices("Boleto", "Pix", "Credit Card")
+            .Required()
+    );
+
+    string? bankNumber = null;
+    string? bankAgency = null;
+    string? bankAccount = null;
+    string? boletoData = null;
+
+    if (paymentMethods.Contains("Boleto"))
+    {
+        AnsiConsole.MarkupLine("[blue]Boleto bank information[/]");
+
+        bankNumber = AnsiConsole.Prompt(
+            new TextPrompt<string>("Bank number?")
+                .Validate(number =>
+                {
+                    if (!Regex.IsMatch(number, @"^\d{3}$"))
+                        return ValidationResult.Error("Bank number must contain exactly 3 digits.");
+
+                    return ValidationResult.Success();
+                })
+        );
+
+        bankAgency = AnsiConsole.Prompt(
+            new TextPrompt<string>("Bank agency?")
+                .Validate(agency =>
+                    Regex.IsMatch(agency, @"^\d{4}$")
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("Bank agency must contain exactly 4 numeric digits."))
+        );
+
+        bankAccount = AnsiConsole.Prompt(
+            new TextPrompt<string>("Bank account?")
+                .Validate(account =>
+                    Regex.IsMatch(account, @"^\d{5,12}$")
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("Bank account must contain between 5 and 12 numeric digits."))
+        );
+
+        boletoData = AnsiConsole.Prompt(
+            new TextPrompt<string>("Provider configuration (JSON):")
+                .PromptStyle("green")
+                .Validate(json =>
+                {
+                    try
+                    {
+                        JsonDocument.Parse(json);
+                        return ValidationResult.Success();
+                    }
+                    catch
+                    {
+                        return ValidationResult.Error("Invalid JSON format.");
+                    }
+                })
+        );
+    }
+
+    string? checkingAccountNumber = null;
+    string? pixData = null;
+
+    if (paymentMethods.Contains("Pix"))
+    {
+        AnsiConsole.MarkupLine("[blue]Pix information[/]");
+
+        checkingAccountNumber = AnsiConsole.Prompt(
+            new TextPrompt<string>("Checking account number (Pix)?")
+                .Validate(number =>
+                {
+                    if (string.IsNullOrWhiteSpace(number))
+                        return ValidationResult.Error("Checking account number is required for Pix.");
+
+                    if (number.Length > 2)
+                        return ValidationResult.Error("Checking account number must be at most 2 characters.");
+
+                    return ValidationResult.Success();
+                })
+        );
+
+        pixData = AnsiConsole.Prompt(
+            new TextPrompt<string>("Provider configuration (JSON):")
+                .PromptStyle("green")
+                .Validate(json =>
+                {
+                    try
+                    {
+                        JsonDocument.Parse(json);
+                        return ValidationResult.Success();
+                    }
+                    catch
+                    {
+                        return ValidationResult.Error("Invalid JSON format.");
+                    }
+                })
+        );
+    }
+
+    string? creditCardProvider = null;
+    string? creditCardData = null;
+
+    if (paymentMethods.Contains("Credit Card"))
+    {
+        var creditCardProviders = new[]
+        {
+            "Simulado",
+            "Cielo30",
+            "Getnet",
+            "Rede2",
+            "GlobalPayments",
+            "Stone",
+            "PagarMe",
+            "Safra2",
+            "PagSeguro",
+            "FirstData",
+            "Sub1",
+            "Banorte",
+            "Transbank2",
+            "Banese",
+            "BrasilCard",
+            "CredSystem",
+            "Credz",
+            "DMCard"
+        };
+
+        AnsiConsole.MarkupLine("[blue]Credit card information[/]");
+
+        creditCardProvider = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Select the [green]credit card provider[/]:")
+                .PageSize(8)
+                .AddChoices(creditCardProviders)
+        );
+
+        AnsiConsole.MarkupLine(
+            $"[green]Selected provider:[/] [yellow]{creditCardProvider}[/]");
+
+        creditCardData = AnsiConsole.Prompt(
+            new TextPrompt<string>("Provider configuration (JSON):")
+                .PromptStyle("green")
+                .Validate(json =>
+                {
+                    try
+                    {
+                        JsonDocument.Parse(json);
+                        return ValidationResult.Success();
+                    }
+                    catch
+                    {
+                        return ValidationResult.Error("Invalid JSON format.");
+                    }
+                })
+        );
+    }
 
     using var scope = app.Services.CreateScope();
     var service = scope.ServiceProvider.GetRequiredService<IEstablishmentService>();
 
-    var establishment = await service.CreateEstablishment(name);
+    var establishment = await service.CreateEstablishment(
+        fullName,
+        shortName,
+        cnpj,
+        bankNumber,
+        bankAgency,
+        bankAccount,
+        checkingAccountNumber,
+        creditCardProvider
+    );
 
-    Console.WriteLine("Establishment created sucessfully!");
-    Console.WriteLine($"Name: {name}");
-    Console.WriteLine($"Client ID: {establishment.ClientId}");
-    Console.WriteLine($"Client Secret: {establishment.ClientSecret}");
+    AnsiConsole.MarkupLine("[green]✔ Establishment created successfully![/]");
+
+    AnsiConsole.MarkupLine($"[yellow]Full name:[/] {establishment.FullName}");
+    AnsiConsole.MarkupLine($"[yellow]Short name:[/] {establishment.ShortName}");
+    AnsiConsole.MarkupLine($"[yellow]CNPJ:[/] {establishment.CNPJ}");
+    AnsiConsole.MarkupLine($"[yellow]Client ID:[/] {establishment.ClientId}");
+    AnsiConsole.MarkupLine($"[yellow]Client Secret:[/] {establishment.ClientSecret}");
 
     return;
 }

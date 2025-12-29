@@ -26,8 +26,13 @@ public class BraspagCartaoPaymentProcessor(IBraspagCartaoService braspagCartaoSe
             throw new InvalidOperationException("Establishment's Braspag Provider information is incompleted.");
 
         var response =
-            await braspagCartaoService.CreatePayment(establishment, credentials, transaction, installment,
-                request.Card!);
+            await braspagCartaoService.CreatePayment(
+                establishment,
+                credentials,
+                transaction,
+                installment,
+                request.Card!
+            );
 
         return new PaymentResult
         {
