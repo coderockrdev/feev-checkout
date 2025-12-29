@@ -1,4 +1,4 @@
-namespace FeevCheckout.Dtos;
+namespace FeevCheckout.DTOs;
 
 public record ListTransactionsRequest(
     int Page = 1,

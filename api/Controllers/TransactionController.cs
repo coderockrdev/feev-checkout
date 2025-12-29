@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-using FeevCheckout.Dtos;
+using FeevCheckout.DTOs;
+using FeevCheckout.DTOs.Models;
 using FeevCheckout.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -24,7 +25,14 @@ public class TransactionController(ITransactionService transactionService) : Ext
 
         var result = await transactionService.ListTransactions(establishmentId, request.Page, request.PageSize);
 
-        return Ok(result);
+        return Ok(new
+        {
+            result.Page,
+            result.PageSize,
+            result.TotalCount,
+            result.TotalPages,
+            Data = result.Data.Select(transaction => TransactionDto.FromModel(transaction))
+        });
     }
 
     [HttpGet("{id:guid}")]
@@ -35,7 +43,7 @@ public class TransactionController(ITransactionService transactionService) : Ext
         if (transaction == null)
             return NotFound(new { message = "Transaction not found." });
 
-        return Ok(transaction);
+        return Ok(TransactionDto.FromModel(transaction));
     }
 
     [Authorize]
@@ -48,7 +56,7 @@ public class TransactionController(ITransactionService transactionService) : Ext
         var establishmentId = ResolveEstablishmentGuid();
         var transaction = await transactionService.CreateTransaction(establishmentId, request);
 
-        return Ok(transaction);
+        return Ok(TransactionDto.FromModel(transaction));
     }
 
     [Authorize]

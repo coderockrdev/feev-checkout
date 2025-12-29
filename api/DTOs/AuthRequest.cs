@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace FeevCheckout.Dtos;
+namespace FeevCheckout.DTOs;
 
 public record AuthRequest(
     [Required(ErrorMessage = "Client ID is required.")]
