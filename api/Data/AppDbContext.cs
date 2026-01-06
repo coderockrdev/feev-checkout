@@ -9,6 +9,8 @@ namespace FeevCheckout.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    public DbSet<CardBrandPattern> CardBrandPatterns => Set<CardBrandPattern>();
+
     public DbSet<Credential> Credentials => Set<Credential>();
 
     public DbSet<Establishment> Establishments => Set<Establishment>();

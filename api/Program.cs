@@ -121,6 +121,7 @@ builder.Services.AddScoped<IFeevBoletoCancellationService, FeevBoletoCancellatio
 builder.Services.AddScoped<IFeevBoletoResponseFileService, FeevBoletoResponseFileService>();
 
 // Common Services
+builder.Services.AddScoped<ICardBrandPatternService, CardBrandPatternService>();
 builder.Services.AddScoped<ICredentialService, CredentialService>();
 builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();

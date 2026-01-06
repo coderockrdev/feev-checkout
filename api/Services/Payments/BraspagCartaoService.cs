@@ -18,9 +18,11 @@ public interface IBraspagCartaoService
     );
 }
 
-public class BraspagCartaoService(IBraspagClient braspagClient) : IBraspagCartaoService
+public class BraspagCartaoService(IBraspagClient braspagClient, ICardBrandPatternService cardBrandPatternService) : IBraspagCartaoService
 {
     private readonly IBraspagClient braspagClient = braspagClient;
+
+    private readonly ICardBrandPatternService cardBrandPatternService = cardBrandPatternService;
 
     public async Task<SalesResponse> CreatePayment(
         Establishment establishment,
@@ -30,6 +32,9 @@ public class BraspagCartaoService(IBraspagClient braspagClient) : IBraspagCartao
         CardDto card
     )
     {
+        var brandPattern = await cardBrandPatternService.GetByCardNumber(card.Number)
+                           ?? throw new InvalidOperationException("Card brand could not be resolved.");
+
         var request = braspagClient.CreateRequest(credentials, "/sales");
 
         return await request.PostJsonAsync(new
@@ -63,14 +68,14 @@ public class BraspagCartaoService(IBraspagClient braspagClient) : IBraspagCartao
                 Installments = installment.Number,
                 Interest = "ByMerchant",
                 Capture = true,
-                SoftDescriptor = "ADSSADSASA",
+                SoftDescriptor = establishment.ShortName,
                 CreditCard = new
                 {
                     CardNumber = card.Number,
                     card.Holder,
                     ExpirationDate = card.DueAt,
                     card.SecurityCode,
-                    Brand = "visa"
+                    Brand = brandPattern.Brand.ToLower()
                 }
             }
         }).ReceiveJson<SalesResponse>();

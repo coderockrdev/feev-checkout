@@ -34,8 +34,8 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
         var reader = FeevBoletoResponseFileQueue.Channel.Reader;
 
         while (await reader.WaitToReadAsync(stoppingToken))
-        while (reader.TryRead(out var payload))
-            await Handle(payload);
+            while (reader.TryRead(out var payload))
+                await Handle(payload);
     }
 
     private async Task Handle(FeevBoletoResponseFileWokerPayload payload)
