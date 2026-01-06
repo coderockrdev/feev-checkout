@@ -1,0 +1,38 @@
+<div #modalRoot class="kt-modal kt-modal-center" appKtModal data-kt-modal="true" [id]="id">
+    <div class="kt-modal-content max-w-2xl">
+      <div class="kt-modal-header">
+        <h3 class="kt-modal-title text-gray-900 font-semibold">{{ config()?.title }}</h3>
+      </div>
+      <div class="kt-modal-body">
+        <div class="flex flex-col items-center w-full grow">
+          <app-icon-frame class="text-red-500 mx-auto mb-2.5" [size]="60">
+            <app-icon icon="abstract-11" [size]="22" />
+          </app-icon-frame>
+
+          <div class="text-center">
+            @for (message of messages; track message) {
+              <p class="text-sm text-gray-700" [innerHTML]="message"></p>
+            }
+          </div>
+
+          <div class="flex gap-5 mt-9">
+            @for (action of actions; track action.label) {
+              <button
+                type="button"
+                class="kt-btn flex items-center"
+                [ngClass]="getActionVariantClass(action)"
+                (click)="action.onClick?.()"
+              >
+                <span class="leading-tight text-xs font-medium">
+                  {{ action.label }}
+                </span>
+                @if (action.icon) {
+                  <app-icon [icon]="action.icon" [size]="12" />
+                }
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

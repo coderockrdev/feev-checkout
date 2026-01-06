@@ -14,6 +14,7 @@
   <input
     [id]="key"
     class="kt-input"
+    [ngClass]="getSizeClass()"
     [attr.aria-invalid]="!!errorMessage"
     [name]="name()"
     [type]="type()"

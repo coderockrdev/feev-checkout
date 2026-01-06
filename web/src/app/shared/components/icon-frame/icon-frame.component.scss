@@ -1,4 +1,4 @@
 :host {
   --icon-fill: color-mix(in srgb, currentColor 20%, transparent);
-  --icon-stroke: currentColor;
+  --icon-stroke: color-mix(in srgb, currentColor 50%, transparent);
 }
