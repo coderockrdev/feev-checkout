@@ -56,7 +56,12 @@ export class PaymentFormComponent {
   protected readonly cvvMask = Mask.cvv;
 
   protected readonly customer = computed(() => this.transaction()?.customer);
-  protected readonly domainDocument = computed(() => this.transaction()?.establishment?.cnpj);
+  protected readonly establishmentDocument = computed(
+    () => this.transaction()?.establishment?.cnpj,
+  );
+  protected readonly establishmentName = computed(
+    () => this.transaction()?.establishment?.fullName ?? "",
+  );
 
   protected readonly paymentMethods = computed(() =>
     PAYMENT_METHODS_OPTIONS.filter((method) =>

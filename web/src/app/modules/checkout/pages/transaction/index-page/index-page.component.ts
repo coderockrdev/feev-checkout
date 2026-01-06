@@ -17,7 +17,6 @@ import { PaymentRequestDtoSchema } from "@modules/checkout/schemas/payment-reque
 import { ModalComponent } from "@shared/components/modal/modal.component";
 import { PaymentFormComponent } from "@modules/checkout/components/payment-form/payment-form.component";
 import { PixFinishPanelComponent } from "@app/modules/checkout/components/pix-finish-panel/pix-finish-panel.component";
-import { PaymentAttemptSchema } from "@app/modules/checkout/schemas/payment-attempt.schema";
 
 @Component({
   selector: "app-index-page",
@@ -94,7 +93,11 @@ export class IndexPageComponent {
   protected readonly error = computed(() => this.transaction.error());
   protected isSubmitting = signal(false);
 
-  protected payment = signal<Nullable<HttpResourceRef<z.infer<typeof PaymentAttemptSchema>>>>(null);
+  protected payment = signal<Nullable<HttpResourceRef<unknown>>>(null);
+  protected showPaymentStep = computed(() => {
+    const payment = this.payment();
+    return payment && !payment?.isLoading() && !payment?.error();
+  });
 
   protected readonly errorMessage = computed(() => {
     return this.transaction.statusCode() === 404
@@ -176,6 +179,6 @@ export class IndexPageComponent {
 
     this.isSubmitting.set(true);
 
-    // this.payment.set(this.service.pay(this.transactionId, payload.data));
+    this.payment.set(this.service.pay(this.transactionId, payload.data));
   };
 }

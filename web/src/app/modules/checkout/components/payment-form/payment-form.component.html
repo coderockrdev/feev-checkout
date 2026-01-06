@@ -9,9 +9,12 @@
         <app-icon-frame class="text-primary/50 mx-auto">
           <app-icon icon="arrow-right-left" [size]="18" />
         </app-icon-frame>
-        <app-party-summary class="lg:justify-self-end" [name]="theme()?.name!"
-          [document]="getPartyDocument(domainDocument(), false)" [isLoading]="isLoading()"
-          [source]="theme()?.assets?.logo" />
+        <app-party-summary
+          class="lg:justify-self-end"
+          [name]="establishmentName()"
+          [document]="getPartyDocument(establishmentDocument(), false)"
+          [isLoading]="isLoading()"
+        />
       </div>
     </app-card>
 

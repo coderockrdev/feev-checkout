@@ -12,7 +12,7 @@
       <p class="text-sm text-gray-700">Realize o pagamento de maneira prática e segura conforme as opções disponívels.</p>
     </div>
 
-    @if (payment()) {
+    @if (showPaymentStep()) {
       <app-pix-finish-panel />
     } @else {
       <app-payment-form
