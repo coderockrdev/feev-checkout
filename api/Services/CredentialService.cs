@@ -10,7 +10,8 @@ namespace FeevCheckout.Services;
 
 public interface ICredentialService
 {
-    public Task<Credential> CreateCredential(Guid establishmentId, PaymentMethod method, string data, string? braspagProvider = null);
+    public Task<Credential> CreateCredential(Guid establishmentId, PaymentMethod method, string data,
+        string? braspagProvider = null);
 
     public Task<Credential?> GetCredentials(Guid establishmentId, PaymentMethod method);
 }
@@ -19,7 +20,8 @@ public class CredentialService(AppDbContext context) : ICredentialService
 {
     private readonly AppDbContext context = context;
 
-    public async Task<Credential> CreateCredential(Guid establishmentId, PaymentMethod method, string data, string? braspagProvider = null)
+    public async Task<Credential> CreateCredential(Guid establishmentId, PaymentMethod method, string data,
+        string? braspagProvider = null)
     {
         var credential = new Credential
         {
@@ -27,7 +29,7 @@ public class CredentialService(AppDbContext context) : ICredentialService
             EstablishmentId = establishmentId,
             Method = method,
             Data = JsonDocument.Parse(data),
-            BraspagProvider = braspagProvider,
+            BraspagProvider = braspagProvider
         };
 
         context.Credentials.Add(credential);

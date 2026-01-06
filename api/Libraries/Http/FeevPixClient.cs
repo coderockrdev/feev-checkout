@@ -6,7 +6,7 @@ namespace FeevCheckout.Libraries.Http;
 
 public interface IFeevPixClient
 {
-    Task<IFlurlRequest> CreateRequest(Credential credential, string path);
+    Task<IFlurlRequest> CreateRequest(Credential credentials, string path);
 }
 
 public class FeevPixClient(IConfiguration configuration, IFeevClient feevClient) : IFeevPixClient
@@ -23,6 +23,7 @@ public class FeevPixClient(IConfiguration configuration, IFeevClient feevClient)
 
         return new FlurlRequest(baseUrl)
             .AppendPathSegment(path)
+            .WithTimeout(10)
             .WithHeaders(new
             {
                 Accept = "application/json",

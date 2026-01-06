@@ -393,7 +393,8 @@ if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
         await credentialService.CreateCredential(establishment.Id, PaymentMethod.FeevPix, pixData);
 
     if (!string.IsNullOrEmpty(creditCardData))
-        await credentialService.CreateCredential(establishment.Id, PaymentMethod.BraspagCartao, creditCardData, creditCardProvider);
+        await credentialService.CreateCredential(establishment.Id, PaymentMethod.BraspagCartao, creditCardData,
+            creditCardProvider);
 
     AnsiConsole.MarkupLine("[green]✔ Establishment created successfully![/]");
 
