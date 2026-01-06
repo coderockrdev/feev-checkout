@@ -313,11 +313,30 @@ if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
         );
     }
 
-    string? creditCardProvider = null;
     string? creditCardData = null;
+    string? creditCardProvider = null;
 
     if (paymentMethods.Contains("Credit Card"))
     {
+        AnsiConsole.MarkupLine("[blue]Credit card information[/]");
+
+        creditCardData = AnsiConsole.Prompt(
+            new TextPrompt<string>("Provider configuration (JSON):")
+                .PromptStyle("green")
+                .Validate(json =>
+                {
+                    try
+                    {
+                        JsonDocument.Parse(json);
+                        return ValidationResult.Success();
+                    }
+                    catch
+                    {
+                        return ValidationResult.Error("Invalid JSON format.");
+                    }
+                })
+        );
+
         var creditCardProviders = new[]
         {
             "Simulado",
@@ -340,8 +359,6 @@ if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
             "DMCard"
         };
 
-        AnsiConsole.MarkupLine("[blue]Credit card information[/]");
-
         creditCardProvider = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title("Select the [green]credit card provider[/]:")
@@ -351,29 +368,14 @@ if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
 
         AnsiConsole.MarkupLine(
             $"[green]Selected provider:[/] [yellow]{creditCardProvider}[/]");
-
-        creditCardData = AnsiConsole.Prompt(
-            new TextPrompt<string>("Provider configuration (JSON):")
-                .PromptStyle("green")
-                .Validate(json =>
-                {
-                    try
-                    {
-                        JsonDocument.Parse(json);
-                        return ValidationResult.Success();
-                    }
-                    catch
-                    {
-                        return ValidationResult.Error("Invalid JSON format.");
-                    }
-                })
-        );
     }
 
     using var scope = app.Services.CreateScope();
-    var service = scope.ServiceProvider.GetRequiredService<IEstablishmentService>();
 
-    var establishment = await service.CreateEstablishment(
+    var credentialService = scope.ServiceProvider.GetRequiredService<ICredentialService>();
+    var establishmentService = scope.ServiceProvider.GetRequiredService<IEstablishmentService>();
+
+    var establishment = await establishmentService.CreateEstablishment(
         fullName,
         shortName,
         cnpj,
@@ -383,6 +385,15 @@ if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
         checkingAccountNumber,
         creditCardProvider
     );
+
+    if (!string.IsNullOrEmpty(boletoData))
+        await credentialService.CreateCredential(establishment.Id, PaymentMethod.FeevBoleto, boletoData);
+
+    if (!string.IsNullOrEmpty(pixData))
+        await credentialService.CreateCredential(establishment.Id, PaymentMethod.FeevPix, pixData);
+
+    if (!string.IsNullOrEmpty(creditCardData))
+        await credentialService.CreateCredential(establishment.Id, PaymentMethod.BraspagCartao, creditCardData, creditCardProvider);
 
     AnsiConsole.MarkupLine("[green]✔ Establishment created successfully![/]");
 

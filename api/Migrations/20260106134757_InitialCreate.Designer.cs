@@ -14,7 +14,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeevCheckout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251229183602_InitialCreate")]
+    [Migration("20260106134757_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -38,7 +38,7 @@ namespace FeevCheckout.Migrations
                     b.Property<string>("BraspagProvider")
                         .HasColumnType("text");
 
-                    b.Property<string>("Data")
+                    b.Property<JsonDocument>("Data")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
