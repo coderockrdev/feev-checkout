@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using FeevCheckout.Enums;
 
 namespace FeevCheckout.Models;
@@ -12,7 +14,7 @@ public class Credential
 
     public required PaymentMethod Method { get; set; }
 
-    public required Dictionary<string, string> Data { get; set; }
+    public required JsonDocument Data { get; set; }
 
     public required string? BraspagProvider { get; set; }
 }

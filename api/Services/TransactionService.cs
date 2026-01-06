@@ -22,11 +22,11 @@ public interface ITransactionService
 
 public class TransactionService(AppDbContext context) : ITransactionService
 {
-    private readonly AppDbContext _context = context;
+    private readonly AppDbContext context = context;
 
     public async Task<PagedResult<Transaction>> ListTransactions(Guid establishmentId, int page, int pageSize)
     {
-        var query = _context.Transactions
+        var query = context.Transactions
             .Include(transaction => transaction.Establishment)
             .Include(transaction => transaction.Products)
             .Where(transaction => transaction.EstablishmentId == establishmentId)
@@ -52,7 +52,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
 
     public async Task<Transaction?> GetTransaction(Guid establishmentId, Guid id)
     {
-        return await _context.Transactions
+        return await context.Transactions
             .Include(transaction => transaction.Establishment)
             .Include(transaction => transaction.Products)
             .FirstOrDefaultAsync(transaction =>
@@ -63,7 +63,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
 
     public async Task<Transaction?> GetPublicTransaction(Guid id)
     {
-        return await _context.Transactions
+        return await context.Transactions
             .Include(transaction => transaction.Establishment)
             .Include(transaction => transaction.Products)
             .FirstOrDefaultAsync(transaction => transaction.Id == id);
@@ -124,8 +124,8 @@ public class TransactionService(AppDbContext context) : ITransactionService
             CreatedAt = DateTime.UtcNow
         };
 
-        _context.Transactions.Add(transaction);
-        await _context.SaveChangesAsync();
+        context.Transactions.Add(transaction);
+        await context.SaveChangesAsync();
 
         var products = request.Products.Select(product => new Product
         {
@@ -135,9 +135,9 @@ public class TransactionService(AppDbContext context) : ITransactionService
             TransactionId = transaction.Id
         }).ToList();
 
-        _context.Products.AddRange(products);
+        context.Products.AddRange(products);
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         transaction = await GetTransaction(establishmentId, transaction.Id);
 
@@ -146,7 +146,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
 
     public async Task<bool> CancelTransaction(Guid establishmentId, Guid id)
     {
-        var transaction = await _context.Transactions
+        var transaction = await context.Transactions
             .FirstOrDefaultAsync(transaction => transaction.Id == id && transaction.EstablishmentId == establishmentId);
 
         if (transaction == null || transaction.CanceledAt != null || transaction.Status != TransactionStatus.Available)
@@ -154,7 +154,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
 
         transaction.CanceledAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return true;
     }

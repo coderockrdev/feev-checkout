@@ -35,7 +35,7 @@ namespace FeevCheckout.Migrations
                     b.Property<string>("BraspagProvider")
                         .HasColumnType("text");
 
-                    b.Property<string>("Data")
+                    b.Property<JsonDocument>("Data")
                         .IsRequired()
                         .HasColumnType("jsonb");
 

@@ -44,7 +44,7 @@ namespace FeevCheckout.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     EstablishmentId = table.Column<Guid>(type: "uuid", nullable: false),
                     Method = table.Column<PaymentMethod>(type: "payment_method", nullable: false),
-                    Data = table.Column<string>(type: "jsonb", nullable: false),
+                    Data = table.Column<JsonDocument>(type: "jsonb", nullable: false),
                     BraspagProvider = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
