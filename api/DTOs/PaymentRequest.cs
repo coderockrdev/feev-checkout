@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 using FeevCheckout.Enums;
+using FeevCheckout.Utils;
 
 namespace FeevCheckout.DTOs;
 
@@ -45,7 +46,7 @@ public record PaymentRequestDto(
                 yield return new ValidationResult("Card is required.",
                     [nameof(Card)]);
 
-            if (Card != null && Card.Number != "0000000000000001")
+            if (Card != null && !CardUtils.IsTesting(Card.Number))
             {
                 var digits = Card.Number.Select(_char => _char - '0').ToArray();
                 var result = digits.Select((digit, index) =>
