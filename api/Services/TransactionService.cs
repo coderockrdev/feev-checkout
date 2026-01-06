@@ -139,7 +139,9 @@ public class TransactionService(AppDbContext context) : ITransactionService
 
         await _context.SaveChangesAsync();
 
-        return transaction;
+        transaction = await GetTransaction(establishmentId, transaction.Id);
+
+        return transaction!;
     }
 
     public async Task<bool> CancelTransaction(Guid establishmentId, Guid id)
