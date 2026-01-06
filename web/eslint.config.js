@@ -19,32 +19,41 @@ module.exports = defineConfig(
     plugins: { prettier: prettierPlugin },
     processor: angular.processInlineTemplates,
     rules: {
-      '@angular-eslint/directive-selector': [
-        'error',
+      "@angular-eslint/directive-selector": [
+        "error",
         {
-          type: 'attribute',
-          prefix: 'app',
-          style: 'camelCase',
+          type: "attribute",
+          prefix: "app",
+          style: "camelCase",
         },
       ],
-      '@angular-eslint/component-selector': [
-        'warn',
+      "@angular-eslint/component-selector": [
+        "warn",
         {
-          type: 'element',
-          prefix: 'app',
-          style: 'kebab-case',
+          type: "element",
+          prefix: "app",
+          style: "kebab-case",
         },
       ],
       "no-empty-function": "off",
       "@typescript-eslint/no-empty-function": "off",
       "@angular-eslint/no-empty-lifecycle-method": "off",
       "@angular-eslint/no-input-rename": "off",
-      '@typescript-eslint/no-explicit-any': 'error',
-      'prettier/prettier': 'error',
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_",
+          "ignoreRestSiblings": true
+        }
+      ],
+      "prettier/prettier": "error",
     },
   },
   {
-    files: ['**/*.html'],
+    files: ["**/*.html"],
     extends: [
       ...angular.configs.templateRecommended,
       ...angular.configs.templateAccessibility,

@@ -1,0 +1,10 @@
+<div class="kt-card rounded-bs-none text-2sm flex flex-col shadow-card divide-y-1 divide-gray-200">
+  <app-card-section>
+    <h2 class="font-semibold text-base text-gray-900">
+      {{ heading() }}
+    </h2>
+  </app-card-section>
+  <app-card-section [noPadding]="contentNoPadding()">
+    <ng-content></ng-content>
+  </app-card-section>
+</div>
