@@ -1,4 +1,5 @@
 using FeevCheckout.Models;
+using FeevCheckout.Utils;
 
 using Flurl.Http;
 
@@ -6,7 +7,7 @@ namespace FeevCheckout.Libraries.Http;
 
 public interface IBraspagClient
 {
-    IFlurlRequest CreateRequest(Credential credential, string path);
+    IFlurlRequest CreateRequest(Credential credentials, string path);
 }
 
 public class BraspagClient(IConfiguration configuration) : IBraspagClient
@@ -15,15 +16,16 @@ public class BraspagClient(IConfiguration configuration) : IBraspagClient
                                       ?? throw new InvalidOperationException(
                                           "Braspag base URL not found or not specified.");
 
-    public IFlurlRequest CreateRequest(Credential credential, string path)
+    public IFlurlRequest CreateRequest(Credential credentials, string path)
     {
         return new FlurlRequest(baseUrl)
             .AppendPathSegment(path)
+            .WithTimeout(10)
             .WithHeaders(new
             {
                 Accept = "application/json",
                 ContentType = "application/json"
             })
-            .WithHeaders(credential.Data);
+            .WithHeaders(HttpUtils.JsonToObject(credentials.Data));
     }
 }

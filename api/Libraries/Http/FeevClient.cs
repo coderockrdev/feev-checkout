@@ -1,4 +1,5 @@
 using FeevCheckout.Models;
+using FeevCheckout.Utils;
 
 using Flurl;
 using Flurl.Http;
@@ -19,7 +20,7 @@ public class FeevClient(IConfiguration configuration) : IFeevClient
     public async Task<string> Authenticate(Credential credentials)
     {
         var token = await $"{baseUrl}/api/autenticacao/obtertoken"
-            .SetQueryParams(credentials.Data)
+            .SetQueryParams(HttpUtils.JsonToObject(credentials.Data))
             .GetStringAsync();
 
         return token.Trim();

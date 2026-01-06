@@ -6,7 +6,7 @@ namespace FeevCheckout.Libraries.Http;
 
 public interface IFeevBoletoClient
 {
-    Task<IFlurlRequest> CreateRequest(Credential credential, string path);
+    Task<IFlurlRequest> CreateRequest(Credential credentials, string path);
 }
 
 public class FeevBoletoClient(IConfiguration configuration, IFeevClient feevClient) : IFeevBoletoClient
@@ -23,6 +23,7 @@ public class FeevBoletoClient(IConfiguration configuration, IFeevClient feevClie
 
         return new FlurlRequest(baseUrl)
             .AppendPathSegment(path)
+            .WithTimeout(10)
             .WithHeaders(new
             {
                 Accept = "application/json",
