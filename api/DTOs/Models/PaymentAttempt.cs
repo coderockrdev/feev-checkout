@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
@@ -11,13 +13,16 @@ public sealed class PaymentAttempDto
 
     public required PaymentAttemptStatus Status { get; set; }
 
+    public required JsonDocument? ExtraData { get; set; }
+
     public static PaymentAttempDto FromModel(PaymentAttempt model)
     {
         return new PaymentAttempDto
         {
             Id = model.Id,
             Method = model.Method,
-            Status = model.Status
+            Status = model.Status,
+            ExtraData = model.ExtraData
         };
     }
 }
