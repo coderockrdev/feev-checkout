@@ -1,12 +1,15 @@
 import {
   AfterViewInit,
   Component,
+  ElementRef,
   forwardRef,
   inject,
   Injector,
   input,
   OnInit,
+  output,
   signal,
+  ViewChild,
 } from "@angular/core";
 import { MaskitoDirective } from "@maskito/angular";
 import { MaskitoOptions } from "@maskito/core";
@@ -33,6 +36,8 @@ import { CommonModule } from "@angular/common";
   },
 })
 export class InputComponent implements ControlValueAccessor, OnInit, AfterViewInit {
+  @ViewChild("input", { static: true }) private input!: ElementRef<HTMLInputElement>;
+
   private injector = inject(Injector);
 
   private ngControl?: Nullable<NgControl>;
@@ -68,8 +73,16 @@ export class InputComponent implements ControlValueAccessor, OnInit, AfterViewIn
   readonly disabled = input<boolean>(false);
   readonly mask = input<Nullable<MaskitoOptions>>(null);
   readonly size = input<Nullable<"sm" | "md" | "lg">>(null);
+  readonly readOnly = input<boolean>(false);
+  readonly inputClass = input<string>("");
 
   protected readonly value = signal("");
+
+  focused = output<FocusEvent>();
+
+  protected handleFocus = (event: FocusEvent) => {
+    this.focused.emit(event);
+  };
 
   protected onChange = (_: string) => {};
 
@@ -110,5 +123,17 @@ export class InputComponent implements ControlValueAccessor, OnInit, AfterViewIn
     if (size === "sm") return "kt-input-sm";
     if (size === "lg") return "kt-input-lg";
     return "";
+  }
+
+  focus() {
+    this.input.nativeElement.focus();
+  }
+
+  focusAndSelectContent() {
+    const input = this.input.nativeElement;
+    const length = input.value.length;
+    input.setSelectionRange(length, length);
+    input.focus();
+    input.select();
   }
 }

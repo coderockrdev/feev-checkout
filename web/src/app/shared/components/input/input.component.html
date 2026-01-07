@@ -12,9 +12,11 @@
   }
 
   <input
+    #input
     [id]="key"
     class="kt-input"
-    [ngClass]="getSizeClass()"
+    [ngClass]="[getSizeClass(), inputClass()]"
+    [readOnly]="readOnly()"
     [attr.aria-invalid]="!!errorMessage"
     [name]="name()"
     [type]="type()"
@@ -23,6 +25,7 @@
     [maskito]="mask()"
     [value]="value()"
     (input)="handleChange($event)"
+    (focus)="handleFocus($event)"
     (blur)="onTouched()"
   />
 </div>

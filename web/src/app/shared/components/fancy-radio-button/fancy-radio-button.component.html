@@ -4,6 +4,7 @@
   [disabled]="disabled()"
   [class.cursor-pointer]="!disabled()"
   [class.cursor-not-allowed]="disabled()"
+  [class.opacity-50]="disabled()"
   [ngClass]="stateClass()"
   (click)="clicked.emit(value())"
 >

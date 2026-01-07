@@ -16,7 +16,10 @@ import { zodForm } from "@shared/utils/zod.utils";
 import { PaymentRequestDtoSchema } from "@modules/checkout/schemas/payment-request-dto.schema";
 import { ModalComponent } from "@shared/components/modal/modal.component";
 import { PaymentFormComponent } from "@modules/checkout/components/payment-form/payment-form.component";
-import { PixFinishPanelComponent } from "@app/modules/checkout/components/pix-finish-panel/pix-finish-panel.component";
+import { PaymentAttempt } from "@modules/checkout/types/payment-attempt";
+import { PaymentFinishComponent } from "@modules/checkout/components/payment-finish/payment-finish.component";
+import { TransactionStatus } from "@app/modules/checkout/enums/transaction-status";
+import { PaymentAttemptSchema } from "@app/modules/checkout/schemas/payment-attempt.schema";
 
 @Component({
   selector: "app-index-page",
@@ -26,7 +29,7 @@ import { PixFinishPanelComponent } from "@app/modules/checkout/components/pix-fi
     ReactiveFormsModule,
     ModalComponent,
     PaymentFormComponent,
-    PixFinishPanelComponent,
+    PaymentFinishComponent,
   ],
   templateUrl: "./index-page.component.html",
   styleUrl: "./index-page.component.scss",
@@ -90,16 +93,33 @@ export class IndexPageComponent {
 
   protected readonly transaction = this.service.getTransaction(this.transactionId);
   protected readonly isLoading = computed(() => this.transaction.isLoading());
-  protected readonly error = computed(() => this.transaction.error());
+  protected readonly error = computed(() => {
+    if (this.transaction.isLoading()) return false;
+    if (this.transaction.error()) return true;
+    return (
+      !this.transaction.hasValue() ||
+      this.transaction.value().status !== TransactionStatus.Available
+    );
+  });
   protected isSubmitting = signal(false);
 
-  protected payment = signal<Nullable<HttpResourceRef<unknown>>>(null);
+  protected payment = signal<Nullable<HttpResourceRef<PaymentAttempt | undefined>>>(null);
+  protected paymentInfo = computed<Nullable<PaymentAttempt>>(() => this.payment()?.value() ?? null);
   protected showPaymentStep = computed(() => {
     const payment = this.payment();
     return payment && !payment?.isLoading() && !payment?.error();
   });
 
   protected readonly errorMessage = computed(() => {
+    if (
+      this.transaction.hasValue() &&
+      this.transaction.value().status !== TransactionStatus.Available
+    ) {
+      return this.transaction.value().status === TransactionStatus.Canceled
+        ? "Transação cancelada"
+        : "Transação expirada";
+    }
+
     return this.transaction.statusCode() === 404
       ? "Transação não encontrada"
       : "Não foi possível carregar essa transação";
@@ -179,6 +199,8 @@ export class IndexPageComponent {
 
     this.isSubmitting.set(true);
 
-    this.payment.set(this.service.pay(this.transactionId, payload.data));
+    const payment = this.service.pay(this.transactionId, payload.data);
+
+    this.payment.set(payment);
   };
 }

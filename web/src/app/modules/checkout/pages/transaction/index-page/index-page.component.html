@@ -1,6 +1,6 @@
 <div class="kt-container-fixed space-y-12">
   @if (error()) {
-    <div class="flex flex-col items-center gap-y-2.5">
+    <div class="flex flex-col items-center gap-y-2.5 mt-10">
       <app-icon-frame class="text-red-500 mx-auto">
         <app-icon icon="abstract-11" [size]="18" />
       </app-icon-frame>
@@ -13,7 +13,7 @@
     </div>
 
     @if (showPaymentStep()) {
-      <app-pix-finish-panel />
+      <app-payment-finish [payment]="paymentInfo()" />
     } @else {
       <app-payment-form
         [isLoading]="isLoading()"

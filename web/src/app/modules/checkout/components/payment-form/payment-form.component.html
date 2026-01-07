@@ -33,7 +33,7 @@
     <!-- Payment Methods -->
     <app-card heading="Forma de Pagamento">
       <form class="flex flex-col items-end gap-y-8" [formGroup]="paymentMethodForm()" (ngSubmit)="onSubmit()()">
-        <app-radio-group #radioGroup class="w-full grid xl:grid-cols-3 gap-4" formControlName="method">
+        <app-radio-group #radioGroup class="w-full grid xl:grid-cols-3 gap-4" formControlName="method" [disabled]="isSubmitting()">
           @if (isLoading()) {
           <div class="kt-skeleton w-full h-[88px] rounded-xl"></div>
           <div class="kt-skeleton w-full h-[88px] rounded-xl"></div>

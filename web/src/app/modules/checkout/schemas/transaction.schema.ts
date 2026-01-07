@@ -17,8 +17,6 @@ export const TransactionSchema = z.object({
   totalAmount: z.int(),
   products: z.array(ProductSchema),
   paymentRules: z.array(PaymentRuleSchema),
-  successfulPaymentAttemptId: z.string().nullable(),
-  successfulPaymentAttempt: z.string().nullable(),
   expireAt: RawDateTimeSchema.nullable(),
   canceledAt: RawDateTimeSchema.nullable(),
   completedAt: RawDateTimeSchema.nullable(),
