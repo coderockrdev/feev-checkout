@@ -1,4 +1,3 @@
-
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { SectionComponent } from "./section.component";

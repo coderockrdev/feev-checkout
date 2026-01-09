@@ -97,6 +97,16 @@ body {
   --radius-sm: calc(var(--radius) - 4px);
 
   --shadow-card: 0px 4px 5px rgba(0, 0, 0, 0.03);
+
+  --color-gray-100: oklch(0.9821 0 0);
+  --color-gray-200: oklch(0.959 0.004 286.32);
+  --color-gray-300: oklch(0.9035 0.0143 268.48);
+  --color-gray-400: oklch(0.8392 0.0232 269.41);
+  --color-gray-500: oklch(0.7099 0.0333 269.67);
+  --color-gray-600: oklch(0.6081 0.0427 269.14);
+  --color-gray-700: oklch(0.4566 0.0527 269.17);
+  --color-gray-800: oklch(0.3094 0.0508 267.9);
+  --color-gray-900: oklch(0.2052 0.071 264.97);
 }
 
 @layer components {

@@ -1,6 +1,5 @@
-import { Component, computed, effect, inject, signal, ViewChild } from "@angular/core";
+import { Component, computed, effect, inject, signal } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { HttpResourceRef } from "@angular/common/http";
 import * as z from "zod";
@@ -8,7 +7,6 @@ import * as z from "zod";
 import { IconComponent } from "@shared/components/icon/icon.component";
 import { IconFrameComponent } from "@shared/components/icon-frame/icon-frame.component";
 import { ThemeService } from "@shared/services/theme/theme.service";
-import { TransactionService } from "@modules/checkout/services/transaction/transaction.service";
 import { PaymentMethod } from "@modules/checkout/enums/payment-method";
 import { CardNumberSchema } from "@modules/checkout/schemas/card-number.schema";
 import { ValidThruSchema } from "@modules/checkout/schemas/valid-thru.schema";
@@ -18,8 +16,12 @@ import { ModalComponent } from "@shared/components/modal/modal.component";
 import { PaymentFormComponent } from "@modules/checkout/components/payment-form/payment-form.component";
 import { PaymentAttempt } from "@modules/checkout/types/payment-attempt";
 import { PaymentFinishComponent } from "@modules/checkout/components/payment-finish/payment-finish.component";
-import { TransactionStatus } from "@app/modules/checkout/enums/transaction-status";
-import { PaymentAttemptSchema } from "@app/modules/checkout/schemas/payment-attempt.schema";
+import { TransactionStatus } from "@modules/checkout/enums/transaction-status";
+import { PaymentStatus } from "@modules/checkout/enums/payment-status";
+import { isFuture } from "@shared/utils/date.utils";
+import { TransactionStore } from "@modules/checkout/stores/transaction/transaction.store";
+import { TransactionService } from "@modules/checkout/services/transaction/transaction.service";
+import { ModalService } from "@app/shared/services/modal/modal.service";
 
 @Component({
   selector: "app-index-page",
@@ -33,6 +35,9 @@ import { PaymentAttemptSchema } from "@app/modules/checkout/schemas/payment-atte
   ],
   templateUrl: "./index-page.component.html",
   styleUrl: "./index-page.component.scss",
+  host: {
+    class: "h-full",
+  },
 })
 export class IndexPageComponent {
   constructor() {
@@ -63,7 +68,11 @@ export class IndexPageComponent {
               variant: "secondary",
               onClick: () => {
                 this.modal.close();
-                this.onSubmit();
+
+                // Wait until the modal is fully closed
+                setTimeout(() => {
+                  this.onSubmit();
+                }, 300);
               },
             },
             {
@@ -75,52 +84,47 @@ export class IndexPageComponent {
         });
       }
 
-      if (payment.value()) {
+      if (payment.hasValue()) {
         this.isSubmitting.set(false);
+        this.transaction.updatePayment(payment.value());
       }
     });
   }
 
-  @ViewChild("modal") private modal!: ModalComponent;
-
-  private readonly route = inject(ActivatedRoute);
   protected readonly theme = inject(ThemeService).theme;
-  protected readonly service = inject(TransactionService);
+  private readonly service = inject(TransactionService);
+  protected readonly transaction = inject(TransactionStore);
+  protected readonly modal = inject(ModalService);
 
-  private readonly params = toSignal(this.route.paramMap, { initialValue: null });
-
-  protected readonly transactionId = computed(() => this.params()?.get("transaction") ?? null);
-
-  protected readonly transaction = this.service.getTransaction(this.transactionId);
-  protected readonly isLoading = computed(() => this.transaction.isLoading());
-  protected readonly error = computed(() => {
-    if (this.transaction.isLoading()) return false;
-    if (this.transaction.error()) return true;
-    return (
-      !this.transaction.hasValue() ||
-      this.transaction.value().status !== TransactionStatus.Available
-    );
-  });
   protected isSubmitting = signal(false);
 
   protected payment = signal<Nullable<HttpResourceRef<PaymentAttempt | undefined>>>(null);
-  protected paymentInfo = computed<Nullable<PaymentAttempt>>(() => this.payment()?.value() ?? null);
+
+  protected paymentInfo = computed<Nullable<PaymentAttempt>>(
+    () => this.transaction.resource.value()?.successfulPaymentAttempt ?? null,
+  );
+
   protected showPaymentStep = computed(() => {
-    const payment = this.payment();
-    return payment && !payment?.isLoading() && !payment?.error();
+    const paymentInfo = this.paymentInfo();
+
+    if (paymentInfo?.status === PaymentStatus.Created || paymentInfo?.status === null) {
+      if (paymentInfo.method === PaymentMethod.PIX) return isFuture(paymentInfo.extraData.expireAt);
+    }
+
+    return false;
   });
 
   protected readonly errorMessage = computed(() => {
     if (
-      this.transaction.hasValue() &&
-      this.transaction.value().status !== TransactionStatus.Available
+      this.transaction.resource.hasValue() &&
+      this.transaction.resource.value().status !== TransactionStatus.Available
     ) {
-      return this.transaction.value().status === TransactionStatus.Canceled
+      return this.transaction.resource.value().status === TransactionStatus.Canceled
         ? "Transação cancelada"
         : "Transação expirada";
     }
 
-    return this.transaction.statusCode() === 404
+    return this.transaction.resource.statusCode() === 404
       ? "Transação não encontrada"
       : "Não foi possível carregar essa transação";
   });
@@ -173,7 +177,7 @@ export class IndexPageComponent {
   });
 
   onSubmit = () => {
-    if (this.isSubmitting() || this.isLoading()) return;
+    if (this.isSubmitting() || this.transaction.isLoading()) return;
 
     const isCreditCard = this.isCreditCard();
 
@@ -194,12 +198,25 @@ export class IndexPageComponent {
     });
 
     if (!payload.success) {
-      throw new Error("Invalid payload");
+      this.modal.open({
+        title: "Algo saiu errado!",
+        message:
+          "Não foi possível concluir a transação, revise os dados inseridos e tente novamente.",
+        type: "error",
+        actions: [
+          {
+            label: "Fechar",
+            variant: "secondary",
+            onClick: () => this.modal.close(),
+          },
+        ],
+      });
+      return;
     }
 
     this.isSubmitting.set(true);
 
-    const payment = this.service.pay(this.transactionId, payload.data);
+    const payment = this.service.pay(this.transaction.transactionId, payload.data);
 
     this.payment.set(payment);
   };

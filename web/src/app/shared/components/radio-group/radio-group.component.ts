@@ -40,7 +40,6 @@ export class RadioGroupComponent<T> implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    console.log(isDisabled);
     this.isDisabled.set(isDisabled);
   }
 
