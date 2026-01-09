@@ -1,6 +1,13 @@
-<div class="kt-container-fixed space-y-12">
-  @if (error()) {
-    <div class="flex flex-col items-center gap-y-2.5 mt-10">
+<div class="kt-container-fixed space-y-12 h-full">
+  @if (transaction.isTransactionPaid()) {
+    <div class="flex flex-col items-center gap-y-2.5 mt-12">
+      <app-icon-frame class="text-green-500 mx-auto">
+        <app-icon icon="check" [size]="18" />
+      </app-icon-frame>
+      <h1 class="text-xl font-medium text-gray-900 text-center">Sua transação foi concluída com sucesso</h1>
+    </div>
+  } @else if (transaction.error()) {
+    <div class="flex flex-col items-center gap-y-2.5 mt-12">
       <app-icon-frame class="text-red-500 mx-auto">
         <app-icon icon="abstract-11" [size]="18" />
       </app-icon-frame>
@@ -16,8 +23,8 @@
       <app-payment-finish [payment]="paymentInfo()" />
     } @else {
       <app-payment-form
-        [isLoading]="isLoading()"
-        [transaction]="transaction.value()!"
+        [isLoading]="transaction.isLoading()"
+        [transaction]="transaction.resource.value()!"
         [paymentMethodForm]="paymentMethodForm"
         [creditCardForm]="creditCardForm"
         [isCreditCard]="isCreditCard()"
@@ -28,5 +35,3 @@
     }
   }
 </div>
-
-<app-modal #modal />

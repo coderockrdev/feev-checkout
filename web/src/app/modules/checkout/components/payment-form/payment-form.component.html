@@ -54,7 +54,7 @@
           }
         </app-radio-group>
         @if (hasPaymentMethod() && !isCreditCard()) {
-          <button type="submit" class="kt-btn flex items-center" [disabled]="isSubmitting()">
+          <button type="submit" class="kt-btn flex items-center w-full lg:w-auto" [disabled]="isSubmitting()">
             <span class="leading-tight text-xs font-medium">
               Continuar
             </span>
@@ -79,7 +79,7 @@
         <app-select formControlName="installments" label="Parcelamento" placeholder="Selecione a quantidade de parcelas"
           [options]="installmentOptions()" />
         <div class="flex justify-end col-span-full">
-          <button type="submit" class="kt-btn flex items-center" [disabled]="isSubmitting()">
+          <button type="submit" class="kt-btn flex items-center w-full lg:w-auto" [disabled]="isSubmitting()">
             <span class="leading-tight text-xs font-medium">
               Continuar
             </span>

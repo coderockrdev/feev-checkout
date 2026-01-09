@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, ElementRef, signal, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  signal,
+  ViewChild,
+} from "@angular/core";
 
 import { KtModalDirective } from "@shared/directives/kt-modal.directive";
 import { ModalConfig } from "@shared/types/modal/modal-config";
@@ -6,6 +14,7 @@ import { IconFrameComponent } from "@shared/components/icon-frame/icon-frame.com
 import { IconComponent } from "@shared/components/icon/icon.component";
 import { ModalAction } from "@shared/types/modal/modal-action";
 import { CommonModule } from "@angular/common";
+import { ModalService } from "@app/shared/services/modal/modal.service";
 
 @Component({
   selector: "app-modal",
@@ -13,10 +22,12 @@ import { CommonModule } from "@angular/common";
   templateUrl: "./modal.component.html",
   styleUrl: "./modal.component.scss",
 })
-export class ModalComponent implements AfterViewInit {
+export class ModalComponent implements AfterViewInit, OnDestroy {
   @ViewChild("modalRoot", { static: true }) private modalRoot!: ElementRef<HTMLDivElement>;
 
   protected readonly id = `modal-${Math.random()}`;
+
+  protected readonly modalService = inject(ModalService);
 
   private _instance: Nullable<KTModal> = null;
   private _config = signal<Nullable<ModalConfig>>(null);
@@ -27,6 +38,11 @@ export class ModalComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this._instance = window.KTModal.getInstance(this.modalRoot.nativeElement);
+    this.modalService.register(this);
+  }
+
+  ngOnDestroy() {
+    this.modalService.unregister(this);
   }
 
   public open(config: ModalConfig) {

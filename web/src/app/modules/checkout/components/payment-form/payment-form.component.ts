@@ -1,6 +1,5 @@
 import { Component, computed, inject, input } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import * as z from "zod";
 
 import { ThemeService } from "@shared/services/theme/theme.service";
 import { maskDocument } from "@modules/checkout/utils/document.utils";
@@ -10,7 +9,6 @@ import { IconFrameComponent } from "@shared/components/icon-frame/icon-frame.com
 import { IconComponent } from "@shared/components/icon/icon.component";
 import { InputComponent } from "@shared/components/input/input.component";
 import { SelectComponent } from "@shared/components/select/select.component";
-import { TransactionSchema } from "@modules/checkout/schemas/transaction.schema";
 import { ColumnsFor } from "@shared/types/table/column";
 import { integerToCurrency } from "@shared/utils/currency.utils";
 import { Product } from "@modules/checkout/types/product";
@@ -20,7 +18,8 @@ import { PartySummaryComponent } from "@modules/checkout/components/party-summar
 import { PaymentMethod } from "@modules/checkout/enums/payment-method";
 import { SelectOption } from "@shared/types/select/select-option";
 import { Mask } from "@modules/checkout/masks/mask";
-import { RadioGroupComponent } from "@app/shared/components/radio-group/radio-group.component";
+import { RadioGroupComponent } from "@shared/components/radio-group/radio-group.component";
+import { Transaction } from "@modules/checkout/types/transaction";
 
 @Component({
   selector: "app-payment-form",
@@ -42,7 +41,7 @@ import { RadioGroupComponent } from "@app/shared/components/radio-group/radio-gr
 export class PaymentFormComponent {
   protected readonly theme = inject(ThemeService).theme;
 
-  transaction = input.required<z.infer<typeof TransactionSchema>>();
+  transaction = input.required<Transaction>();
   isLoading = input<boolean>(false);
   isCreditCard = input<boolean>(false);
   hasPaymentMethod = input<boolean>(false);

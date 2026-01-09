@@ -7,6 +7,7 @@ import { EstablishmentSchema } from "./establishment.schema";
 import { PaymentRuleSchema } from "./payment-rule.schema";
 import { ProductSchema } from "./product.schema";
 import { TransactionStatusSchema } from "./transaction-status.schema";
+import { PaymentAttemptSchema } from "./payment-attempt.schema";
 
 export const TransactionSchema = z.object({
   id: z.guid(),
@@ -17,6 +18,7 @@ export const TransactionSchema = z.object({
   totalAmount: z.int(),
   products: z.array(ProductSchema),
   paymentRules: z.array(PaymentRuleSchema),
+  successfulPaymentAttempt: PaymentAttemptSchema.nullable(),
   expireAt: RawDateTimeSchema.nullable(),
   canceledAt: RawDateTimeSchema.nullable(),
   completedAt: RawDateTimeSchema.nullable(),
