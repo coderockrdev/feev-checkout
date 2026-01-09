@@ -25,6 +25,8 @@ public sealed class TransactionDto
 
     public Guid? SuccessfulPaymentAttemptId { get; set; }
 
+    public PaymentAttempDto? SuccessfulPaymentAttempt { get; set; }
+
     public DateTime? ExpireAt { get; set; }
 
     public DateTime? CanceledAt { get; set; }
@@ -48,6 +50,9 @@ public sealed class TransactionDto
             PaymentRules = [.. model.PaymentRules.Select(PaymentRuleDto.FromModel)],
             Status = model.Status,
             SuccessfulPaymentAttemptId = model.SuccessfulPaymentAttemptId,
+            SuccessfulPaymentAttempt = model.SuccessfulPaymentAttempt is null
+                ? null
+                : PaymentAttempDto.FromModel(model.SuccessfulPaymentAttempt),
             ExpireAt = model.ExpireAt,
             CanceledAt = model.CanceledAt,
             CompletedAt = model.CompletedAt,

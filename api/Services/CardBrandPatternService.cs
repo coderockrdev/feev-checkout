@@ -18,11 +18,9 @@ public class CardBrandPatternService(AppDbContext context) : ICardBrandPatternSe
     public async Task<CardBrandPattern?> GetByCardNumber(string cardNumber)
     {
         if (CardUtils.IsTesting(cardNumber))
-        {
             return await context.CardBrandPatterns
                 .OrderBy(pattern => pattern.Order)
                 .FirstOrDefaultAsync();
-        }
 
         return await context.CardBrandPatterns
             .Where(pattern => cardNumber.StartsWith(pattern.Prefix))

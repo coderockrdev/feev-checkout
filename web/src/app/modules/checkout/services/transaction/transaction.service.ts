@@ -4,6 +4,7 @@ import * as z from "zod";
 import { TransactionSchema } from "@modules/checkout/schemas/transaction.schema";
 import { PaymentRequestDtoSchema } from "@modules/checkout/schemas/payment-request-dto.schema";
 import { ApiService } from "@app/shared/services/api/api.service";
+import { PaymentAttemptSchema } from "../../schemas/payment-attempt.schema";
 
 @Injectable({
   providedIn: "root",
@@ -26,6 +27,7 @@ export class TransactionService {
         path: `payment/${transactionId()}`,
       }),
       body,
+      { parse: (response) => PaymentAttemptSchema.parse(response) },
     );
   }
 }

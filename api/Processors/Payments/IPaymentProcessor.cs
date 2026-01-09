@@ -14,7 +14,7 @@ public class PaymentResult
 
     public required string ExternalId { get; set; }
 
-    public object? ExtraData { get; set; }
+    public required JsonDocument ExtraData { get; set; }
 
     public required JsonDocument Response { get; set; }
 }

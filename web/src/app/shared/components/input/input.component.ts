@@ -1,14 +1,27 @@
-import { Component, forwardRef, inject, Injector, input, OnInit, signal } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  forwardRef,
+  inject,
+  Injector,
+  input,
+  OnInit,
+  output,
+  signal,
+  ViewChild,
+} from "@angular/core";
 import { MaskitoDirective } from "@maskito/angular";
 import { MaskitoOptions } from "@maskito/core";
 
 import { IconName } from "@shared/types/icon-name";
 import { IconComponent } from "../icon/icon.component";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from "@angular/forms";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "app-input",
-  imports: [IconComponent, MaskitoDirective],
+  imports: [CommonModule, IconComponent, MaskitoDirective],
   templateUrl: "./input.component.html",
   styleUrl: "./input.component.scss",
   providers: [
@@ -22,7 +35,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from "@angular/for
     class: "kt-form-item",
   },
 })
-export class InputComponent implements ControlValueAccessor, OnInit {
+export class InputComponent implements ControlValueAccessor, OnInit, AfterViewInit {
+  @ViewChild("input", { static: true }) private input!: ElementRef<HTMLInputElement>;
+
   private injector = inject(Injector);
 
   private ngControl?: Nullable<NgControl>;
@@ -38,18 +53,36 @@ export class InputComponent implements ControlValueAccessor, OnInit {
     }
   }
 
+  ngAfterViewInit() {
+    const value = this.defaultValue();
+
+    if (value) {
+      this.value.set(value);
+    }
+  }
+
   protected readonly key = `input-${Math.random()}`;
 
   readonly name = input<string>();
-  readonly label = input.required<string>();
+  readonly defaultValue = input<string>();
+  readonly label = input<string>();
   readonly placeholder = input<string>("");
   readonly description = input<string>("");
   readonly icon = input<IconName>();
   readonly type = input<string>("text");
   readonly disabled = input<boolean>(false);
   readonly mask = input<Nullable<MaskitoOptions>>(null);
+  readonly size = input<Nullable<"sm" | "md" | "lg">>(null);
+  readonly readOnly = input<boolean>(false);
+  readonly inputClass = input<string>("");
 
   protected readonly value = signal("");
+
+  focused = output<FocusEvent>();
+
+  protected handleFocus = (event: FocusEvent) => {
+    this.focused.emit(event);
+  };
 
   protected onChange = (_: string) => {};
 
@@ -83,5 +116,24 @@ export class InputComponent implements ControlValueAccessor, OnInit {
     if (errors["zod"]) return errors["zod"][0];
 
     return null;
+  }
+
+  protected getSizeClass() {
+    const size = this.size();
+    if (size === "sm") return "kt-input-sm";
+    if (size === "lg") return "kt-input-lg";
+    return "";
+  }
+
+  focus() {
+    this.input.nativeElement.focus();
+  }
+
+  focusAndSelectContent() {
+    const input = this.input.nativeElement;
+    const length = input.value.length;
+    input.setSelectionRange(length, length);
+    input.focus();
+    input.select();
   }
 }

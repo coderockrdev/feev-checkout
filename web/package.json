@@ -8,6 +8,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:headless": "ng test --browsers=ChromeHeadless",
     "lint": "ng lint",
     "lint:fix": "ng lint --fix"
   },
@@ -25,6 +26,7 @@
     "@maskito/angular": "^5.0.0",
     "@maskito/core": "^5.0.0",
     "@maskito/kit": "^5.0.0",
+    "angularx-qrcode": "^20.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zod": "^4.2.1",

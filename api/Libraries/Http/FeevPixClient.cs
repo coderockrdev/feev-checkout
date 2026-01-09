@@ -23,11 +23,10 @@ public class FeevPixClient(IConfiguration configuration, IFeevClient feevClient)
 
         return new FlurlRequest(baseUrl)
             .AppendPathSegment(path)
-            .WithTimeout(10)
+            .WithTimeout(30)
             .WithHeaders(new
             {
-                Accept = "application/json",
-                ContentType = "application/json"
+                Accept = "application/json"
             })
             .WithOAuthBearerToken(token);
     }

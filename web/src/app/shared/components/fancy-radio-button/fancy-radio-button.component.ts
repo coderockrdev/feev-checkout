@@ -1,4 +1,4 @@
-import { Component, computed, input, output, signal } from "@angular/core";
+import { Component, computed, input, output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
 import { IconName } from "@shared/types/icon-name";
@@ -20,8 +20,7 @@ export class FancyRadioButtonComponent<T> {
   readonly value = input.required<T>();
   readonly icon = input.required<IconName>();
   readonly selected = input.required<boolean>();
-
-  protected disabled = signal(false);
+  readonly disabled = input(false);
 
   protected readonly clicked = output<T>();
 

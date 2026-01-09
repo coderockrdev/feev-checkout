@@ -20,7 +20,7 @@ public class BraspagClient(IConfiguration configuration) : IBraspagClient
     {
         return new FlurlRequest(baseUrl)
             .AppendPathSegment(path)
-            .WithTimeout(10)
+            .WithTimeout(30)
             .WithHeaders(new
             {
                 Accept = "application/json",

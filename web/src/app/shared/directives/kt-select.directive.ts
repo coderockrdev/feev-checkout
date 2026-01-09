@@ -1,13 +1,5 @@
 import { AfterViewInit, Directive } from "@angular/core";
 
-declare global {
-  interface Window {
-    KTSelect: {
-      init: () => void;
-    };
-  }
-}
-
 @Directive({
   selector: "[appKtSelect]",
   standalone: true,

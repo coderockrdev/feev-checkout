@@ -12,6 +12,6 @@ import { SectionComponent } from "./section/section.component";
   },
 })
 export class CardComponent {
-  heading = input.required<string>();
+  heading = input<string>();
   contentNoPadding = input<boolean>(false);
 }

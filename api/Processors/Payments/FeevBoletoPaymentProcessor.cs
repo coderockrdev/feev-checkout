@@ -7,31 +7,6 @@ using FeevCheckout.Services.Payments;
 
 namespace FeevCheckout.Processors.Payments;
 
-public class Boleto
-{
-    public required int NumeroParcela { get; set; }
-
-    public required DateTime Vencimento { get; set; }
-
-    public required string LinhaDigitavel { get; set; }
-
-    public required string LinkBoleto { get; set; }
-}
-
-public class FeevBoletoExtraData
-{
-    public required int CodigoFatura { get; set; }
-
-    public required string LinkCarne { get; set; }
-
-    public required List<Boleto> Boletos { get; set; }
-}
-
-public class FeevBoletoPaymentResult : PaymentResult
-{
-    public new required FeevBoletoExtraData ExtraData { get; set; }
-}
-
 public class FeevBoletoPaymentProcessor(IFeevBoletoService feevBoletoService) : IPaymentProcessor
 {
     private readonly IFeevBoletoService feevBoletoService = feevBoletoService;
@@ -55,29 +30,26 @@ public class FeevBoletoPaymentProcessor(IFeevBoletoService feevBoletoService) : 
             installment
         );
 
-        return new FeevBoletoPaymentResult
+        return new PaymentResult
         {
             Success = true,
             Method = Method,
             ExternalId = response.Boletos[0].NumeroBoleto.ToString(),
-            ExtraData = new FeevBoletoExtraData
+            ExtraData = JsonDocument.Parse(JsonSerializer.Serialize(new
             {
-                CodigoFatura = response.CodigoFatura,
-                LinkCarne = response.LinkCarne,
-                Boletos =
-                [
-                    .. response.Boletos.Select(boleto =>
+                Code = response.CodigoFatura,
+                Link = response.LinkCarne,
+                Invoices = response.Boletos.Select(boleto =>
                     {
-                        return new Boleto
+                        return new
                         {
-                            NumeroParcela = boleto.NumeroParcela,
-                            Vencimento = boleto.Vencimento,
-                            LinhaDigitavel = boleto.LinhaDigitavel,
-                            LinkBoleto = boleto.LinkBoleto
+                            Number = boleto.NumeroParcela,
+                            DueAt = boleto.Vencimento,
+                            DigitableLine = boleto.LinhaDigitavel,
+                            Link = boleto.LinkBoleto
                         };
                     })
-                ]
-            },
+            })),
             Response = JsonDocument.Parse(
                 JsonSerializer.Serialize(response)
             )
