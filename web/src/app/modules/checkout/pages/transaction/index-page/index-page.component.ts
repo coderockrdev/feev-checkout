@@ -12,7 +12,6 @@ import { CardNumberSchema } from "@modules/checkout/schemas/card-number.schema";
 import { ValidThruSchema } from "@modules/checkout/schemas/valid-thru.schema";
 import { zodForm } from "@shared/utils/zod.utils";
 import { PaymentRequestDtoSchema } from "@modules/checkout/schemas/payment-request-dto.schema";
-import { ModalComponent } from "@shared/components/modal/modal.component";
 import { PaymentFormComponent } from "@modules/checkout/components/payment-form/payment-form.component";
 import { PaymentAttempt } from "@modules/checkout/types/payment-attempt";
 import { PaymentFinishComponent } from "@modules/checkout/components/payment-finish/payment-finish.component";
@@ -22,6 +21,7 @@ import { isFuture } from "@shared/utils/date.utils";
 import { TransactionStore } from "@modules/checkout/stores/transaction/transaction.store";
 import { TransactionService } from "@modules/checkout/services/transaction/transaction.service";
 import { ModalService } from "@app/shared/services/modal/modal.service";
+import { CardComponent } from "@app/shared/components/card/card.component";
 
 @Component({
   selector: "app-index-page",
@@ -29,9 +29,9 @@ import { ModalService } from "@app/shared/services/modal/modal.service";
     IconComponent,
     IconFrameComponent,
     ReactiveFormsModule,
-    ModalComponent,
     PaymentFormComponent,
     PaymentFinishComponent,
+    CardComponent,
   ],
   templateUrl: "./index-page.component.html",
   styleUrl: "./index-page.component.scss",
@@ -108,7 +108,8 @@ export class IndexPageComponent {
     const paymentInfo = this.paymentInfo();
 
     if (paymentInfo?.status === PaymentStatus.Created || paymentInfo?.status === null) {
-      if (paymentInfo.method === PaymentMethod.PIX) return isFuture(paymentInfo.extraData.expireAt);
+      if (paymentInfo.method === PaymentMethod.PIX)
+        return isFuture(paymentInfo.extraData.expireAt, 3000);
     }
 
     return false;
@@ -184,6 +185,8 @@ export class IndexPageComponent {
     if (isCreditCard) {
       this.creditCardForm.markAllAsTouched();
       this.creditCardForm.updateValueAndValidity();
+
+      console.log(this.creditCardForm.invalid);
 
       if (this.creditCardForm.invalid) {
         return;

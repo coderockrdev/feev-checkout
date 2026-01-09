@@ -14,7 +14,7 @@ export const BoletoPaymentAttemptSchema = z.object({
     }),
     z.object({
       code: z.int(),
-      link: z.string(),
+      link: z.url(),
       invoices: z.array(InvoiceSchema),
     }),
   ),

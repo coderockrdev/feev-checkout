@@ -1,4 +1,4 @@
-export const isFuture = (date: string | Date) => {
+export const isFuture = (date: string | Date, delay = 0) => {
   if (date instanceof Date) {
     return Date.now() < date.getTime();
   }
@@ -9,5 +9,5 @@ export const isFuture = (date: string | Date) => {
     throw new Error("Invalid date");
   }
 
-  return Date.now() < time;
+  return Date.now() < time + delay;
 };

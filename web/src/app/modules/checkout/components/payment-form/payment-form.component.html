@@ -67,7 +67,7 @@
     <!-- Credit Card Form -->
     @if (isCreditCard()) {
     <app-card heading="Cartão de Crédito">
-      <form class="grid sm:grid-cols-2 gap-5" [formGroup]="creditCardForm()" (ngSubmit)="onSubmit()">
+      <form class="grid sm:grid-cols-2 gap-5" [formGroup]="creditCardForm()" (ngSubmit)="onSubmit()()">
         <app-input formControlName="cardHolder" class="col-span-full" label="Nome impresso no cartão"
           placeholder="Nome impresso no cartão" icon="user" />
         <app-input formControlName="cardNumber" class="col-span-full" label="Número do cartão"
