@@ -86,7 +86,14 @@ export class IndexPageComponent {
 
       if (payment.hasValue()) {
         this.isSubmitting.set(false);
-        this.transaction.updatePayment(payment.value());
+
+        const value = payment.value();
+
+        this.transaction.updatePayment(value);
+
+        if (value.method === PaymentMethod.Boleto) {
+          window.open(value.extraData.link, "_blank");
+        }
       }
     });
   }

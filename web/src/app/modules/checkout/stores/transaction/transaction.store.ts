@@ -24,7 +24,13 @@ export class TransactionStore {
   public readonly isTransactionPaid = computed(() => {
     if (!this.resource.hasValue()) return false;
     const payment = this.resource.value().successfulPaymentAttempt;
-    return payment?.status === PaymentStatus.Completed || payment?.method === PaymentMethod.Boleto;
+
+    if (!payment || payment.status === PaymentStatus.Failed) return false;
+
+    return (
+      payment.status === PaymentStatus.Completed ||
+      [PaymentMethod.Boleto, PaymentMethod.CreditCard].includes(payment.method)
+    );
   });
 
   public readonly hasBoletoLink = computed(() => {
