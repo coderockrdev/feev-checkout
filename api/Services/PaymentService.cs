@@ -1,5 +1,6 @@
 using FeevCheckout.Data;
 using FeevCheckout.DTOs;
+using FeevCheckout.DTOs.Factories;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 using FeevCheckout.Processors.Payments;
@@ -15,7 +16,8 @@ public class PaymentService(
     AppDbContext context,
     PaymentProcessorFactory paymentProcessorFactory,
     ICredentialService credentialService,
-    IEstablishmentService establishmentService
+    IEstablishmentService establishmentService,
+    IWebhookDispatcherService webhookDispatcherService
 ) : IPaymentService
 {
     private readonly AppDbContext context = context;
@@ -25,6 +27,8 @@ public class PaymentService(
     private readonly IEstablishmentService establishmentService = establishmentService;
 
     private readonly PaymentProcessorFactory paymentProcessorFactory = paymentProcessorFactory;
+
+    private readonly IWebhookDispatcherService webhookDispatcherService = webhookDispatcherService;
 
     public async Task<PaymentResult> Process(Transaction transaction, PaymentRequestDto request)
     {
@@ -72,6 +76,10 @@ public class PaymentService(
         {
             await UpdateAttempt(attempt, PaymentAttemptStatus.Failed, null);
             throw;
+        }
+        finally
+        {
+            await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(transaction));
         }
     }
 

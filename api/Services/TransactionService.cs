@@ -1,5 +1,6 @@
 using FeevCheckout.Data;
 using FeevCheckout.DTOs;
+using FeevCheckout.DTOs.Factories;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
@@ -20,9 +21,11 @@ public interface ITransactionService
     Task<bool> CancelTransaction(Guid establishmentId, Guid id);
 }
 
-public class TransactionService(AppDbContext context) : ITransactionService
+public class TransactionService(AppDbContext context, IWebhookDispatcherService webhookDispatcherService) : ITransactionService
 {
     private readonly AppDbContext context = context;
+
+    private readonly IWebhookDispatcherService webhookDispatcherService = webhookDispatcherService;
 
     public async Task<PagedResult<Transaction>> ListTransactions(Guid establishmentId, int page, int pageSize)
     {
@@ -144,6 +147,8 @@ public class TransactionService(AppDbContext context) : ITransactionService
 
         transaction = await GetTransaction(establishmentId, transaction.Id);
 
+        await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(transaction!));
+
         return transaction!;
     }
 
@@ -158,6 +163,8 @@ public class TransactionService(AppDbContext context) : ITransactionService
         transaction.CanceledAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
+
+        await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(transaction));
 
         return true;
     }

@@ -38,7 +38,7 @@ public class BraspagCartaoService(IBraspagClient braspagClient, ICardBrandPatter
 
         var request = braspagClient.CreateRequest(credentials, "/sales");
 
-        return await request.PostJsonAsync(new
+        var data = new
         {
             MerchantOrderId = transaction.Identifier,
             Customer = new
@@ -79,6 +79,8 @@ public class BraspagCartaoService(IBraspagClient braspagClient, ICardBrandPatter
                     Brand = brandPattern.Brand.ToLower()
                 }
             }
-        }).ReceiveJson<SalesResponse>();
+        };
+
+        return await request.PostJsonAsync(data).ReceiveJson<SalesResponse>();
     }
 }
