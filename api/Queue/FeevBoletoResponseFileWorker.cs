@@ -2,13 +2,14 @@ using FeevCheckout.Data;
 using FeevCheckout.Enums;
 using FeevCheckout.Libraries.Interfaces;
 using FeevCheckout.Models;
+using FeevCheckout.Services;
 using FeevCheckout.Services.Payments;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace FeevCheckout.Queue;
 
-public class FeevBoletoResponseFileWokerPayload
+public class FeevBoletoResponseFileWorkerPayload
 {
     public required Establishment Establishment { get; set; }
 
@@ -17,7 +18,7 @@ public class FeevBoletoResponseFileWokerPayload
     public required string Batch { get; set; }
 }
 
-public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : BackgroundService
+public class FeevBoletoResponseFileWorker(IServiceProvider serviceProvider) : BackgroundService
 {
     // private readonly string authBaseUrl = configuration["AppSettings:Feev:AuthBaseUrl"]
     //     ?? throw new InvalidOperationException(
@@ -34,34 +35,39 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
         var reader = FeevBoletoResponseFileQueue.Channel.Reader;
 
         while (await reader.WaitToReadAsync(stoppingToken))
-        while (reader.TryRead(out var payload))
-            await Handle(payload);
+            while (reader.TryRead(out var payload))
+                await Handle(payload);
     }
 
-    private async Task Handle(FeevBoletoResponseFileWokerPayload payload)
+    private async Task Handle(FeevBoletoResponseFileWorkerPayload payload)
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var transactionService = scope.ServiceProvider.GetRequiredService<ITransactionService>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<FeevBoletoResponseFileWorker>>();
 
         var occurrences = await GetOcurrences(payload.Establishment, payload.Credentials, payload.Batch);
 
         foreach (var occurrence in occurrences)
         {
+            var invoiceNumber = occurrence.NumeroBoleto;
+
             var paymentAttempt = await GetPaymentAttemptFromInvoiceNumber(
                 context,
                 payload.Establishment,
-                occurrence.NumeroBoleto
+                invoiceNumber
             );
 
-            // TODO: should we log it or something?
             if (paymentAttempt == null)
+            {
+                logger.LogWarning($"No payment attempt related to {invoiceNumber} invoice.");
                 continue;
+            }
 
             var transaction = paymentAttempt.Transaction ??
                               throw new BadHttpRequestException("Unable to find the related transaction.");
 
-            paymentAttempt.Status = PaymentAttemptStatus.Completed;
-            transaction.CompletedAt = DateTime.UtcNow;
+            await transactionService.CompleteTransaction(transaction, paymentAttempt);
         }
 
         await context.SaveChangesAsync();
@@ -87,7 +93,7 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
             .Include(paymentAttemp => paymentAttemp.Transaction)
             .Where(paymentAttempt => paymentAttempt.EstablishmentId == establishment.Id)
             .Where(paymentAttempt => paymentAttempt.Method == PaymentMethod.FeevBoleto)
-            .Where(paymentAttempt => paymentAttempt.Status == PaymentAttemptStatus.Created)
+            .Where(paymentAttempt => paymentAttempt.Status == PaymentAttemptStatus.Pending)
             .Where(paymentAttempt => paymentAttempt.ExternalId == invoiceNumber.ToString())
             .FirstOrDefaultAsync();
     }

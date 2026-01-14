@@ -187,6 +187,10 @@ namespace FeevCheckout.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("CallbackUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("CanceledAt")
                         .HasColumnType("timestamp with time zone");
 

@@ -34,21 +34,22 @@ public class FeevBoletoPaymentProcessor(IFeevBoletoService feevBoletoService) : 
         {
             Success = true,
             Method = Method,
+            Status = PaymentAttemptStatus.Pending,
             ExternalId = response.Boletos[0].NumeroBoleto.ToString(),
             ExtraData = JsonDocument.Parse(JsonSerializer.Serialize(new
             {
                 Code = response.CodigoFatura,
                 Link = response.LinkCarne,
                 Invoices = response.Boletos.Select(boleto =>
+                {
+                    return new
                     {
-                        return new
-                        {
-                            Number = boleto.NumeroParcela,
-                            DueAt = boleto.Vencimento,
-                            DigitableLine = boleto.LinhaDigitavel,
-                            Link = boleto.LinkBoleto
-                        };
-                    })
+                        Number = boleto.NumeroParcela,
+                        DueAt = boleto.Vencimento,
+                        DigitableLine = boleto.LinhaDigitavel,
+                        Link = boleto.LinkBoleto
+                    };
+                })
             })),
             Response = JsonDocument.Parse(
                 JsonSerializer.Serialize(response)

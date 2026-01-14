@@ -12,8 +12,15 @@ describe("FancyRadioButtonComponent", () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(FancyRadioButtonComponent);
+
+    fixture.componentRef.setInput("id", "123");
+    fixture.componentRef.setInput("name", "radio-field");
+    fixture.componentRef.setInput("label", "Label");
+    fixture.componentRef.setInput("value", 1);
+    fixture.componentRef.setInput("icon", "check");
+    fixture.componentRef.setInput("selected", false);
+
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it("should create", () => {

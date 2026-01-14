@@ -40,7 +40,10 @@ export class PixFinishPanelComponent implements OnDestroy, OnInit {
     effect(() => {
       if (this.isExpired()) {
         this.stopPolling.set(true);
-        this.transaction.resource.reload();
+
+        timer(3000).subscribe(() => {
+          this.transaction.resource.reload();
+        });
       }
     });
   }
@@ -85,6 +88,7 @@ export class PixFinishPanelComponent implements OnDestroy, OnInit {
 
         if (ms === 0) {
           this.isExpired.set(true);
+          this.dispatchExpiredMessage();
           this.sub?.unsubscribe();
         }
       });
@@ -92,16 +96,6 @@ export class PixFinishPanelComponent implements OnDestroy, OnInit {
 
   ngOnDestroy() {
     this.sub?.unsubscribe();
-    const transaction = this.transaction.resource.value();
-
-    if (!this.transaction.resource.hasValue() || !transaction?.successfulPaymentAttempt) return;
-    if (!this.isPix(transaction?.successfulPaymentAttempt)) return;
-
-    const expireAt = new Date(transaction.successfulPaymentAttempt.extraData.expireAt);
-
-    if (expireAt.getTime() <= Date.now()) {
-      this.dispatchExpiredMessage();
-    }
   }
 
   protected isPix(payment: Nullable<PaymentAttempt>): payment is PixPaymentAttempt {
@@ -118,7 +112,6 @@ export class PixFinishPanelComponent implements OnDestroy, OnInit {
 
     this.toast.show({
       message: "Código copiado com sucesso!",
-      position: "bottom-end",
       progress: true,
     });
 
@@ -164,7 +157,6 @@ export class PixFinishPanelComponent implements OnDestroy, OnInit {
     this.toast.show({
       message: "Código expirado.",
       variant: "destructive",
-      position: "bottom-end",
     });
   }
 }

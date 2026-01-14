@@ -1,0 +1,9 @@
+{
+  "name": "webhook-mock",
+  "version": "0.0.1",
+  "main": "app.js",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

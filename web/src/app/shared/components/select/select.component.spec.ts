@@ -13,6 +13,10 @@ describe("SelectComponent", () => {
 
     fixture = TestBed.createComponent(SelectComponent<number>);
     component = fixture.componentInstance;
+
+    fixture.componentRef.setInput("label", "Select:");
+    fixture.componentRef.setInput("options", []);
+
     fixture.detectChanges();
   });
 
