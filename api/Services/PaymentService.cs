@@ -1,6 +1,6 @@
 using FeevCheckout.Data;
 using FeevCheckout.DTOs;
-using FeevCheckout.DTOs.Factories;
+using FeevCheckout.Events;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 using FeevCheckout.Processors.Payments;
@@ -17,7 +17,7 @@ public class PaymentService(
     PaymentProcessorFactory paymentProcessorFactory,
     ICredentialService credentialService,
     IEstablishmentService establishmentService,
-    IWebhookDispatcherService webhookDispatcherService
+    ITransactionWebhookDispatcherService webhookDispatcherService
 ) : IPaymentService
 {
     private readonly AppDbContext context = context;
@@ -28,7 +28,7 @@ public class PaymentService(
 
     private readonly PaymentProcessorFactory paymentProcessorFactory = paymentProcessorFactory;
 
-    private readonly IWebhookDispatcherService webhookDispatcherService = webhookDispatcherService;
+    private readonly ITransactionWebhookDispatcherService webhookDispatcherService = webhookDispatcherService;
 
     public async Task<PaymentResult> Process(Transaction transaction, PaymentRequestDto request)
     {
@@ -61,7 +61,10 @@ public class PaymentService(
 
         var attempt = await RegisterAttempt(transaction, request.Method);
 
-        await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(TransactionEvent.PaymentPending, transaction));
+        await webhookDispatcherService.DispatchAsync(
+            TransactionWebhookEvent.TransactionPaymentAttempt,
+            transaction
+        );
 
         try
         {
@@ -72,14 +75,22 @@ public class PaymentService(
             await UpdateAttempt(attempt, PaymentAttemptStatus.Created, result);
             await UpdateTransaction(transaction, attempt);
 
-            await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(TransactionEvent.PaymentCreated, transaction));
+            await webhookDispatcherService.DispatchAsync(
+                TransactionWebhookEvent.TransactionPaymentCreated,
+                transaction
+            );
 
             return result;
         }
         catch (Exception)
         {
             await UpdateAttempt(attempt, PaymentAttemptStatus.Failed, null);
-            await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(TransactionEvent.PaymentFailed, transaction));
+
+            await webhookDispatcherService.DispatchAsync(
+                TransactionWebhookEvent.TransactionPaymentFailed,
+                transaction
+            );
+
             throw;
         }
     }

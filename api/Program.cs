@@ -131,7 +131,7 @@ builder.Services.AddScoped<IFeevBoletoCancellationService, FeevBoletoCancellatio
 builder.Services.AddScoped<IFeevBoletoResponseFileService, FeevBoletoResponseFileService>();
 
 // Webhook Dispatcher Services
-builder.Services.AddScoped<IWebhookDispatcherService, WebhookDispatcherService>();
+builder.Services.AddScoped<ITransactionWebhookDispatcherService, TransactionWebhookDispatcherService>();
 
 // Common Services
 builder.Services.AddScoped<ICardBrandPatternService, CardBrandPatternService>();
@@ -144,7 +144,6 @@ builder.Services.AddScoped<IBraspagClient, BraspagClient>();
 builder.Services.AddScoped<IFeevClient, FeevClient>();
 builder.Services.AddScoped<IFeevBoletoClient, FeevBoletoClient>();
 builder.Services.AddScoped<IFeevPixClient, FeevPixClient>();
-builder.Services.AddScoped<IFeevWebhookClient, FeevWebhookClient>();
 
 // Payment Processors
 builder.Services.AddScoped<IPaymentProcessor, BraspagCartaoPaymentProcessor>();

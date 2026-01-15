@@ -1,6 +1,6 @@
 using FeevCheckout.Data;
 using FeevCheckout.DTOs;
-using FeevCheckout.DTOs.Factories;
+using FeevCheckout.Events;
 using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
@@ -21,11 +21,11 @@ public interface ITransactionService
     Task<bool> CancelTransaction(Guid establishmentId, Guid id);
 }
 
-public class TransactionService(AppDbContext context, IWebhookDispatcherService webhookDispatcherService) : ITransactionService
+public class TransactionService(AppDbContext context, ITransactionWebhookDispatcherService webhookDispatcherService) : ITransactionService
 {
     private readonly AppDbContext context = context;
 
-    private readonly IWebhookDispatcherService webhookDispatcherService = webhookDispatcherService;
+    private readonly ITransactionWebhookDispatcherService webhookDispatcherService = webhookDispatcherService;
 
     public async Task<PagedResult<Transaction>> ListTransactions(Guid establishmentId, int page, int pageSize)
     {
@@ -127,6 +127,7 @@ public class TransactionService(AppDbContext context, IWebhookDispatcherService 
             TotalAmount = totalAmount,
             PaymentRules = [.. paymentRules],
             ExpireAt = request.ExpireAt ?? DateTime.UtcNow.AddDays(30),
+            CallbackUrl = request.CallbackUrl,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -147,7 +148,10 @@ public class TransactionService(AppDbContext context, IWebhookDispatcherService 
 
         transaction = await GetTransaction(establishmentId, transaction.Id);
 
-        await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(TransactionEvent.Created, transaction!));
+        await webhookDispatcherService.DispatchAsync(
+            TransactionWebhookEvent.TransactionCreated,
+            transaction!
+        );
 
         return transaction!;
     }
@@ -166,7 +170,10 @@ public class TransactionService(AppDbContext context, IWebhookDispatcherService 
 
         transaction = await GetTransaction(establishmentId, id);
 
-        await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(TransactionEvent.Canceled, transaction!));
+        await webhookDispatcherService.DispatchAsync(
+            TransactionWebhookEvent.TransactionCanceled,
+            transaction!
+        );
 
         return true;
     }

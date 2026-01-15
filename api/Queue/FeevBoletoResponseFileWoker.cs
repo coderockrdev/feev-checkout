@@ -1,5 +1,5 @@
 using FeevCheckout.Data;
-using FeevCheckout.DTOs.Factories;
+using FeevCheckout.Events;
 using FeevCheckout.Enums;
 using FeevCheckout.Libraries.Interfaces;
 using FeevCheckout.Models;
@@ -44,7 +44,7 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var dispatcher = scope.ServiceProvider.GetRequiredService<IWebhookDispatcherService>();
+        var dispatcher = scope.ServiceProvider.GetRequiredService<ITransactionWebhookDispatcherService>();
 
         var occurrences = await GetOcurrences(payload.Establishment, payload.Credentials, payload.Batch);
 
@@ -67,10 +67,8 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
             transaction.CompletedAt = DateTime.UtcNow;
 
             await dispatcher.DispatchAsync(
-                TransactionWebhookDtoFactory.Create(
-                    TransactionEvent.Completed,
-                    transaction
-                )
+                TransactionWebhookEvent.TransactionCompleted,
+                transaction
             );
         }
 

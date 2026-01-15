@@ -1,6 +1,5 @@
 using FeevCheckout.Data;
-using FeevCheckout.DTOs.Factories;
-using FeevCheckout.Enums;
+using FeevCheckout.Events;
 using FeevCheckout.Models;
 using FeevCheckout.Services;
 
@@ -35,7 +34,7 @@ public class FeevTransactionExpirationWorker(IServiceProvider serviceProvider) :
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var dispatcher = scope.ServiceProvider.GetRequiredService<IWebhookDispatcherService>();
+        var dispatcher = scope.ServiceProvider.GetRequiredService<ITransactionWebhookDispatcherService>();
 
         var now = DateTime.UtcNow;
 
@@ -52,10 +51,8 @@ public class FeevTransactionExpirationWorker(IServiceProvider serviceProvider) :
             transaction.CanceledAt = now;
 
             await dispatcher.DispatchAsync(
-                TransactionWebhookDtoFactory.Create(
-                    TransactionEvent.Expired,
-                    transaction
-                )
+                TransactionWebhookEvent.TransactionExpired,
+                transaction
             );
         }
 

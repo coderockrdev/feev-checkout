@@ -86,6 +86,8 @@ public class Transaction
 
     public DateTime? ExpireAt { get; set; }
 
+    public required string CallbackUrl { get; set; }
+
     public DateTime? CanceledAt { get; set; }
 
     public DateTime? CompletedAt { get; set; }

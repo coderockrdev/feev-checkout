@@ -166,5 +166,8 @@ public record CreateTransactionRequest(
     [Required(ErrorMessage = "Payment rules is required.")]
     [MinLength(1)]
     List<PaymentRuleDto> PaymentRules,
-    DateTime? ExpireAt
+    DateTime? ExpireAt,
+    [Required(ErrorMessage = "Callback URL is required.")]
+    [Url(ErrorMessage = "Callback URL must be a valid URL")]
+    string CallbackUrl
 );
