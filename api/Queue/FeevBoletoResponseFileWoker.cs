@@ -1,7 +1,9 @@
 using FeevCheckout.Data;
+using FeevCheckout.DTOs.Factories;
 using FeevCheckout.Enums;
 using FeevCheckout.Libraries.Interfaces;
 using FeevCheckout.Models;
+using FeevCheckout.Services;
 using FeevCheckout.Services.Payments;
 
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +44,7 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var dispatcher = scope.ServiceProvider.GetRequiredService<IWebhookDispatcherService>();
 
         var occurrences = await GetOcurrences(payload.Establishment, payload.Credentials, payload.Batch);
 
@@ -62,6 +65,13 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
 
             paymentAttempt.Status = PaymentAttemptStatus.Completed;
             transaction.CompletedAt = DateTime.UtcNow;
+
+            await dispatcher.DispatchAsync(
+                TransactionWebhookDtoFactory.Create(
+                    TransactionEvent.Completed,
+                    transaction
+                )
+            );
         }
 
         await context.SaveChangesAsync();

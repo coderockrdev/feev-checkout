@@ -61,6 +61,8 @@ public class PaymentService(
 
         var attempt = await RegisterAttempt(transaction, request.Method);
 
+        await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(TransactionEvent.PaymentPending, transaction));
+
         try
         {
             var result =
@@ -70,16 +72,15 @@ public class PaymentService(
             await UpdateAttempt(attempt, PaymentAttemptStatus.Created, result);
             await UpdateTransaction(transaction, attempt);
 
+            await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(TransactionEvent.PaymentCreated, transaction));
+
             return result;
         }
         catch (Exception)
         {
             await UpdateAttempt(attempt, PaymentAttemptStatus.Failed, null);
+            await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(TransactionEvent.PaymentFailed, transaction));
             throw;
-        }
-        finally
-        {
-            await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(transaction));
         }
     }
 

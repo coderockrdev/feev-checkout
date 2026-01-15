@@ -147,7 +147,7 @@ public class TransactionService(AppDbContext context, IWebhookDispatcherService 
 
         transaction = await GetTransaction(establishmentId, transaction.Id);
 
-        await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(transaction!));
+        await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(TransactionEvent.Created, transaction!));
 
         return transaction!;
     }
@@ -164,7 +164,9 @@ public class TransactionService(AppDbContext context, IWebhookDispatcherService 
 
         await context.SaveChangesAsync();
 
-        await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(transaction));
+        transaction = await GetTransaction(establishmentId, id);
+
+        await webhookDispatcherService.DispatchAsync(TransactionWebhookDtoFactory.Create(TransactionEvent.Canceled, transaction!));
 
         return true;
     }

@@ -1,34 +1,36 @@
+using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
 namespace FeevCheckout.DTOs.Factories;
 
 public static class TransactionWebhookDtoFactory
 {
-    public static TransactionWebhookDto Create(Transaction transaction)
+    public static TransactionWebhookDto Create(TransactionEvent @event, Transaction transaction)
     {
         return new TransactionWebhookDto(
+            Event: ToWebhookEvent(@event),
+            OccurredAt: DateTime.UtcNow,
             TransactionId: transaction.Id,
             Identifier: transaction.Identifier,
-            Status: transaction.Status,
-            Establishment: new EstablishmentWebhookDto(
-                transaction.Establishment!.Id,
-                transaction.Establishment.FullName
-            ),
-            Customer: new CustomerWebhookDto(
-                transaction.Customer.Name,
-                transaction.Customer.Email
-            ),
-            TotalAmount: transaction.TotalAmount,
-            Products: transaction.Products
-                .Select(p => new ProductWebhookDto(p.Id, p.Name, p.Price))
-                .ToList(),
-            PaymentAttempt: transaction.SuccessfulPaymentAttempt is null
+            PaymentAttemptId: transaction.SuccessfulPaymentAttempt is null
                 ? null
-                : new PaymentAttemptWebhookDto(
-                    transaction.SuccessfulPaymentAttempt.Id,
-                    transaction.SuccessfulPaymentAttempt.Method,
-                    transaction.SuccessfulPaymentAttempt.Status
-                )
+                : transaction.SuccessfulPaymentAttempt.Id,
+            ExternalId: transaction.SuccessfulPaymentAttempt is null
+                ? null
+                : transaction.SuccessfulPaymentAttempt.ExternalId
         );
     }
+
+    private static string ToWebhookEvent(TransactionEvent @event) =>
+        @event switch
+        {
+            TransactionEvent.Created   => "transaction.created",
+            TransactionEvent.Canceled  => "transaction.canceled",
+            TransactionEvent.Expired  => "transaction.expired",
+            TransactionEvent.Completed => "transaction.completed",
+            TransactionEvent.PaymentCreated => "transaction.payment_created",
+            TransactionEvent.PaymentFailed => "transaction.payment_failed",
+            TransactionEvent.PaymentPending => "transaction.payment_pending",
+            _ => throw new ArgumentOutOfRangeException(nameof(@event))
+        };
 }
