@@ -119,6 +119,7 @@ namespace FeevCheckout.Migrations
                     PaymentRules = table.Column<string>(type: "jsonb", nullable: false),
                     SuccessfulPaymentAttemptId = table.Column<Guid>(type: "uuid", nullable: true),
                     ExpireAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CallbackUrl = table.Column<string>(type: "text", nullable: false),
                     CanceledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)

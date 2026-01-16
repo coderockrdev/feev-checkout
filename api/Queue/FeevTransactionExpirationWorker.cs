@@ -19,7 +19,7 @@ public class FeevTransactionExpirationWorkerPayload
 public class FeevTransactionExpirationWorker(IServiceProvider serviceProvider) : BackgroundService
 {
     private readonly IServiceProvider serviceProvider = serviceProvider;
-    private readonly TimeSpan _interval = TimeSpan.FromSeconds(15);
+    private readonly TimeSpan _interval = TimeSpan.FromHours(1);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

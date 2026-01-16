@@ -41,7 +41,7 @@ public class FeevBoletoService(IFeevBoletoClient feevBoletoClient) : IFeevBoleto
 
         var request = await feevBoletoClient.CreateRequest(credentials, "/InserirFatura");
 
-        var data = new
+        return await request.PostJsonAsync(new
             {
                 codigoFaturaParceiro = transaction.Identifier,
                 descricaoFatura = transaction.Description,
@@ -77,9 +77,7 @@ public class FeevBoletoService(IFeevBoletoClient feevBoletoClient) : IFeevBoleto
                     },
                     telefones = Array.Empty<object>()
                 }
-            };
-
-        return await request.PostJsonAsync(data)
+            })
             .ReceiveJson<InserirFaturaResponse>();
     }
 

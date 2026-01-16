@@ -14,7 +14,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeevCheckout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260107164337_InitialCreate")]
+    [Migration("20260116124111_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -189,6 +189,10 @@ namespace FeevCheckout.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("CallbackUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CanceledAt")
                         .HasColumnType("timestamp with time zone");
