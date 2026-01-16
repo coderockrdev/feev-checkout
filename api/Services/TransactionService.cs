@@ -18,7 +18,11 @@ public interface ITransactionService
 
     Task<Transaction> CreateTransaction(Guid establishmentId, CreateTransactionRequest request);
 
+    Task<bool> CompleteTransaction(Transaction transaction, PaymentAttempt? paymentAttempt);
+
     Task<bool> CancelTransaction(Guid establishmentId, Guid id);
+
+    Task<bool> ProcessExpiredTransactions(CancellationToken cancellationToken);
 }
 
 public class TransactionService(
@@ -159,6 +163,22 @@ public class TransactionService(
         return transaction!;
     }
 
+    public async Task<bool> CompleteTransaction(Transaction transaction, PaymentAttempt? paymentAttempt)
+    {
+        var attempt = paymentAttempt ?? transaction.SuccessfulPaymentAttempt ??
+            throw new BadHttpRequestException("Unable to find a payment attempt related to the transaction.");
+
+        attempt.Status = PaymentAttemptStatus.Completed;
+        transaction.CompletedAt = DateTime.UtcNow;
+
+        await transactionWebhookDispatcherService.DispatchAsync(
+            TransactionWebhookEvent.Completed,
+            transaction
+        );
+
+        return true;
+    }
+
     public async Task<bool> CancelTransaction(Guid establishmentId, Guid id)
     {
         var transaction = await context.Transactions
@@ -177,6 +197,32 @@ public class TransactionService(
             TransactionWebhookEvent.Canceled,
             transaction!
         );
+
+        return true;
+    }
+
+    public async Task<bool> ProcessExpiredTransactions(CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+
+        var expiredTransactions = await context.Transactions
+            .Where(transaction =>
+                transaction.ExpireAt <= now &&
+                transaction.CanceledAt == null &&
+                transaction.CompletedAt == null)
+            .ToListAsync(cancellationToken);
+
+        foreach (var transaction in expiredTransactions)
+        {
+            transaction.CanceledAt = now;
+
+            await transactionWebhookDispatcherService.DispatchAsync(
+                TransactionWebhookEvent.Expired,
+                transaction
+            );
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
 
         return true;
     }

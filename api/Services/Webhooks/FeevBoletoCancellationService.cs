@@ -63,7 +63,7 @@ public class FeevBoletoCancellationService(AppDbContext context, ITransactionSer
             .Include(paymentAttemp => paymentAttemp.Transaction)
             .Where(paymentAttempt => paymentAttempt.EstablishmentId == establishment.Id)
             .Where(paymentAttempt => paymentAttempt.Method == PaymentMethod.FeevBoleto)
-            .Where(paymentAttempt => paymentAttempt.Status == PaymentAttemptStatus.Created)
+            .Where(paymentAttempt => paymentAttempt.Status == PaymentAttemptStatus.Pending)
             .Where(paymentAttempt => paymentAttempt.ExternalId == invoiceNumber.ToString())
             .FirstOrDefaultAsync();
     }

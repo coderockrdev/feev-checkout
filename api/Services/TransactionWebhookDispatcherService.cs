@@ -13,8 +13,11 @@ public interface ITransactionWebhookDispatcherService
     Task<bool> DispatchAsync(TransactionWebhookEvent @event, Transaction transaction);
 }
 
-public class TransactionWebhookDispatcherService : ITransactionWebhookDispatcherService
+public class TransactionWebhookDispatcherService(
+    ILogger<TransactionWebhookDispatcherService> logger) : ITransactionWebhookDispatcherService
 {
+    private readonly ILogger logger = logger;
+
     public async Task<bool> DispatchAsync(TransactionWebhookEvent @event, Transaction transaction)
     {
         var request = new FlurlRequest(transaction.CallbackUrl)
@@ -41,9 +44,9 @@ public class TransactionWebhookDispatcherService : ITransactionWebhookDispatcher
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
-            // TODO: we must log it
+            logger.LogError(ex, $"Error while dispatching transaction event to {transaction.CallbackUrl} webhook URL");
 
             return false;
         }

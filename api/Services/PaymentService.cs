@@ -17,7 +17,8 @@ public class PaymentService(
     PaymentProcessorFactory paymentProcessorFactory,
     ICredentialService credentialService,
     IEstablishmentService establishmentService,
-    ITransactionWebhookDispatcherService transactionWebhookDispatcherService
+    ITransactionWebhookDispatcherService transactionWebhookDispatcherService,
+    ITransactionService transactionService
 ) : IPaymentService
 {
     private readonly AppDbContext context = context;
@@ -30,6 +31,8 @@ public class PaymentService(
 
     private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService =
         transactionWebhookDispatcherService;
+
+    private readonly ITransactionService transactionService = transactionService;
 
     public async Task<PaymentResult> Process(Transaction transaction, PaymentRequestDto request)
     {
@@ -86,11 +89,9 @@ public class PaymentService(
                 await UpdateAttempt(attempt, PaymentAttemptStatus.Completed, result);
                 await UpdateTransaction(transaction, attempt);
 
-                // TODO: use the reusable function from the transaction service
-                await transactionWebhookDispatcherService.DispatchAsync(
-                    TransactionWebhookEvent.Completed,
-                    transaction
-                );
+                await transactionService.CompleteTransaction(transaction, attempt);
+
+                await context.SaveChangesAsync();
             }
 
             return result;

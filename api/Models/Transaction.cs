@@ -84,7 +84,7 @@ public class Transaction
 
     public PaymentAttempt? SuccessfulPaymentAttempt { get; set; }
 
-    public DateTime? ExpireAt { get; set; }
+    public DateTime ExpireAt { get; set; }
 
     public required string CallbackUrl { get; set; }
 
@@ -102,7 +102,7 @@ public class Transaction
             if (CanceledAt.HasValue)
                 return TransactionStatus.Canceled;
 
-            if (ExpireAt.HasValue && ExpireAt.Value <= DateTime.UtcNow)
+            if (ExpireAt <= DateTime.UtcNow)
                 return TransactionStatus.Expired;
 
             return TransactionStatus.Available;

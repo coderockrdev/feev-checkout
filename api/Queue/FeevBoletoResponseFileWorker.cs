@@ -44,33 +44,31 @@ public class FeevBoletoResponseFileWorker(IServiceProvider serviceProvider) : Ba
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var dispatcher = scope.ServiceProvider.GetRequiredService<ITransactionWebhookDispatcherService>();
+        var transactionService = scope.ServiceProvider.GetRequiredService<ITransactionService>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<FeevBoletoResponseFileWorker>>();
 
         var occurrences = await GetOcurrences(payload.Establishment, payload.Credentials, payload.Batch);
 
         foreach (var occurrence in occurrences)
         {
+            var invoiceNumber = occurrence.NumeroBoleto;
+
             var paymentAttempt = await GetPaymentAttemptFromInvoiceNumber(
                 context,
                 payload.Establishment,
-                occurrence.NumeroBoleto
+                invoiceNumber
             );
 
-            // TODO: should we log it or something?
             if (paymentAttempt == null)
+            {
+                logger.LogWarning($"No payment attempt related to {invoiceNumber} invoice.");
                 continue;
+            }
 
             var transaction = paymentAttempt.Transaction ??
                               throw new BadHttpRequestException("Unable to find the related transaction.");
 
-            // TODO: move this into a reusable transaction function
-            paymentAttempt.Status = PaymentAttemptStatus.Completed;
-            transaction.CompletedAt = DateTime.UtcNow;
-
-            await dispatcher.DispatchAsync(
-                TransactionWebhookEvent.Completed,
-                transaction
-            );
+            await transactionService.CompleteTransaction(transaction, paymentAttempt);
         }
 
         await context.SaveChangesAsync();
@@ -96,7 +94,7 @@ public class FeevBoletoResponseFileWorker(IServiceProvider serviceProvider) : Ba
             .Include(paymentAttemp => paymentAttemp.Transaction)
             .Where(paymentAttempt => paymentAttempt.EstablishmentId == establishment.Id)
             .Where(paymentAttempt => paymentAttempt.Method == PaymentMethod.FeevBoleto)
-            .Where(paymentAttempt => paymentAttempt.Status == PaymentAttemptStatus.Created)
+            .Where(paymentAttempt => paymentAttempt.Status == PaymentAttemptStatus.Pending)
             .Where(paymentAttempt => paymentAttempt.ExternalId == invoiceNumber.ToString())
             .FirstOrDefaultAsync();
     }
