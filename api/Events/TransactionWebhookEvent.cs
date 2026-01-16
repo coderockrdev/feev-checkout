@@ -2,36 +2,33 @@ namespace FeevCheckout.Events;
 
 public sealed class TransactionWebhookEvent
 {
-    public static readonly TransactionWebhookEvent TransactionCreated =
-        new("transaction.created");
-
-    public static readonly TransactionWebhookEvent TransactionCanceled =
-        new("transaction.canceled");
-
-    public static readonly TransactionWebhookEvent TransactionExpired =
-        new("transaction.expired");
-
-    public static readonly TransactionWebhookEvent TransactionCompleted =
-        new("transaction.completed");
-
-    public static readonly TransactionWebhookEvent TransactionPaymentAttempt =
-        new("transaction.payment_attempt");
-
-    public static readonly TransactionWebhookEvent TransactionPaymentCreated =
-        new("transaction.payment_created");
-
-    public static readonly TransactionWebhookEvent TransactionPaymentFailed =
-        new("transaction.payment_failed");
+    public string Name { get; }
 
     private TransactionWebhookEvent(string name)
     {
         Name = name;
     }
 
-    public string Name { get; }
+    public override string ToString() => Name;
 
-    public override string ToString()
-    {
-        return Name;
-    }
+    public static readonly TransactionWebhookEvent Created =
+        new("transaction.created");
+
+    public static readonly TransactionWebhookEvent Canceled =
+        new("transaction.canceled");
+
+    public static readonly TransactionWebhookEvent Expired =
+        new("transaction.expired");
+
+    public static readonly TransactionWebhookEvent Completed =
+        new("transaction.completed");
+
+    public static readonly TransactionWebhookEvent PaymentAttemptCreated =
+        new("transaction.payment_attempt.created");
+
+    public static readonly TransactionWebhookEvent PaymentAttemptPending =
+        new("transaction.payment_attempt.pending");
+
+    public static readonly TransactionWebhookEvent PaymentAttemptFailed =
+        new("transaction.payment_attempt.failed");
 }

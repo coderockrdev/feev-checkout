@@ -54,7 +54,7 @@ public class FeevTransactionExpirationWorker(IServiceProvider serviceProvider) :
             transaction.CanceledAt = now;
 
             await dispatcher.DispatchAsync(
-                TransactionWebhookEvent.TransactionExpired,
+                TransactionWebhookEvent.Expired,
                 transaction
             );
         }

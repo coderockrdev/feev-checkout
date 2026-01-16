@@ -67,7 +67,7 @@ public class FeevBoletoResponseFileWorker(IServiceProvider serviceProvider) : Ba
             transaction.CompletedAt = DateTime.UtcNow;
 
             await dispatcher.DispatchAsync(
-                TransactionWebhookEvent.TransactionCompleted,
+                TransactionWebhookEvent.Completed,
                 transaction
             );
         }
