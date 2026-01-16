@@ -6,7 +6,7 @@ const port = 3000;
 app.use(express.json());
 
 app.get("/", (_, res) => {
-  res.json({ status: "WebHook is running." });
+  res.json({ status: "Webhook is running." });
 });
 
 app.post("/consumer", (req, res) => {
