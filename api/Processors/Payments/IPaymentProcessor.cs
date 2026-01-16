@@ -12,6 +12,8 @@ public class PaymentResult
 
     public required PaymentMethod Method { get; set; }
 
+    public required PaymentAttemptStatus Status { get; set; }
+
     public required string ExternalId { get; set; }
 
     public required JsonDocument ExtraData { get; set; }

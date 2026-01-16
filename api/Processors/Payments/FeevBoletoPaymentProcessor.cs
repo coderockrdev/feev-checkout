@@ -34,6 +34,7 @@ public class FeevBoletoPaymentProcessor(IFeevBoletoService feevBoletoService) : 
         {
             Success = true,
             Method = Method,
+            Status = PaymentAttemptStatus.Pending,
             ExternalId = response.Boletos[0].NumeroBoleto.ToString(),
             ExtraData = JsonDocument.Parse(JsonSerializer.Serialize(new
             {

@@ -4,7 +4,7 @@
     <app-card heading="Pagador e Recebedor">
       <div
         class="grid justify-center items-center gap-2.5 lg:grid-cols-[1fr_auto_1fr] lg:gap-0 lg:gap-x-2.5 lg:justify-between">
-        <app-party-summary [name]="customer()?.name ?? ''" [document]="getPartyDocument(customer()?.document)"
+        <app-party-summary [name]="customer().name" [document]="getPartyDocument(customer().document)"
           [isLoading]="isLoading()" />
         <app-icon-frame class="text-primary/50 mx-auto">
           <app-icon icon="arrow-right-left" [size]="18" />
@@ -67,7 +67,7 @@
     <!-- Credit Card Form -->
     @if (isCreditCard()) {
     <app-card heading="Cartão de Crédito">
-      <form class="grid sm:grid-cols-2 gap-5" [formGroup]="creditCardForm()" (ngSubmit)="onSubmit()">
+      <form class="grid sm:grid-cols-2 gap-5" [formGroup]="creditCardForm()" (ngSubmit)="onSubmit()()">
         <app-input formControlName="cardHolder" class="col-span-full" label="Nome impresso no cartão"
           placeholder="Nome impresso no cartão" icon="user" />
         <app-input formControlName="cardNumber" class="col-span-full" label="Número do cartão"

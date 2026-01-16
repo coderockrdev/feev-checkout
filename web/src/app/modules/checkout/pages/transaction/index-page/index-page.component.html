@@ -1,11 +1,23 @@
 <div class="kt-container-fixed space-y-12 h-full">
-  @if (transaction.isTransactionPaid()) {
-    <div class="flex flex-col items-center gap-y-2.5 mt-12">
+  @if (transaction.isTransactionPaid() || transaction.hasBoletoLink()) {
+    <app-card heading="Transação concluída" class="block max-w-4xl mx-auto">
+      <div class="flex flex-col gap-2.5 items-center">
       <app-icon-frame class="text-green-500 mx-auto">
         <app-icon icon="check" [size]="18" />
       </app-icon-frame>
-      <h1 class="text-xl font-medium text-gray-900 text-center">Sua transação foi concluída com sucesso</h1>
-    </div>
+      <h2 class="text-xl font-medium text-gray-900 text-center">
+        Sua transação foi concluída com sucesso!
+      </h2>
+      @if (transaction.hasBoletoLink()) {
+        <div class="space-y-4 text-center">
+          <p class="text-sm text-gray-700">Você pode acessar sua fatura clicando no botão abaixo.</p>
+          <a class="kt-btn" [href]="transaction.boletoLink()" target="_blank" rel="noopener noreferrer">
+            Visualizar fatura
+          </a>
+        </div>
+      }
+      </div>
+    </app-card>
   } @else if (transaction.error()) {
     <div class="flex flex-col items-center gap-y-2.5 mt-12">
       <app-icon-frame class="text-red-500 mx-auto">
