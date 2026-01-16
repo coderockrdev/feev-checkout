@@ -81,6 +81,18 @@ public class PaymentService(
                 transaction
             );
 
+            if (result.Method == PaymentMethod.BraspagCartao)
+            {
+                await UpdateAttempt(attempt, PaymentAttemptStatus.Completed, result);
+                await UpdateTransaction(transaction, attempt);
+
+                // TODO: use the reusable function from the transaction service
+                await transactionWebhookDispatcherService.DispatchAsync(
+                    TransactionWebhookEvent.Completed,
+                    transaction
+                );
+            }
+
             return result;
         }
         catch (Exception)

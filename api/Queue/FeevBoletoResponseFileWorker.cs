@@ -36,8 +36,8 @@ public class FeevBoletoResponseFileWorker(IServiceProvider serviceProvider) : Ba
         var reader = FeevBoletoResponseFileQueue.Channel.Reader;
 
         while (await reader.WaitToReadAsync(stoppingToken))
-        while (reader.TryRead(out var payload))
-            await Handle(payload);
+            while (reader.TryRead(out var payload))
+                await Handle(payload);
     }
 
     private async Task Handle(FeevBoletoResponseFileWorkerPayload payload)
@@ -63,6 +63,7 @@ public class FeevBoletoResponseFileWorker(IServiceProvider serviceProvider) : Ba
             var transaction = paymentAttempt.Transaction ??
                               throw new BadHttpRequestException("Unable to find the related transaction.");
 
+            // TODO: move this into a reusable transaction function
             paymentAttempt.Status = PaymentAttemptStatus.Completed;
             transaction.CompletedAt = DateTime.UtcNow;
 
