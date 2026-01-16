@@ -21,11 +21,11 @@ public interface ITransactionService
     Task<bool> CancelTransaction(Guid establishmentId, Guid id);
 }
 
-public class TransactionService(AppDbContext context, ITransactionWebhookDispatcherService webhookDispatcherService) : ITransactionService
+public class TransactionService(AppDbContext context, ITransactionWebhookDispatcherService transactionWebhookDispatcherService) : ITransactionService
 {
     private readonly AppDbContext context = context;
 
-    private readonly ITransactionWebhookDispatcherService webhookDispatcherService = webhookDispatcherService;
+    private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService = transactionWebhookDispatcherService;
 
     public async Task<PagedResult<Transaction>> ListTransactions(Guid establishmentId, int page, int pageSize)
     {
@@ -148,7 +148,7 @@ public class TransactionService(AppDbContext context, ITransactionWebhookDispatc
 
         transaction = await GetTransaction(establishmentId, transaction.Id);
 
-        await webhookDispatcherService.DispatchAsync(
+        await transactionWebhookDispatcherService.DispatchAsync(
             TransactionWebhookEvent.TransactionCreated,
             transaction!
         );
@@ -170,7 +170,7 @@ public class TransactionService(AppDbContext context, ITransactionWebhookDispatc
 
         transaction = await GetTransaction(establishmentId, id);
 
-        await webhookDispatcherService.DispatchAsync(
+        await transactionWebhookDispatcherService.DispatchAsync(
             TransactionWebhookEvent.TransactionCanceled,
             transaction!
         );

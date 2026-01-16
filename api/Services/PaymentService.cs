@@ -17,7 +17,7 @@ public class PaymentService(
     PaymentProcessorFactory paymentProcessorFactory,
     ICredentialService credentialService,
     IEstablishmentService establishmentService,
-    ITransactionWebhookDispatcherService webhookDispatcherService
+    ITransactionWebhookDispatcherService transactionWebhookDispatcherService
 ) : IPaymentService
 {
     private readonly AppDbContext context = context;
@@ -28,7 +28,7 @@ public class PaymentService(
 
     private readonly PaymentProcessorFactory paymentProcessorFactory = paymentProcessorFactory;
 
-    private readonly ITransactionWebhookDispatcherService webhookDispatcherService = webhookDispatcherService;
+    private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService = transactionWebhookDispatcherService;
 
     public async Task<PaymentResult> Process(Transaction transaction, PaymentRequestDto request)
     {
@@ -61,7 +61,7 @@ public class PaymentService(
 
         var attempt = await RegisterAttempt(transaction, request.Method);
 
-        await webhookDispatcherService.DispatchAsync(
+        await transactionWebhookDispatcherService.DispatchAsync(
             TransactionWebhookEvent.TransactionPaymentAttempt,
             transaction
         );
@@ -75,7 +75,7 @@ public class PaymentService(
             await UpdateAttempt(attempt, PaymentAttemptStatus.Created, result);
             await UpdateTransaction(transaction, attempt);
 
-            await webhookDispatcherService.DispatchAsync(
+            await transactionWebhookDispatcherService.DispatchAsync(
                 TransactionWebhookEvent.TransactionPaymentCreated,
                 transaction
             );
@@ -86,7 +86,7 @@ public class PaymentService(
         {
             await UpdateAttempt(attempt, PaymentAttemptStatus.Failed, null);
 
-            await webhookDispatcherService.DispatchAsync(
+            await transactionWebhookDispatcherService.DispatchAsync(
                 TransactionWebhookEvent.TransactionPaymentFailed,
                 transaction
             );
