@@ -62,7 +62,7 @@ public class PaymentService(
         var attempt = await RegisterAttempt(transaction, request.Method);
 
         await transactionWebhookDispatcherService.DispatchAsync(
-            TransactionWebhookEvent.TransactionPaymentAttempt,
+            TransactionWebhookEvent.PaymentAttemptCreated,
             transaction
         );
 
@@ -72,11 +72,11 @@ public class PaymentService(
                 await processor.ProcessAsync(establishment, credentials, transaction, paymentRules, installment,
                     request);
 
-            await UpdateAttempt(attempt, PaymentAttemptStatus.Created, result);
+            await UpdateAttempt(attempt, PaymentAttemptStatus.Pending, result);
             await UpdateTransaction(transaction, attempt);
 
             await transactionWebhookDispatcherService.DispatchAsync(
-                TransactionWebhookEvent.TransactionPaymentCreated,
+                TransactionWebhookEvent.PaymentAttemptPending,
                 transaction
             );
 
@@ -87,7 +87,7 @@ public class PaymentService(
             await UpdateAttempt(attempt, PaymentAttemptStatus.Failed, null);
 
             await transactionWebhookDispatcherService.DispatchAsync(
-                TransactionWebhookEvent.TransactionPaymentFailed,
+                TransactionWebhookEvent.PaymentAttemptFailed,
                 transaction
             );
 
@@ -118,7 +118,7 @@ public class PaymentService(
             TransactionId = transaction.Id,
             Method = method,
             ExternalId = null,
-            Status = PaymentAttemptStatus.Pending,
+            Status = PaymentAttemptStatus.Created,
             Response = null,
             ExtraData = null,
             CreatedAt = DateTime.UtcNow

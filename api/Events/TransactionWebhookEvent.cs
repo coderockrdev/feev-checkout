@@ -11,24 +11,24 @@ public sealed class TransactionWebhookEvent
 
     public override string ToString() => Name;
 
-    public static readonly TransactionWebhookEvent TransactionCreated =
+    public static readonly TransactionWebhookEvent Created =
         new("transaction.created");
 
-    public static readonly TransactionWebhookEvent TransactionCanceled =
+    public static readonly TransactionWebhookEvent Canceled =
         new("transaction.canceled");
 
-    public static readonly TransactionWebhookEvent TransactionExpired =
+    public static readonly TransactionWebhookEvent Expired =
         new("transaction.expired");
 
-    public static readonly TransactionWebhookEvent TransactionCompleted =
+    public static readonly TransactionWebhookEvent Completed =
         new("transaction.completed");
 
-    public static readonly TransactionWebhookEvent TransactionPaymentAttempt =
-        new("transaction.payment_attempt");
+    public static readonly TransactionWebhookEvent PaymentAttemptCreated =
+        new("transaction.payment_attempt.created");
 
-    public static readonly TransactionWebhookEvent TransactionPaymentCreated =
-        new("transaction.payment_created");
+    public static readonly TransactionWebhookEvent PaymentAttemptPending =
+        new("transaction.payment_attempt.pending");
 
-    public static readonly TransactionWebhookEvent TransactionPaymentFailed =
-        new("transaction.payment_failed");
+    public static readonly TransactionWebhookEvent PaymentAttemptFailed =
+        new("transaction.payment_attempt.failed");
 }

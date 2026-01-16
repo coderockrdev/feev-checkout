@@ -149,7 +149,7 @@ public class TransactionService(AppDbContext context, ITransactionWebhookDispatc
         transaction = await GetTransaction(establishmentId, transaction.Id);
 
         await transactionWebhookDispatcherService.DispatchAsync(
-            TransactionWebhookEvent.TransactionCreated,
+            TransactionWebhookEvent.Created,
             transaction!
         );
 
@@ -171,7 +171,7 @@ public class TransactionService(AppDbContext context, ITransactionWebhookDispatc
         transaction = await GetTransaction(establishmentId, id);
 
         await transactionWebhookDispatcherService.DispatchAsync(
-            TransactionWebhookEvent.TransactionCanceled,
+            TransactionWebhookEvent.Canceled,
             transaction!
         );
 
