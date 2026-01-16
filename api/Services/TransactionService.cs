@@ -1,6 +1,7 @@
 using FeevCheckout.Data;
 using FeevCheckout.DTOs;
 using FeevCheckout.Enums;
+using FeevCheckout.Events;
 using FeevCheckout.Models;
 
 using Microsoft.EntityFrameworkCore;
@@ -17,12 +18,21 @@ public interface ITransactionService
 
     Task<Transaction> CreateTransaction(Guid establishmentId, CreateTransactionRequest request);
 
+    Task<bool> CompleteTransaction(Transaction transaction, PaymentAttempt? paymentAttempt);
+
     Task<bool> CancelTransaction(Guid establishmentId, Guid id);
+
+    Task<bool> ProcessExpiredTransactions(CancellationToken cancellationToken);
 }
 
-public class TransactionService(AppDbContext context) : ITransactionService
+public class TransactionService(
+    AppDbContext context,
+    ITransactionWebhookDispatcherService transactionWebhookDispatcherService) : ITransactionService
 {
     private readonly AppDbContext context = context;
+
+    private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService =
+        transactionWebhookDispatcherService;
 
     public async Task<PagedResult<Transaction>> ListTransactions(Guid establishmentId, int page, int pageSize)
     {
@@ -124,6 +134,7 @@ public class TransactionService(AppDbContext context) : ITransactionService
             TotalAmount = totalAmount,
             PaymentRules = [.. paymentRules],
             ExpireAt = request.ExpireAt ?? DateTime.UtcNow.AddDays(30),
+            CallbackUrl = request.CallbackUrl,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -144,7 +155,28 @@ public class TransactionService(AppDbContext context) : ITransactionService
 
         transaction = await GetTransaction(establishmentId, transaction.Id);
 
+        await transactionWebhookDispatcherService.DispatchAsync(
+            TransactionWebhookEvent.Created,
+            transaction!
+        );
+
         return transaction!;
+    }
+
+    public async Task<bool> CompleteTransaction(Transaction transaction, PaymentAttempt? paymentAttempt)
+    {
+        var attempt = paymentAttempt ?? transaction.SuccessfulPaymentAttempt ??
+            throw new BadHttpRequestException("Unable to find a payment attempt related to the transaction.");
+
+        attempt.Status = PaymentAttemptStatus.Completed;
+        transaction.CompletedAt = DateTime.UtcNow;
+
+        await transactionWebhookDispatcherService.DispatchAsync(
+            TransactionWebhookEvent.Completed,
+            transaction
+        );
+
+        return true;
     }
 
     public async Task<bool> CancelTransaction(Guid establishmentId, Guid id)
@@ -158,6 +190,39 @@ public class TransactionService(AppDbContext context) : ITransactionService
         transaction.CanceledAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
+
+        transaction = await GetTransaction(establishmentId, id);
+
+        await transactionWebhookDispatcherService.DispatchAsync(
+            TransactionWebhookEvent.Canceled,
+            transaction!
+        );
+
+        return true;
+    }
+
+    public async Task<bool> ProcessExpiredTransactions(CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+
+        var expiredTransactions = await context.Transactions
+            .Where(transaction =>
+                transaction.ExpireAt <= now &&
+                transaction.CanceledAt == null &&
+                transaction.CompletedAt == null)
+            .ToListAsync(cancellationToken);
+
+        foreach (var transaction in expiredTransactions)
+        {
+            transaction.CanceledAt = now;
+
+            await transactionWebhookDispatcherService.DispatchAsync(
+                TransactionWebhookEvent.Expired,
+                transaction
+            );
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
 
         return true;
     }

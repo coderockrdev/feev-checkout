@@ -1,6 +1,7 @@
 using FeevCheckout.Data;
 using FeevCheckout.DTOs;
 using FeevCheckout.Enums;
+using FeevCheckout.Events;
 using FeevCheckout.Models;
 using FeevCheckout.Processors.Payments;
 
@@ -15,7 +16,9 @@ public class PaymentService(
     AppDbContext context,
     PaymentProcessorFactory paymentProcessorFactory,
     ICredentialService credentialService,
-    IEstablishmentService establishmentService
+    IEstablishmentService establishmentService,
+    ITransactionWebhookDispatcherService transactionWebhookDispatcherService,
+    ITransactionService transactionService
 ) : IPaymentService
 {
     private readonly AppDbContext context = context;
@@ -25,6 +28,11 @@ public class PaymentService(
     private readonly IEstablishmentService establishmentService = establishmentService;
 
     private readonly PaymentProcessorFactory paymentProcessorFactory = paymentProcessorFactory;
+
+    private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService =
+        transactionWebhookDispatcherService;
+
+    private readonly ITransactionService transactionService = transactionService;
 
     public async Task<PaymentResult> Process(Transaction transaction, PaymentRequestDto request)
     {
@@ -57,20 +65,46 @@ public class PaymentService(
 
         var attempt = await RegisterAttempt(transaction, request.Method);
 
+        await transactionWebhookDispatcherService.DispatchAsync(
+            TransactionWebhookEvent.PaymentAttemptCreated,
+            transaction
+        );
+
         try
         {
             var result =
                 await processor.ProcessAsync(establishment, credentials, transaction, paymentRules, installment,
                     request);
 
-            await UpdateAttempt(attempt, PaymentAttemptStatus.Created, result);
+            await UpdateAttempt(attempt, PaymentAttemptStatus.Pending, result);
             await UpdateTransaction(transaction, attempt);
+
+            await transactionWebhookDispatcherService.DispatchAsync(
+                TransactionWebhookEvent.PaymentAttemptPending,
+                transaction
+            );
+
+            if (result.Method == PaymentMethod.BraspagCartao)
+            {
+                await UpdateAttempt(attempt, PaymentAttemptStatus.Completed, result);
+                await UpdateTransaction(transaction, attempt);
+
+                await transactionService.CompleteTransaction(transaction, attempt);
+
+                await context.SaveChangesAsync();
+            }
 
             return result;
         }
         catch (Exception)
         {
             await UpdateAttempt(attempt, PaymentAttemptStatus.Failed, null);
+
+            await transactionWebhookDispatcherService.DispatchAsync(
+                TransactionWebhookEvent.PaymentAttemptFailed,
+                transaction
+            );
+
             throw;
         }
     }
@@ -98,7 +132,7 @@ public class PaymentService(
             TransactionId = transaction.Id,
             Method = method,
             ExternalId = null,
-            Status = PaymentAttemptStatus.Pending,
+            Status = PaymentAttemptStatus.Created,
             Response = null,
             ExtraData = null,
             CreatedAt = DateTime.UtcNow

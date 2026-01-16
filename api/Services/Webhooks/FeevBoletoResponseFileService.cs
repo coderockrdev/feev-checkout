@@ -34,7 +34,7 @@ public class FeevBoletoResponseFileService(AppDbContext context, ICredentialServ
             !payload.TryGetProperty("lote", out batch))
             throw new BadHttpRequestException("'Lote' (or 'lote') is required.");
 
-        await FeevBoletoResponseFileQueue.Channel.Writer.WriteAsync(new FeevBoletoResponseFileWokerPayload
+        await FeevBoletoResponseFileQueue.Channel.Writer.WriteAsync(new FeevBoletoResponseFileWorkerPayload
         {
             Establishment = establishment,
             Credentials = credentials,

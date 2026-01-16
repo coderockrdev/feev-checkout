@@ -4,6 +4,6 @@ namespace FeevCheckout.Queue;
 
 public static class FeevBoletoResponseFileQueue
 {
-    public static readonly Channel<FeevBoletoResponseFileWokerPayload> Channel =
-        System.Threading.Channels.Channel.CreateUnbounded<FeevBoletoResponseFileWokerPayload>();
+    public static readonly Channel<FeevBoletoResponseFileWorkerPayload> Channel =
+        System.Threading.Channels.Channel.CreateUnbounded<FeevBoletoResponseFileWorkerPayload>();
 }

@@ -38,6 +38,7 @@ public class BraspagCartaoPaymentProcessor(IBraspagCartaoService braspagCartaoSe
         {
             Success = true,
             Method = request.Method,
+            Status = PaymentAttemptStatus.Completed,
             ExternalId = response.Payment.PaymentId,
             ExtraData = JsonDocument.Parse(JsonSerializer.Serialize(new
             {

@@ -6,6 +6,7 @@ import { TransactionStatus } from "@modules/checkout/enums/transaction-status";
 import { PaymentAttempt } from "@modules/checkout/types/payment-attempt";
 import { TransactionSchema } from "@modules/checkout/schemas/transaction.schema";
 import { PaymentStatus } from "@modules/checkout/enums/payment-status";
+import { PaymentMethod } from "@modules/checkout/enums/payment-method";
 
 @Injectable()
 export class TransactionStore {
@@ -25,6 +26,18 @@ export class TransactionStore {
       this.resource.hasValue() &&
       this.resource.value().successfulPaymentAttempt?.status === PaymentStatus.Completed,
   );
+
+  public readonly hasBoletoLink = computed(() => {
+    if (!this.resource.hasValue()) return false;
+    const payment = this.resource.value().successfulPaymentAttempt;
+    return payment?.method === PaymentMethod.Boleto && !!payment.extraData.link;
+  });
+
+  public readonly boletoLink = computed(() => {
+    if (!this.resource.hasValue()) return null;
+    const payment = this.resource.value().successfulPaymentAttempt;
+    return payment?.method === PaymentMethod.Boleto ? payment.extraData.link : null;
+  });
 
   public readonly isLoading = computed(
     () => this.resource.isLoading() && !this.resource.hasValue(),

@@ -34,6 +34,7 @@ public class FeevPixPaymentProcessor(IFeevPixService feevPixService) : IPaymentP
         {
             Success = true,
             Method = Method,
+            Status = PaymentAttemptStatus.Pending,
             ExternalId = response.Parcelas[0].TxId,
             ExtraData = JsonDocument.Parse(
                 JsonSerializer.Serialize(new

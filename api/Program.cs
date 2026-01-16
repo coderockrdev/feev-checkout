@@ -130,6 +130,9 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IFeevBoletoCancellationService, FeevBoletoCancellationService>();
 builder.Services.AddScoped<IFeevBoletoResponseFileService, FeevBoletoResponseFileService>();
 
+// Webhook Dispatcher Services
+builder.Services.AddScoped<ITransactionWebhookDispatcherService, TransactionWebhookDispatcherService>();
+
 // Common Services
 builder.Services.AddScoped<ICardBrandPatternService, CardBrandPatternService>();
 builder.Services.AddScoped<ICredentialService, CredentialService>();
@@ -153,7 +156,8 @@ builder.Services.AddScoped<IWebhookProcessor, FeevBoletoWebhookProcessor>();
 builder.Services.AddScoped<WebhookProcessorFactory>();
 
 // Queue
-builder.Services.AddHostedService<FeevBoletoResponseFileWoker>();
+builder.Services.AddHostedService<FeevBoletoResponseFileWorker>();
+builder.Services.AddHostedService<FeevTransactionExpirationWorker>();
 
 var app = builder.Build();
 
