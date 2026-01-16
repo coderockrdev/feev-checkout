@@ -1,7 +1,7 @@
 using FeevCheckout.Data;
 using FeevCheckout.DTOs;
-using FeevCheckout.Events;
 using FeevCheckout.Enums;
+using FeevCheckout.Events;
 using FeevCheckout.Models;
 using FeevCheckout.Processors.Payments;
 
@@ -28,7 +28,8 @@ public class PaymentService(
 
     private readonly PaymentProcessorFactory paymentProcessorFactory = paymentProcessorFactory;
 
-    private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService = transactionWebhookDispatcherService;
+    private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService =
+        transactionWebhookDispatcherService;
 
     public async Task<PaymentResult> Process(Transaction transaction, PaymentRequestDto request)
     {

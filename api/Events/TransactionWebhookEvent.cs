@@ -2,15 +2,6 @@ namespace FeevCheckout.Events;
 
 public sealed class TransactionWebhookEvent
 {
-    public string Name { get; }
-
-    private TransactionWebhookEvent(string name)
-    {
-        Name = name;
-    }
-
-    public override string ToString() => Name;
-
     public static readonly TransactionWebhookEvent TransactionCreated =
         new("transaction.created");
 
@@ -31,4 +22,16 @@ public sealed class TransactionWebhookEvent
 
     public static readonly TransactionWebhookEvent TransactionPaymentFailed =
         new("transaction.payment_failed");
+
+    private TransactionWebhookEvent(string name)
+    {
+        Name = name;
+    }
+
+    public string Name { get; }
+
+    public override string ToString()
+    {
+        return Name;
+    }
 }

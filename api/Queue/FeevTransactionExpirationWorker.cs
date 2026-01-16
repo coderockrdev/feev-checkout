@@ -18,8 +18,9 @@ public class FeevTransactionExpirationWorkerPayload
 
 public class FeevTransactionExpirationWorker(IServiceProvider serviceProvider) : BackgroundService
 {
-    private readonly IServiceProvider serviceProvider = serviceProvider;
     private readonly TimeSpan _interval = TimeSpan.FromHours(1);
+
+    private readonly IServiceProvider serviceProvider = serviceProvider;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -30,21 +31,23 @@ public class FeevTransactionExpirationWorker(IServiceProvider serviceProvider) :
         }
     }
 
-    private async Task ProcessExpiredTransactions(CancellationToken ct)
+    private async Task ProcessExpiredTransactions(CancellationToken cancellationToken)
     {
         using var scope = serviceProvider.CreateScope();
+
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var dispatcher = scope.ServiceProvider.GetRequiredService<ITransactionWebhookDispatcherService>();
 
         var now = DateTime.UtcNow;
 
+        // TODO: move it to TransactionService
         var expired = await context.Transactions
-            .Where(t =>
-                t.ExpireAt.HasValue &&
-                t.ExpireAt <= now &&
-                t.CanceledAt == null &&
-                t.CompletedAt == null)
-            .ToListAsync(ct);
+            .Where(transaction =>
+                transaction.ExpireAt.HasValue && // TODO: it should never be empty
+                transaction.ExpireAt <= now &&
+                transaction.CanceledAt == null &&
+                transaction.CompletedAt == null)
+            .ToListAsync(cancellationToken);
 
         foreach (var transaction in expired)
         {
@@ -56,6 +59,6 @@ public class FeevTransactionExpirationWorker(IServiceProvider serviceProvider) :
             );
         }
 
-        await context.SaveChangesAsync(ct);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

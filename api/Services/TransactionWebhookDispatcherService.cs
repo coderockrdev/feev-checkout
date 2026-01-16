@@ -13,21 +13,16 @@ public interface ITransactionWebhookDispatcherService
     Task<bool> DispatchAsync(TransactionWebhookEvent @event, Transaction transaction);
 }
 
-public class TransactionWebhookDispatcherService() : ITransactionWebhookDispatcherService
+public class TransactionWebhookDispatcherService : ITransactionWebhookDispatcherService
 {
     public async Task<bool> DispatchAsync(TransactionWebhookEvent @event, Transaction transaction)
     {
-
         var request = new FlurlRequest(transaction.CallbackUrl)
             .WithTimeout(30)
             .WithSettings(settings => settings.JsonSerializer = new DefaultJsonSerializer(new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            }))
-            .WithHeaders(new
-            {
-                Accept = "application/json"
-            });
+            }));
 
         try
         {
@@ -38,9 +33,9 @@ public class TransactionWebhookDispatcherService() : ITransactionWebhookDispatch
                 Data = new
                 {
                     TransactionId = transaction.Id,
-                    Identifier = transaction.Identifier,
+                    transaction.Identifier,
                     PaymentAttemptId = transaction.SuccessfulPaymentAttempt?.Id,
-                    ExternalId = transaction.SuccessfulPaymentAttempt?.ExternalId
+                    transaction.SuccessfulPaymentAttempt?.ExternalId
                 }
             });
 
@@ -48,6 +43,8 @@ public class TransactionWebhookDispatcherService() : ITransactionWebhookDispatch
         }
         catch
         {
+            // TODO: we must log it
+
             return false;
         }
     }

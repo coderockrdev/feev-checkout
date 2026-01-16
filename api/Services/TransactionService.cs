@@ -1,7 +1,7 @@
 using FeevCheckout.Data;
 using FeevCheckout.DTOs;
-using FeevCheckout.Events;
 using FeevCheckout.Enums;
+using FeevCheckout.Events;
 using FeevCheckout.Models;
 
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +21,14 @@ public interface ITransactionService
     Task<bool> CancelTransaction(Guid establishmentId, Guid id);
 }
 
-public class TransactionService(AppDbContext context, ITransactionWebhookDispatcherService transactionWebhookDispatcherService) : ITransactionService
+public class TransactionService(
+    AppDbContext context,
+    ITransactionWebhookDispatcherService transactionWebhookDispatcherService) : ITransactionService
 {
     private readonly AppDbContext context = context;
 
-    private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService = transactionWebhookDispatcherService;
+    private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService =
+        transactionWebhookDispatcherService;
 
     public async Task<PagedResult<Transaction>> ListTransactions(Guid establishmentId, int page, int pageSize)
     {

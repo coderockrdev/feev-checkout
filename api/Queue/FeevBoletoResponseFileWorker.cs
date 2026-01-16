@@ -1,6 +1,6 @@
 using FeevCheckout.Data;
-using FeevCheckout.Events;
 using FeevCheckout.Enums;
+using FeevCheckout.Events;
 using FeevCheckout.Libraries.Interfaces;
 using FeevCheckout.Models;
 using FeevCheckout.Services;
@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FeevCheckout.Queue;
 
-public class FeevBoletoResponseFileWokerPayload
+public class FeevBoletoResponseFileWorkerPayload
 {
     public required Establishment Establishment { get; set; }
 
@@ -19,7 +19,7 @@ public class FeevBoletoResponseFileWokerPayload
     public required string Batch { get; set; }
 }
 
-public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : BackgroundService
+public class FeevBoletoResponseFileWorker(IServiceProvider serviceProvider) : BackgroundService
 {
     // private readonly string authBaseUrl = configuration["AppSettings:Feev:AuthBaseUrl"]
     //     ?? throw new InvalidOperationException(
@@ -40,7 +40,7 @@ public class FeevBoletoResponseFileWoker(IServiceProvider serviceProvider) : Bac
             await Handle(payload);
     }
 
-    private async Task Handle(FeevBoletoResponseFileWokerPayload payload)
+    private async Task Handle(FeevBoletoResponseFileWorkerPayload payload)
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();

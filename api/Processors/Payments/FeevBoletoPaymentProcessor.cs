@@ -40,15 +40,15 @@ public class FeevBoletoPaymentProcessor(IFeevBoletoService feevBoletoService) : 
                 Code = response.CodigoFatura,
                 Link = response.LinkCarne,
                 Invoices = response.Boletos.Select(boleto =>
+                {
+                    return new
                     {
-                        return new
-                        {
-                            Number = boleto.NumeroParcela,
-                            DueAt = boleto.Vencimento,
-                            DigitableLine = boleto.LinhaDigitavel,
-                            Link = boleto.LinkBoleto
-                        };
-                    })
+                        Number = boleto.NumeroParcela,
+                        DueAt = boleto.Vencimento,
+                        DigitableLine = boleto.LinhaDigitavel,
+                        Link = boleto.LinkBoleto
+                    };
+                })
             })),
             Response = JsonDocument.Parse(
                 JsonSerializer.Serialize(response)
