@@ -25,5 +25,5 @@ app.post("/consumer", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`WebHook listening on port ${port}`);
+  console.log(`Webhook listening on port ${port}`);
 });
