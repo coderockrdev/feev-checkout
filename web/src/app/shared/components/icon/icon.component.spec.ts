@@ -13,6 +13,9 @@ describe("IconComponent", () => {
 
     fixture = TestBed.createComponent(IconComponent);
     component = fixture.componentInstance;
+
+    fixture.componentRef.setInput("icon", "user");
+
     fixture.detectChanges();
   });
 

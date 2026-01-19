@@ -13,6 +13,10 @@ describe("TableComponent", () => {
 
     fixture = TestBed.createComponent(TableComponent);
     component = fixture.componentInstance;
+
+    fixture.componentRef.setInput("columns", []);
+    fixture.componentRef.setInput("data", []);
+
     fixture.detectChanges();
   });
 

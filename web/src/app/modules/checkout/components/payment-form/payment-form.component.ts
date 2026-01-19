@@ -41,7 +41,7 @@ import { Transaction } from "@modules/checkout/types/transaction";
 export class PaymentFormComponent {
   protected readonly theme = inject(ThemeService).theme;
 
-  transaction = input.required<Transaction>();
+  transaction = input<Nullable<Transaction>>(null);
   isLoading = input<boolean>(false);
   isCreditCard = input<boolean>(false);
   hasPaymentMethod = input<boolean>(false);
@@ -55,6 +55,9 @@ export class PaymentFormComponent {
   protected readonly cvvMask = Mask.cvv;
 
   protected readonly customer = computed(() => this.transaction()?.customer);
+  protected readonly customerName = computed(() => this.customer()?.name ?? "");
+  protected readonly customerDocument = computed(() => this.customer()?.document ?? "");
+
   protected readonly establishmentDocument = computed(
     () => this.transaction()?.establishment?.cnpj,
   );

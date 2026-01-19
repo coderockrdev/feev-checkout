@@ -13,6 +13,12 @@ describe("PartySummaryComponent", () => {
 
     fixture = TestBed.createComponent(PartySummaryComponent);
     component = fixture.componentInstance;
+
+    fixture.componentRef.setInput("name", "John Doe");
+    fixture.componentRef.setInput("document", "00000000000");
+    fixture.componentRef.setInput("source", "");
+    fixture.componentRef.setInput("isLoading", false);
+
     fixture.detectChanges();
   });
 

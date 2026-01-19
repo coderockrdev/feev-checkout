@@ -4,7 +4,7 @@
     <app-card heading="Pagador e Recebedor">
       <div
         class="grid justify-center items-center gap-2.5 lg:grid-cols-[1fr_auto_1fr] lg:gap-0 lg:gap-x-2.5 lg:justify-between">
-        <app-party-summary [name]="customer().name" [document]="getPartyDocument(customer().document)"
+        <app-party-summary [name]="customerName()" [document]="getPartyDocument(customerDocument())"
           [isLoading]="isLoading()" />
         <app-icon-frame class="text-primary/50 mx-auto">
           <app-icon icon="arrow-right-left" [size]="18" />

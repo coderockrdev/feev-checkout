@@ -39,6 +39,12 @@ export class TransactionStore {
     return payment?.method === PaymentMethod.Boleto ? payment.extraData.link : null;
   });
 
+  public readonly isBoletoPending = computed(() => {
+    if (!this.resource.hasValue()) return null;
+    const payment = this.resource.value().successfulPaymentAttempt;
+    return payment?.method === PaymentMethod.Boleto && payment.status === PaymentStatus.Pending;
+  });
+
   public readonly isLoading = computed(
     () => this.resource.isLoading() && !this.resource.hasValue(),
   );

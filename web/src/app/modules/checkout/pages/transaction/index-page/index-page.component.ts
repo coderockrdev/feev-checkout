@@ -115,7 +115,8 @@ export class IndexPageComponent {
     const paymentInfo = this.paymentInfo();
 
     if (paymentInfo?.status === PaymentStatus.Pending || paymentInfo?.status === null) {
-      if (paymentInfo.method === PaymentMethod.PIX) return isFuture(paymentInfo.extraData.expireAt);
+      if (paymentInfo.method === PaymentMethod.PIX)
+        return isFuture(paymentInfo.extraData.expireAt, 3000);
     }
 
     return false;
