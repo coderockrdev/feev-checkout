@@ -1,6 +1,5 @@
 using FeevCheckout.Data;
 using FeevCheckout.Enums;
-using FeevCheckout.Events;
 using FeevCheckout.Libraries.Interfaces;
 using FeevCheckout.Models;
 using FeevCheckout.Services;

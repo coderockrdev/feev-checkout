@@ -29,6 +29,8 @@ public class TransactionWebhookDispatcherService(
 
         try
         {
+            logger.LogInformation($"Dispatching event: \"{@event.Name}\" to \"{transaction.CallbackUrl}\" webhook.");
+
             await request.PostJsonAsync(new
             {
                 Event = @event.Name,
