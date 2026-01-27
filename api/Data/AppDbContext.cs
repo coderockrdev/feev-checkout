@@ -83,5 +83,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(transaction => transaction.SuccessfulPaymentAttempt)
             .WithMany()
             .HasForeignKey(transaction => transaction.SuccessfulPaymentAttemptId);
+
+        builder.Entity<CardBrandPattern>().HasData(CardBrandPatternSeeder.GetSeeds());
     }
 }

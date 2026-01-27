@@ -80,13 +80,13 @@ public class Transaction
 
     public required List<PaymentRule> PaymentRules { get; set; }
 
+    public required string CallbackUrl { get; set; }
+
     public Guid? SuccessfulPaymentAttemptId { get; set; }
 
     public PaymentAttempt? SuccessfulPaymentAttempt { get; set; }
 
     public DateTime ExpireAt { get; set; }
-
-    public required string CallbackUrl { get; set; }
 
     public DateTime? CanceledAt { get; set; }
 
