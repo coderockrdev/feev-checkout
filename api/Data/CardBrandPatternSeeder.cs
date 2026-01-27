@@ -516,7 +516,7 @@ public static class CardBrandPatternSeeder
                 { Id = Guid.Parse("068c0d0c-ff50-47bd-86ee-54ab4160b9fd"), Brand = "JCB", Prefix = "1800", Order = 90 },
 
             // MASTER
-new CardBrandPattern
+            new CardBrandPattern
             {
                 Id = Guid.Parse("c17945d1-dfac-4528-92d3-58ba7b8673a9"), Brand = "MASTER", Prefix = "546479", Order = 0
             },
@@ -596,7 +596,7 @@ new CardBrandPattern
             {
                 Id = Guid.Parse("519f03fa-651b-4558-8fed-5030bea1d6ab"), Brand = "MASTER", Prefix = "595922", Order = 0
             },
-new CardBrandPattern
+            new CardBrandPattern
             {
                 Id = Guid.Parse("08b48b51-5431-4a5c-9b4b-c18590e2505e"), Brand = "MASTER", Prefix = "007807", Order = 0
             },
@@ -909,7 +909,7 @@ new CardBrandPattern
             new CardBrandPattern
                 { Id = Guid.Parse("d38e16f5-ca2e-42df-9c39-3ac77bf79f8d"), Brand = "VISA", Prefix = "4984", Order = 5 },
             new CardBrandPattern
-                { Id = Guid.Parse("f8418814-2f4b-466b-9a11-876be7daf054"), Brand = "VISA", Prefix = "4", Order = 110 },
+                { Id = Guid.Parse("f8418814-2f4b-466b-9a11-876be7daf054"), Brand = "VISA", Prefix = "4", Order = 110 }
         ];
     }
 }

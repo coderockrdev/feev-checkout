@@ -6,8 +6,11 @@ public class ExtendedController : ControllerBase
 {
     protected Guid ResolveEstablishmentGuid()
     {
-        var claim = User.FindFirst("id") ?? throw new UnauthorizedAccessException("Invalid token — no ID found.");
+        var claim = User.FindFirst("id");
 
-        return Guid.Parse(claim.Value);
+        if (claim is null || !Guid.TryParse(claim.Value, out var id))
+            throw new UnauthorizedAccessException("Invalid token — ID is missing or invalid.");
+
+        return id;
     }
 }

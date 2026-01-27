@@ -10,15 +10,12 @@ namespace FeevCheckout.Controllers;
 public class AuthController(IEstablishmentService establishmentService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Index([FromBody] AuthRequest request)
+    public async Task<ActionResult<AuthResponseDto>> Index([FromBody] AuthRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var establishment = await establishmentService.GetEstablishmentByClientId(request.ClientId);
 
         if (establishment == null)
-            return NotFound(new { message = "Establishment not found." });
+            throw new KeyNotFoundException("Establishment not found.");
 
         var isValid = false;
 
@@ -32,10 +29,10 @@ public class AuthController(IEstablishmentService establishmentService) : Contro
         }
 
         if (!isValid)
-            return Unauthorized(new { message = "Invalid secret." });
+            throw new UnauthorizedAccessException("Invalid secret.");
 
         var jwt = establishmentService.GenerateJwt(establishment);
 
-        return Ok(new { token = jwt });
+        return Ok(new AuthResponseDto(jwt));
     }
 }

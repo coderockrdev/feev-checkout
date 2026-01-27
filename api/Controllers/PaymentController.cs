@@ -13,15 +13,12 @@ public class PaymentController(ITransactionService transactionService, IPaymentS
     : ExtendedController
 {
     [HttpPost("{id:guid}")]
-    public async Task<IActionResult> Index(Guid id, [FromBody] [Required] PaymentRequestDto request)
+    public async Task<IActionResult> Index(Guid id, [FromBody][Required] PaymentRequestDto request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var transaction = await transactionService.GetPublicTransaction(id);
 
         if (transaction == null)
-            return NotFound(new { message = "Transaction not found." });
+            throw new KeyNotFoundException("Transaction not found.");
 
         var result = await paymentService.Process(transaction, request);
 

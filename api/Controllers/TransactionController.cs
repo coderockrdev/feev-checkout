@@ -21,7 +21,7 @@ public class TransactionController(ITransactionService transactionService) : Ext
         var establishmentId = ResolveEstablishmentGuid();
 
         if (request.Page <= 0 || request.PageSize <= 0)
-            return BadRequest(new { message = "page and pageSize must be greater than 0." });
+            throw new ArgumentException("page and pageSize must be greater than 0.");
 
         var result = await transactionService.ListTransactions(establishmentId, request.Page, request.PageSize);
 
@@ -41,18 +41,15 @@ public class TransactionController(ITransactionService transactionService) : Ext
         var transaction = await transactionService.GetPublicTransaction(id);
 
         if (transaction == null)
-            return NotFound(new { message = "Transaction not found." });
+            throw new KeyNotFoundException("Transaction not found.");
 
         return Ok(TransactionDto.FromModel(transaction));
     }
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> CreateTransaction([FromBody] [Required] CreateTransactionRequest request)
+    public async Task<IActionResult> CreateTransaction([FromBody][Required] CreateTransactionRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var establishmentId = ResolveEstablishmentGuid();
         var transaction = await transactionService.CreateTransaction(establishmentId, request);
 
@@ -67,7 +64,7 @@ public class TransactionController(ITransactionService transactionService) : Ext
         var success = await transactionService.CancelTransaction(establishmentId, id);
 
         if (!success)
-            return NotFound(new { message = "Transaction not found or already canceled." });
+            throw new KeyNotFoundException("Transaction not found or already canceled.");
 
         return Ok(new { message = "Transaction canceled successfully." });
     }

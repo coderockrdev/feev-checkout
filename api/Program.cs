@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using FeevCheckout.Data;
 using FeevCheckout.Enums;
 using FeevCheckout.Libraries.Http;
+using FeevCheckout.Middlewares;
 using FeevCheckout.Processors.Payments;
 using FeevCheckout.Processors.Webhooks;
 using FeevCheckout.Queue;
@@ -120,6 +121,10 @@ builder.Services.AddOpenApi(options =>
 
 builder.Services.AddGrpcSwagger();
 
+// Exception Handling
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 // Payment Services
 builder.Services.AddScoped<IBraspagCartaoService, BraspagCartaoService>();
 builder.Services.AddScoped<IFeevBoletoService, FeevBoletoService>();
@@ -160,6 +165,8 @@ builder.Services.AddHostedService<FeevBoletoResponseFileWorker>();
 builder.Services.AddHostedService<FeevTransactionExpirationWorker>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 app.UseCors("AllowAll");
 
