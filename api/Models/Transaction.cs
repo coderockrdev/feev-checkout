@@ -99,6 +99,9 @@ public class Transaction
     {
         get
         {
+            if (completedAt.HasValue)
+                return TransactionStatus.Completed;
+
             if (CanceledAt.HasValue)
                 return TransactionStatus.Canceled;
 
