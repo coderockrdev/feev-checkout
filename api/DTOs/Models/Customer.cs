@@ -17,7 +17,7 @@ public class CustomerDto
         {
             Name = model.Name,
             Document = TextUtils.MaskDocumentNumber(model.Document),
-            Email = model.Email,
+            Email = model.Email
         };
     }
 }

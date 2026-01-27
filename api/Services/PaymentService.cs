@@ -29,10 +29,10 @@ public class PaymentService(
 
     private readonly PaymentProcessorFactory paymentProcessorFactory = paymentProcessorFactory;
 
+    private readonly ITransactionService transactionService = transactionService;
+
     private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService =
         transactionWebhookDispatcherService;
-
-    private readonly ITransactionService transactionService = transactionService;
 
     public async Task<PaymentResult> Process(Transaction transaction, PaymentRequestDto request)
     {
