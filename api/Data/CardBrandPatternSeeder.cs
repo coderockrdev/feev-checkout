@@ -134,6 +134,7 @@ public static class CardBrandPatternSeeder
             new CardBrandPattern { Id = Guid.NewGuid(), Brand = "ELO", Prefix = "650491", Order = 10 },
             new CardBrandPattern { Id = Guid.NewGuid(), Brand = "ELO", Prefix = "65090", Order = 10 },
             new CardBrandPattern { Id = Guid.NewGuid(), Brand = "ELO", Prefix = "650487", Order = 10 },
+            new CardBrandPattern { Id = Guid.NewGuid(), Brand = "ELO", Prefix = "506726", Order = 10 },
             new CardBrandPattern { Id = Guid.NewGuid(), Brand = "ELO", Prefix = "409835", Order = 10 },
             new CardBrandPattern { Id = Guid.NewGuid(), Brand = "ELO", Prefix = "509059", Order = 10 },
             new CardBrandPattern { Id = Guid.NewGuid(), Brand = "ELO", Prefix = "650921", Order = 10 },
