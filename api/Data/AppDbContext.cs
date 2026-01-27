@@ -65,9 +65,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 customer.OwnsOne(customer => customer.Address, address =>
                 {
                     address.Property(address => address.Street).HasColumnName("CustomerAddressStreet");
+                    address.Property(address => address.Number).HasColumnName("CustomerAddressNumber");
+                    address.Property(address => address.Complement).HasColumnName("CustomerAddressComplement");
+                    address.Property(address => address.District).HasColumnName("CustomerAddressDistrict");
                     address.Property(address => address.City).HasColumnName("CustomerAddressCity");
-                    address.Property(address => address.State).HasColumnName("CustomerAddressUF");
-                    address.Property(address => address.ZipCode).HasColumnName("CustomerAddressPostalCode");
+                    address.Property(address => address.State).HasColumnName("CustomerAddressState");
+                    address.Property(address => address.ZipCode).HasColumnName("CustomerAddressZipCode");
                 });
             });
 
