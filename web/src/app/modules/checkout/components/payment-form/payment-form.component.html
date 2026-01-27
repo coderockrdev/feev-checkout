@@ -55,7 +55,7 @@
         </app-radio-group>
         @if (hasPaymentMethod() && !isCreditCard()) {
           <button type="submit" class="kt-btn flex items-center w-full lg:w-auto" [disabled]="isSubmitting()">
-            <span class="leading-tight text-xs font-medium">
+            <span class="leading-tight font-medium">
               Continuar
             </span>
             <app-icon icon="right" [size]="12" />
@@ -80,7 +80,7 @@
           [options]="installmentOptions()" />
         <div class="flex justify-end col-span-full">
           <button type="submit" class="kt-btn flex items-center w-full lg:w-auto" [disabled]="isSubmitting()">
-            <span class="leading-tight text-xs font-medium">
+            <span class="leading-tight font-medium">
               Continuar
             </span>
             <app-icon icon="right" [size]="12" />
