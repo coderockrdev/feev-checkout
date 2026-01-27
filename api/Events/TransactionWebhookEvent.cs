@@ -2,7 +2,7 @@ namespace FeevCheckout.Events;
 
 public sealed class TransactionWebhookEvent
 {
-    public static readonly TransactionWebhookEvent TransactionCreated =
+    public static readonly TransactionWebhookEvent Created =
         new("transaction.created");
 
     public static readonly TransactionWebhookEvent Canceled =
@@ -20,8 +20,8 @@ public sealed class TransactionWebhookEvent
     public static readonly TransactionWebhookEvent PaymentAttemptPending =
         new("transaction.payment_attempt.pending");
 
-    public static readonly TransactionWebhookEvent TransactionPaymentFailed =
-        new("transaction.payment_failed");
+    public static readonly TransactionWebhookEvent PaymentAttemptFailed =
+        new("transaction.payment_attempt.failed");
 
     private TransactionWebhookEvent(string name)
     {

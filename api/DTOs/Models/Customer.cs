@@ -1,4 +1,5 @@
 using FeevCheckout.Models;
+using FeevCheckout.Utils;
 
 namespace FeevCheckout.DTOs.Models;
 
@@ -10,16 +11,13 @@ public class CustomerDto
 
     public required string Email { get; set; }
 
-    public required AddressDto Address { get; set; }
-
     public static CustomerDto FromModel(Customer model)
     {
         return new CustomerDto
         {
             Name = model.Name,
-            Document = model.Document,
+            Document = TextUtils.MaskDocumentNumber(model.Document),
             Email = model.Email,
-            Address = AddressDto.FromModel(model.Address)
         };
     }
 }
