@@ -1,0 +1,13 @@
+  <app-card [heading]="heading()" class="block max-w-4xl mx-auto">
+    <div class="flex flex-col gap-2.5 items-center">
+      @if (icon(); as icon) {
+        <app-icon-frame class="mx-auto" [ngClass]="getColorVariant()">
+          <app-icon [icon]="icon" [size]="18" />
+        </app-icon-frame>
+      }
+      <h2 class="text-xl font-medium text-gray-900 text-center">
+        {{ subHeading() }}
+      </h2>
+      <ng-content></ng-content>
+    </div>
+  </app-card>

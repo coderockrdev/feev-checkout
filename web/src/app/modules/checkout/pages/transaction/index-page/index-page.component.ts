@@ -22,6 +22,7 @@ import { TransactionStore } from "@modules/checkout/stores/transaction/transacti
 import { TransactionService } from "@modules/checkout/services/transaction/transaction.service";
 import { ModalService } from "@app/shared/services/modal/modal.service";
 import { CardComponent } from "@app/shared/components/card/card.component";
+import { MessageCardComponent } from "@app/shared/components/message-card/message-card.component";
 
 @Component({
   selector: "app-index-page",
@@ -32,6 +33,7 @@ import { CardComponent } from "@app/shared/components/card/card.component";
     PaymentFormComponent,
     PaymentFinishComponent,
     CardComponent,
+    MessageCardComponent,
   ],
   templateUrl: "./index-page.component.html",
   styleUrl: "./index-page.component.scss",
@@ -128,13 +130,11 @@ export class IndexPageComponent {
       this.transaction.resource.value().status !== TransactionStatus.Available
     ) {
       return this.transaction.resource.value().status === TransactionStatus.Canceled
-        ? "Transação cancelada"
-        : "Transação expirada";
+        ? "A transação solicitada foi cancelada e não está mais disponível"
+        : "A transação solicitada expirou e não está mais disponível";
     }
 
-    return this.transaction.resource.statusCode() === 404
-      ? "Transação não encontrada"
-      : "Não foi possível carregar essa transação";
+    return "A transação solicitada não pode ser encontrada ou está indisponível.";
   });
 
   protected readonly hasPaymentMethod = computed(() => this.method() !== null);

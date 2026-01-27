@@ -1,34 +1,28 @@
 <div class="kt-container-fixed space-y-12 h-full">
   @if (transaction.isTransactionPaid() || transaction.hasBoletoLink()) {
-    <app-card [heading]="transaction.isBoletoPending() ? 'Fatura disponível' : 'Transação concluída'" class="block max-w-4xl mx-auto">
-      <div class="flex flex-col gap-2.5 items-center">
-      <app-icon-frame class="text-green-500 mx-auto">
-        <app-icon icon="check" [size]="18" />
-      </app-icon-frame>
-      <h2 class="text-xl font-medium text-gray-900 text-center">
-        @if (transaction.isBoletoPending()) {
-          Sua fatura está disponível!
-        } @else {
-          Sua transação foi concluída com sucesso!
-        }
-      </h2>
-      @if (transaction.hasBoletoLink()) {
-        <div class="space-y-4 text-center">
-          <p class="text-sm text-gray-700">Você pode acessar sua fatura clicando no botão abaixo.</p>
+    <app-message-card
+      icon="check"
+      [subHeading]="transaction.isBoletoPending() ? 'Fatura disponível!' : 'Transação concluída!'"
+    >
+      <div class="space-y-4 text-center">
+        @if (transaction.hasBoletoLink() && transaction.isBoletoPending()) {
+          <p>A fatura foi gerada com sucesso e pode ser acessada clicando no botão abaixo.</p>
           <a class="kt-btn" [href]="transaction.boletoLink()" target="_blank" rel="noopener noreferrer">
             Visualizar fatura
           </a>
-        </div>
-      }
+        } @else {
+          Seu pagamento foi confirmado com sucesso e a transação foi concluída.
+        }
       </div>
-    </app-card>
+    </app-message-card>
   } @else if (transaction.error()) {
-    <div class="flex flex-col items-center gap-y-2.5 mt-12">
-      <app-icon-frame class="text-red-500 mx-auto">
-        <app-icon icon="abstract-11" [size]="18" />
-      </app-icon-frame>
-      <h1 class="text-xl font-medium text-gray-900 text-center">{{ errorMessage() }}</h1>
-    </div>
+    <app-message-card
+      icon="abstract-11"
+      variant="error"
+      subHeading="Algo saiu errado!"
+    >
+      {{errorMessage()}}
+    </app-message-card>
   } @else {
     <div>
       <h1 class="text-xl font-medium text-gray-900">Pagamento</h1>
