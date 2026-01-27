@@ -9,7 +9,6 @@ public class CustomerDto
 
     public required string Document { get; set; }
 
-    public required string Email { get; set; }
 
     public static CustomerDto FromModel(Customer model)
     {
@@ -17,7 +16,6 @@ public class CustomerDto
         {
             Name = model.Name,
             Document = TextUtils.MaskDocumentNumber(model.Document),
-            Email = model.Email
         };
     }
 }

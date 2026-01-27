@@ -17,6 +17,7 @@ using FeevCheckout.Services.Webhooks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -58,6 +59,40 @@ builder.Services
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = async context =>
+            {
+                context.HandleResponse();
+
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "Unauthorized",
+                    Detail = "You are not authorized to access this resource."
+                };
+
+                await context.Response.WriteAsJsonAsync(problemDetails);
+            },
+            OnForbidden = async context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/json";
+
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden,
+                    Title = "Forbidden",
+                    Detail = "You do not have permission to access this resource."
+                };
+
+                await context.Response.WriteAsJsonAsync(problemDetails);
+            }
         };
     });
 
@@ -195,6 +230,30 @@ app.Use(async (context, next) =>
 {
     context.Response.ContentType = "application/json";
     await next();
+
+    if (!context.Response.HasStarted)
+    {
+        if (context.Response.StatusCode == StatusCodes.Status404NotFound)
+        {
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Not Found",
+                Detail = "The requested resource does not exist."
+            };
+            await context.Response.WriteAsJsonAsync(problemDetails);
+        }
+        else if (context.Response.StatusCode == StatusCodes.Status405MethodNotAllowed)
+        {
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status405MethodNotAllowed,
+                Title = "Method Not Allowed",
+                Detail = "The HTTP method is not allowed for this endpoint."
+            };
+            await context.Response.WriteAsJsonAsync(problemDetails);
+        }
+    }
 });
 
 app.MapControllers();
