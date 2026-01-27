@@ -30,7 +30,8 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/robots.tsx"
             ],
             "styles": [
               "src/tailwind.css",
