@@ -14,7 +14,7 @@ export const routes: Routes = [
     component: AppLayoutComponent,
     children: [
       {
-        path: "checkout/:transaction",
+        path: ":transaction",
         children: [{ path: "", component: TransactionIndexPageComponent }],
         providers: [TransactionStore],
       },
