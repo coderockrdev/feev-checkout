@@ -1,4 +1,0 @@
-include:
-  - api/docker-compose.yml
-  - web/docker-compose.yml
-  - webhook-mock/docker-compose.yml
