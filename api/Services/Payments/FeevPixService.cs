@@ -1,3 +1,4 @@
+using FeevCheckout.Extensions;
 using FeevCheckout.Libraries.Http;
 using FeevCheckout.Libraries.Interfaces;
 using FeevCheckout.Models;
@@ -29,8 +30,7 @@ public class FeevPixService(IFeevPixClient feevPixClient) : IFeevPixService
         Installment installment
     )
     {
-        if (string.IsNullOrEmpty(establishment.CheckingAccountNumber))
-            throw new InvalidOperationException("Establishment's checking account number not set.");
+        establishment.EnsureCheckingAccountNumberSet();
 
         var request = await feevPixClient.CreateRequest(credentials, "/IncluirCobrancaPix");
 

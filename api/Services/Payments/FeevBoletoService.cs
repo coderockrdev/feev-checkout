@@ -1,3 +1,4 @@
+using FeevCheckout.Extensions;
 using FeevCheckout.Libraries.Http;
 using FeevCheckout.Libraries.Interfaces;
 using FeevCheckout.Models;
@@ -35,9 +36,7 @@ public class FeevBoletoService(IFeevBoletoClient feevBoletoClient) : IFeevBoleto
         Installment installment
     )
     {
-        if (string.IsNullOrEmpty(establishment.BankNumber) || string.IsNullOrEmpty(establishment.BankAgency) ||
-            string.IsNullOrEmpty(establishment.BankAccount))
-            throw new InvalidOperationException("Establishment's bank account information is incompleted.");
+        establishment.EnsureBankAccountComplete();
 
         var request = await feevBoletoClient.CreateRequest(credentials, "/InserirFatura");
 
@@ -84,9 +83,7 @@ public class FeevBoletoService(IFeevBoletoClient feevBoletoClient) : IFeevBoleto
     public async Task<ConsultaArquivoRetornoResponse> GetResponseFile(Establishment establishment,
         Credential credentials, string batch)
     {
-        if (string.IsNullOrEmpty(establishment.BankNumber) || string.IsNullOrEmpty(establishment.BankAgency) ||
-            string.IsNullOrEmpty(establishment.BankAccount))
-            throw new InvalidOperationException("Establishment's bank account information is incompleted.");
+        establishment.EnsureBankAccountComplete();
 
         var request = await feevBoletoClient.CreateRequest(credentials, "/ConsultaArquivoRetorno");
 

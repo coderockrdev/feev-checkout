@@ -2,6 +2,7 @@ using FeevCheckout.Data;
 using FeevCheckout.DTOs;
 using FeevCheckout.Enums;
 using FeevCheckout.Events;
+using FeevCheckout.Extensions;
 using FeevCheckout.Models;
 
 using Microsoft.EntityFrameworkCore;
@@ -27,9 +28,12 @@ public interface ITransactionService
 
 public class TransactionService(
     AppDbContext context,
+    IEstablishmentService establishmentService,
     ITransactionWebhookDispatcherService transactionWebhookDispatcherService) : ITransactionService
 {
     private readonly AppDbContext context = context;
+
+    private readonly IEstablishmentService establishmentService = establishmentService;
 
     private readonly ITransactionWebhookDispatcherService transactionWebhookDispatcherService =
         transactionWebhookDispatcherService;
@@ -84,6 +88,11 @@ public class TransactionService(
 
     public async Task<Transaction> CreateTransaction(Guid establishmentId, CreateTransactionRequest request)
     {
+        var establishment = await establishmentService.GetEstablishment(establishmentId)
+                            ?? throw new InvalidOperationException("Establishment not found or not available.");
+
+        establishment.EnsurePaymentInfoComplete();
+
         var totalAmount = request.Products.Sum(product => product.Price);
 
         var paymentRules = request.PaymentRules.Select(paymentRule => new PaymentRule
