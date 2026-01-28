@@ -296,6 +296,8 @@ if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
             })
     );
 
+    var isDevelopment = app.Environment.IsDevelopment();
+
     var domain = AnsiConsole.Prompt(
         new TextPrompt<string>("What is the [green]Domain[/]?")
             .PromptStyle("green")
@@ -304,10 +306,24 @@ if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
                 if (string.IsNullOrWhiteSpace(domain))
                     return ValidationResult.Error("Domain cannot be empty.");
 
-                var hostType = Uri.CheckHostName(domain);
+                var hostToValidate = domain;
+
+                if (isDevelopment && domain.Contains(':'))
+                {
+                    var parts = domain.Split(':');
+                    hostToValidate = parts[0];
+
+                    if (!int.TryParse(parts[1], out var port) || port < 1 || port > 65535)
+                        return ValidationResult.Error("Invalid port number.");
+                }
+
+                var hostType = Uri.CheckHostName(hostToValidate);
 
                 if (hostType == UriHostNameType.Unknown)
                     return ValidationResult.Error("Invalid domain name.");
+
+                if (!isDevelopment && domain.Contains(':'))
+                    return ValidationResult.Error("Ports are not allowed in production domains.");
 
                 return ValidationResult.Success();
             })
