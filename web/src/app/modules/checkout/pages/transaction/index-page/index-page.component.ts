@@ -4,8 +4,6 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { HttpResourceRef } from "@angular/common/http";
 import * as z from "zod";
 
-import { IconComponent } from "@shared/components/icon/icon.component";
-import { IconFrameComponent } from "@shared/components/icon-frame/icon-frame.component";
 import { ThemeService } from "@shared/services/theme/theme.service";
 import { PaymentMethod } from "@modules/checkout/enums/payment-method";
 import { CardNumberSchema } from "@modules/checkout/schemas/card-number.schema";
@@ -21,18 +19,14 @@ import { isFuture } from "@shared/utils/date.utils";
 import { TransactionStore } from "@modules/checkout/stores/transaction/transaction.store";
 import { TransactionService } from "@modules/checkout/services/transaction/transaction.service";
 import { ModalService } from "@app/shared/services/modal/modal.service";
-import { CardComponent } from "@app/shared/components/card/card.component";
 import { MessageCardComponent } from "@app/shared/components/message-card/message-card.component";
 
 @Component({
   selector: "app-index-page",
   imports: [
-    IconComponent,
-    IconFrameComponent,
     ReactiveFormsModule,
     PaymentFormComponent,
     PaymentFinishComponent,
-    CardComponent,
     MessageCardComponent,
   ],
   templateUrl: "./index-page.component.html",
