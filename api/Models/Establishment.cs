@@ -12,6 +12,8 @@ public class Establishment
 
     [StringLength(14)] public required string CNPJ { get; set; }
 
+    public required string Domain { get; set; }
+
     public string? BankNumber { get; set; }
 
     public string? BankAgency { get; set; }

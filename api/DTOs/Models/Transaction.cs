@@ -23,6 +23,8 @@ public sealed class TransactionDto
 
     public required TransactionStatus Status { get; set; }
 
+    public string? CheckoutUrl { get; set; }
+
     public Guid? SuccessfulPaymentAttemptId { get; set; }
 
     public PaymentAttempDto? SuccessfulPaymentAttempt { get; set; }
@@ -48,6 +50,7 @@ public sealed class TransactionDto
             TotalAmount = model.TotalAmount,
             Products = [.. model.Products.Select(ProductDto.FromModel)],
             PaymentRules = [.. model.PaymentRules.Select(PaymentRuleDto.FromModel)],
+            CheckoutUrl = model.CheckoutUrl,
             Status = model.Status,
             SuccessfulPaymentAttemptId = model.SuccessfulPaymentAttemptId,
             SuccessfulPaymentAttempt = model.SuccessfulPaymentAttempt is null

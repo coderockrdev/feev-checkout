@@ -296,6 +296,23 @@ if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
             })
     );
 
+    var domain = AnsiConsole.Prompt(
+        new TextPrompt<string>("What is the [green]Domain[/]?")
+            .PromptStyle("green")
+            .Validate(domain =>
+            {
+                if (string.IsNullOrWhiteSpace(domain))
+                    return ValidationResult.Error("Domain cannot be empty.");
+
+                var hostType = Uri.CheckHostName(domain);
+
+                if (hostType == UriHostNameType.Unknown)
+                    return ValidationResult.Error("Invalid domain name.");
+
+                return ValidationResult.Success();
+            })
+    );
+
     var paymentMethods = AnsiConsole.Prompt(
         new MultiSelectionPrompt<string>()
             .Title("Which [green]payment methods[/] will this establishment use?")
@@ -462,6 +479,7 @@ if (args.Length > 0 && args[0] == "establishment" && args[1] == "add")
         fullName,
         shortName,
         cnpj,
+        domain,
         bankNumber,
         bankAgency,
         bankAccount,

@@ -111,4 +111,16 @@ public class Transaction
             return TransactionStatus.Available;
         }
     }
+
+    [NotMapped]
+    public string? CheckoutUrl
+    {
+        get
+        {
+            if (Establishment != null)
+                return $"{Establishment.Domain}/{Id}";
+
+            return null;
+        }
+    }
 }
