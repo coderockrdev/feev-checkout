@@ -1,3 +1,4 @@
+using FeevCheckout.Enums;
 using FeevCheckout.Models;
 
 namespace FeevCheckout.Extensions;
@@ -18,9 +19,12 @@ public static class EstablishmentExtensions
             throw new InvalidOperationException("Establishment's checking account number not set.");
     }
 
-    public static void EnsurePaymentInfoComplete(this Establishment establishment)
+    public static void EnsurePaymentInfoCompleteFor(this Establishment establishment, PaymentMethod method)
     {
-        establishment.EnsureBankAccountComplete();
-        establishment.EnsureCheckingAccountNumberSet();
+        if (method == PaymentMethod.FeevPix)
+            establishment.EnsureCheckingAccountNumberSet();
+
+        if (method == PaymentMethod.FeevBoleto)
+            establishment.EnsureBankAccountComplete();
     }
 }

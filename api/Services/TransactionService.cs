@@ -91,16 +91,18 @@ public class TransactionService(
         var establishment = await establishmentService.GetEstablishment(establishmentId)
                             ?? throw new InvalidOperationException("Establishment not found or not available.");
 
-        establishment.EnsurePaymentInfoComplete();
-
         var totalAmount = request.Products.Sum(product => product.Price);
 
-        var paymentRules = request.PaymentRules.Select(paymentRule => new PaymentRule
+        var paymentRules = request.PaymentRules.Select(paymentRule =>
         {
-            Method = paymentRule.Method,
-            Installments =
-            [
-                .. paymentRule.Installments.Select(installment =>
+            establishment.EnsurePaymentInfoCompleteFor(paymentRule.Method);
+
+            return new PaymentRule
+            {
+                Method = paymentRule.Method,
+                Installments =
+                [
+                    .. paymentRule.Installments.Select(installment =>
                 {
                     return new Installment
                     {
@@ -112,10 +114,11 @@ public class TransactionService(
                         FinalAmount = CalculateInstallmentFinalAmount(installment, totalAmount)
                     };
                 })
-            ],
-            FirstInstallment = paymentRule.FirstInstallment,
-            Interest = paymentRule.Interest,
-            LateFee = paymentRule.LateFee
+                ],
+                FirstInstallment = paymentRule.FirstInstallment,
+                Interest = paymentRule.Interest,
+                LateFee = paymentRule.LateFee
+            };
         });
 
         var transaction = new Transaction
