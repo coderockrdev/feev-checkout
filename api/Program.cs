@@ -197,7 +197,7 @@ builder.Services.AddScoped<WebhookProcessorFactory>();
 
 // Queue
 builder.Services.AddHostedService<FeevBoletoResponseFileWorker>();
-builder.Services.AddHostedService<FeevTransactionExpirationWorker>();
+builder.Services.AddHostedService<TransactionExpirationWorker>();
 
 var app = builder.Build();
 

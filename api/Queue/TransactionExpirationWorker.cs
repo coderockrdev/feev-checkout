@@ -2,7 +2,7 @@ using FeevCheckout.Services;
 
 namespace FeevCheckout.Queue;
 
-public class FeevTransactionExpirationWorker(IServiceProvider serviceProvider) : BackgroundService
+public class TransactionExpirationWorker(IServiceProvider serviceProvider) : BackgroundService
 {
     private readonly TimeSpan _interval = TimeSpan.FromHours(1);
 

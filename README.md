@@ -5,8 +5,8 @@
 ### Requirements
 
 - [.NET SDK 9.0+](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [Node.js 20+](https://nodejs.org/) and npm
-- [PostgreSQL 16+](https://www.postgresql.org/download/)
+- [Node.js 24+](https://nodejs.org/) and npm
+- [PostgreSQL 18+](https://www.postgresql.org/download/)
 - (Optional) [Make](https://www.gnu.org/software/make/) - to run Makefile commands from `api/`
 - (Optional) [Docker](https://docs.docker.com/get-docker/) - alternative way to run PostgreSQL
 
@@ -58,7 +58,7 @@ docker run -d \
   -e POSTGRES_DB=feev \
   -p 5432:5432 \
   -v feev-postgres-data:/var/lib/postgresql/data \
-  postgres:16
+  postgres:18
 ```
 
 ### 4. Run the API
