@@ -2,13 +2,13 @@
   @if (transaction.isTransactionPaid() || transaction.hasBoletoLink()) {
     <app-message-card
       icon="check"
-      [subHeading]="transaction.isBoletoPending() ? 'Fatura disponível!' : 'Transação concluída!'"
+      [subHeading]="transaction.isBoletoPending() ? 'Boleto disponível!' : 'Transação concluída!'"
     >
       <div class="space-y-4 text-center">
         @if (transaction.hasBoletoLink() && transaction.isBoletoPending()) {
-          <p>A fatura foi gerada com sucesso e pode ser acessada clicando no botão abaixo.</p>
+          <p>O boleto foi gerada com sucesso e pode ser acessada clicando no botão abaixo.</p>
           <a class="kt-btn" [href]="transaction.boletoLink()" target="_blank" rel="noopener noreferrer">
-            Visualizar fatura
+            Visualizar boleto
           </a>
         } @else {
           Seu pagamento foi confirmado com sucesso e a transação foi concluída.
