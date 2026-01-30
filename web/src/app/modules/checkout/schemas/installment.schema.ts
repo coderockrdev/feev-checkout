@@ -8,5 +8,6 @@ export const InstallmentSchema = z.object({
   expireAt: RawDateOnlySchema.nullable(),
   fee: z.int().min(0).nullable(),
   feeType: z.string().nullable(),
+  installmentValue: z.int().min(0),
   finalAmount: z.int().min(0),
 });

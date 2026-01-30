@@ -97,24 +97,25 @@ public class TransactionService(
         {
             establishment.EnsurePaymentInfoCompleteFor(paymentRule.Method);
 
+            var installments = paymentRule.Installments.Select(installment =>
+            {
+                var finalAmount = CalculateFinalAmount(installment, totalAmount);
+                return new Installment
+                {
+                    Number = installment.Number,
+                    DueAt = installment.DueAt,
+                    ExpireAt = installment.ExpireAt,
+                    Fee = installment.Fee,
+                    FeeType = installment.FeeType,
+                    FinalAmount = finalAmount,
+                    InstallmentValue = CalculateInstallmentValue(finalAmount, installment.Number)
+                };
+            }).ToList();
+
             return new PaymentRule
             {
                 Method = paymentRule.Method,
-                Installments =
-                [
-                    .. paymentRule.Installments.Select(installment =>
-                {
-                    return new Installment
-                    {
-                        Number = installment.Number,
-                        DueAt = installment.DueAt,
-                        ExpireAt = installment.ExpireAt,
-                        Fee = installment.Fee,
-                        FeeType = installment.FeeType,
-                        FinalAmount = CalculateInstallmentFinalAmount(installment, totalAmount)
-                    };
-                })
-                ],
+                Installments = installments,
                 FirstInstallment = paymentRule.FirstInstallment,
                 Interest = paymentRule.Interest,
                 LateFee = paymentRule.LateFee
@@ -239,7 +240,7 @@ public class TransactionService(
         return true;
     }
 
-    private static int CalculateInstallmentFinalAmount(InstallmentDto installment, int totalAmount)
+    private static int CalculateFinalAmount(InstallmentDto installment, int totalAmount)
     {
         var finalAmount = totalAmount;
 
@@ -250,5 +251,18 @@ public class TransactionService(
             finalAmount += (int)Math.Round(totalAmount * (installment.Fee.Value / 100m));
 
         return finalAmount;
+    }
+
+    private static int CalculateInstallmentValue(int finalAmount, int numberOfInstallments)
+    {
+        if (numberOfInstallments <= 1)
+            return finalAmount;
+
+        var baseValue = finalAmount / numberOfInstallments;
+        var remainder = finalAmount % numberOfInstallments;
+
+        // Add remainder to the base value so first installment absorbs the difference
+        // e.g., 148199 / 3 = 49399 base + 2 remainder = 49401 for first installment
+        return baseValue + remainder;
     }
 }

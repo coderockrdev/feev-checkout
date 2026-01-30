@@ -45,6 +45,8 @@ public class Installment
     public string? FeeType { get; set; }
 
     public int FinalAmount { get; set; }
+
+    public int InstallmentValue { get; set; }
 }
 
 public class PaymentRule

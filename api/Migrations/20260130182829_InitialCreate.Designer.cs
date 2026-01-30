@@ -14,7 +14,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeevCheckout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260128161351_InitialCreate")]
+    [Migration("20260130182829_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

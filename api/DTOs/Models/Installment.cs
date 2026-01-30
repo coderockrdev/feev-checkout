@@ -14,6 +14,8 @@ public sealed class InstallmentDto
 
     public string? FeeType { get; set; }
 
+    public required int InstallmentValue { get; set; }
+
     public required int FinalAmount { get; set; }
 
     public static InstallmentDto FromModel(Installment model)
@@ -25,6 +27,7 @@ public sealed class InstallmentDto
             ExpireAt = model.ExpireAt,
             Fee = model.Fee,
             FeeType = model.FeeType,
+            InstallmentValue = model.InstallmentValue,
             FinalAmount = model.FinalAmount
         };
     }

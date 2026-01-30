@@ -90,7 +90,7 @@ export class PaymentFormComponent {
     () =>
       this.creditCardRules()?.installments.map((installment) => ({
         value: installment.number,
-        label: `${installment.number}x (${integerToCurrency(installment.finalAmount)})`,
+        label: `${installment.number}x de ${integerToCurrency(installment.installmentValue)} (${integerToCurrency(installment.finalAmount)})`,
       })) ?? [],
   );
 
