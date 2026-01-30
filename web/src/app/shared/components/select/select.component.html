@@ -10,6 +10,7 @@
       [id]="key"
       appKtSelect
       class="kt-select"
+      [ngClass]="getSizeClass()"
       [attr.aria-invalid]="!!errorMessage"
       [attr.data-kt-select]="true"
       [attr.data-kt-select-placeholder]="placeholder()"

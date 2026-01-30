@@ -116,7 +116,7 @@ export class PaymentFormComponent {
     return name ?? "";
   }
 
-  protected getPartyDocument(document?: Nullable<string>, obscure = true) {
-    return !document ? "" : maskDocument(document, obscure);
+  protected getPartyDocument(document?: Nullable<string>) {
+    return !document ? "" : maskDocument(document);
   }
 }

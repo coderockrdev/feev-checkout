@@ -1,4 +1,5 @@
 import { Component, forwardRef, inject, Injector, input, OnInit, signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from "@angular/forms";
 
 import { SelectOption } from "@shared/types/select/select-option";
@@ -16,7 +17,7 @@ interface SelectEvent<T> extends Event {
 
 @Component({
   selector: "app-select",
-  imports: [KtSelectDirective],
+  imports: [CommonModule, KtSelectDirective],
   templateUrl: "./select.component.html",
   styleUrl: "./select.component.scss",
   providers: [
@@ -51,6 +52,7 @@ export class SelectComponent<T> implements ControlValueAccessor, OnInit {
   readonly error = input<string>("");
   readonly disabled = input<boolean>(false);
   readonly options = input.required<SelectOption<T>[]>();
+  readonly size = input<Nullable<"sm" | "md" | "lg">>("lg");
 
   protected readonly value = signal<Nullable<T>>(null);
 
@@ -87,5 +89,12 @@ export class SelectComponent<T> implements ControlValueAccessor, OnInit {
     if (errors["zod"]) return errors["zod"][0];
 
     return null;
+  }
+
+  protected getSizeClass() {
+    const size = this.size();
+    if (size === "sm") return "kt-select-sm";
+    if (size === "lg") return "kt-select-lg";
+    return "";
   }
 }

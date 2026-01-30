@@ -72,7 +72,7 @@ export class InputComponent implements ControlValueAccessor, OnInit, AfterViewIn
   readonly type = input<string>("text");
   readonly disabled = input<boolean>(false);
   readonly mask = input<Nullable<MaskitoOptions>>(null);
-  readonly size = input<Nullable<"sm" | "md" | "lg">>(null);
+  readonly size = input<Nullable<"sm" | "md" | "lg">>("lg");
   readonly readOnly = input<boolean>(false);
   readonly inputClass = input<string>("");
 
@@ -122,6 +122,13 @@ export class InputComponent implements ControlValueAccessor, OnInit, AfterViewIn
     const size = this.size();
     if (size === "sm") return "kt-input-sm";
     if (size === "lg") return "kt-input-lg";
+    return "";
+  }
+
+  protected getAddonSizeClass() {
+    const size = this.size();
+    if (size === "sm") return "kt-input-addon-sm";
+    if (size === "lg") return "kt-input-addon-lg";
     return "";
   }
 

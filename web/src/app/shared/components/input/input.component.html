@@ -1,13 +1,13 @@
-@if (label()) {
+@if (label(); as label) {
   <label class="kt-form-label text-gray-900 font-medium" [for]="key">
-    {{ label() }}
+    {{ label }}
   </label>
 }
 
 <div class="kt-form-control" [class.kt-input-group]="!!icon()">
-  @if (icon()) {
-    <span class="kt-input-addon">
-      <app-icon class="text-gray-400" [icon]="icon()!" [size]="18" />
+  @if (icon(); as icon) {
+    <span class="kt-input-addon kt-input-addon-icon" [ngClass]="getAddonSizeClass()">
+      <app-icon class="text-gray-400" [icon]="icon" [size]="18" />
     </span>
   }
 
@@ -30,8 +30,8 @@
   />
 </div>
 
-@if (description()) {
-  <div class="kt-form-description">{{ description() }}</div>
+@if (description(); as description) {
+  <div class="kt-form-description">{{ description }}</div>
 }
 
 <div class="kt-form-message">{{ errorMessage }}</div>
