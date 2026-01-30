@@ -118,7 +118,7 @@ public class Transaction
         get
         {
             if (Establishment != null)
-                return $"{Establishment.Domain}/{Id}";
+                return $"https://{Establishment.Domain}/{Id}";
 
             return null;
         }
