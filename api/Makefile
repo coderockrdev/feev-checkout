@@ -8,6 +8,9 @@ help: ## Show this help message
 create-establishment: ## Create a new establishment
 	dotnet run -- establishment add
 
+create-credential: ## Create a new creadential for an establishment
+	dotnet run -- credential add
+
 reset-db: ## Reset database and recreate migrations
 	rm -rf ./Migrations
 	dotnet ef database drop --force
