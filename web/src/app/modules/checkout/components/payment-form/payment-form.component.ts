@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from "@angular/core";
+import { Component, computed, effect, inject, input } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
 import { ThemeService } from "@shared/services/theme/theme.service";
@@ -39,6 +39,17 @@ import { Transaction } from "@modules/checkout/types/transaction";
   styleUrl: "./payment-form.component.scss",
 })
 export class PaymentFormComponent {
+  constructor() {
+    effect(() => {
+      const methods = this.paymentMethods();
+      if (methods.length === 1) {
+        this.paymentMethodForm().setValue({
+          method: methods[0].value as PaymentMethod,
+        });
+      }
+    });
+  }
+
   protected readonly theme = inject(ThemeService).theme;
 
   transaction = input<Nullable<Transaction>>(null);
